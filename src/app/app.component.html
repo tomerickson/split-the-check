@@ -1,3 +1,89 @@
 <h1>
   {{title}}
 </h1>
+<header class="container">
+  <p align="justify">
+    Lorem ipsum dolor sit amet, sit ac ipsum tincidunt, vulputate massa neque metus vivamus, et sed et risus, arcu convallis
+    lorem libero quis. Accumsan pellentesque amet odio donec, sed eaque massa nam. Nulla scelerisque interdum sit pede, commodo
+    enim lectus nec a. Ante massa tellus vehicula, pede dui congue quis porttitor, in a suspendisse ante, class ac morbi
+    rutrum amet. Suscipit veniam elit accumsan id, sollicitudin vestibulum maecenas sem tincidunt, lectus molestie risus
+    nisl, adipiscing urna nullam fermentum dui. Suscipit non felis ut, nascetur ipsum nec a aenean, tempor risus ut etiam
+    tellus.
+  </p>
+  <p align="justify">
+    Eum malesuada eros amet, sollicitudin porttitor auctor congue rutrum, purus sollicitudin nam imperdiet praesent. Nec ornare
+    cursus orci dui, velit suspendisse sapien erat nibh, lacus maecenas metus suspendisse bibendum. Tellus eget justo eu
+    sem, ut eget vestibulum congue vivamus, faucibus dolor odio lobortis varius, praesent elit adipiscing et leo. Et iure
+    velit in, commodi elementum dui etiam corrupti, sed mi ante erat egestas. In suspendisse ac sit, tempus imperdiet vitae
+    dapibus, pellentesque lorem wisi sit morbi. Imperdiet sed praesent vestibulum, urna turpis rutrum lacus aut, malesuada
+    a nulla vitae sagittis, sapien magna non nunc.</p>
+  <p align="justify">
+    Placerat velit augue ut id, nascetur sit interdum dolor. Metus vestibulum interdum integer sit, curabitur pharetra accumsan
+    sed in, pede ligula quisque nibh. Pellentesque in amet ipsum ac, orci arcu eros volutpat tristique, magnis cursus lobortis
+    vestibulum odio. Lorem tempus eu cras, at nibh tempor elit, cras convallis wisi est fusce. Wisi tristique nam urna vehicula,
+    duis auctor hymenaeos fringilla est.</p>
+  <p align="justify">
+  </p>
+</header>
+<div class="container">
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="row">
+        <div class="col-sm-3"><label>Sales Tax Percent:</label></div>
+        <div class="col-sm-3"><input type="text"></div>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="row">
+        <div class="col-sm-3"><label>Subtotal</label></div>
+        <div class="col-sm-3">{{header.subTotal}}</div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="row">
+        <div class="col-sm-3"><label>Tip Percent:</label></div>
+        <div class="col-sm-3"><input type="text"></div>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="row">
+        <div class="col-sm-3"><label>Sales Tax:</label></div>
+        <div class="col-sm-3"><label>{{header.tax}}</label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="row">
+        <div class="col-sm-3"><label>Tip Basis:</label></div>
+        <div class="col-sm-3"><select class="form-control">
+          <option *ngFor="let key of tipValues" [value]="key" [label]="tipBases[key]"></option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="row">
+        <div class="col-sm-3"><label>Tip:</label></div>
+        <div class="col-sm-3">{{header.tip}}</div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="row">
+        <div class="col-sm-3"><label>Delivery:</label></div>
+        <div class="col-sm-3"><input type="text" value="[(header.delivery)]"></div>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="row">
+        <div class="col-sm-3"><label>Delivery:</label></div>
+        <div class="col-sm-3">{{header.delivery}}</div>
+      </div>
+    </div>
+  </div>
+</div>
