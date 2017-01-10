@@ -1,0 +1,18 @@
+p#prairiedog {
+    font-weight: bold;
+    font-size: larger;
+    font-family: 'Comic Sans MS', Helvetica, Sans Serif;
+    text-align: center;
+}
+
+div.table {
+    display: table;
+}
+
+div.tr {
+    display: table-row;
+}
+
+div.td {
+    display: table-cell;
+}

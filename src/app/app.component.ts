@@ -1,30 +1,36 @@
 import { Component } from '@angular/core';
-import {header} from './model/';
+import { TextMaskModule } from 'angular2-text-mask';
+import { header } from './model/';
+import { ChangeBasis } from './model/change-basis';
+import { TipBasis } from './model/tip-basis';
 
-export enum TipBasisEnum {
-    Gross = 0,
-    Net = 1
-}
-export enum changeBasisEnum {
-    Penny = .01,
-    Nickel = .05,
-    Dime = .10,
-    Quarter = .25,
-    Dollar = 1
-}
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+
 export class AppComponent {
-  title = 'app works!';
+  /* data to model */
   header: header;
-  tipBases = TipBasisEnum;
+  changeBasis: number;
+  /* masking for 2-position decimal numbers */
+  decimalMask = [/\d/,/\d/,'.',/\d/,/\d/];
+
+  /* Tip Basis dropdown values */
+  tipBases: Array<TipBasis> = [{ value: 0, description: 'Gross' },
+  { value: 1, description: 'Net' }];
+
+  /* Change Basis dropdown values */
+  changeBases: Array<ChangeBasis> = [{ value: .01, description: 'Penny' },
+  { value: .05, description: 'Nickel' },
+  { value: .10, description: 'Dime' },
+  { value: .25, description: 'Quarter' },
+  { value: 1, description: 'Dollar' }]
   tipValues: any;
 
   constructor() {
     this.header = new header();
-    this.tipValues = Object.keys(this.tipBases).filter(Number);
+    this.changeBasis = this.header.changeBasis;
   }
 }

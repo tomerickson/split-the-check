@@ -1,0 +1,1022 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SplitTheCheck</title>
+    <meta content="separate checks,split the check" name="keywords">
+    <meta content="separate checks,split the check" name="description">
+    <meta content="Microsoft Visual Studio 7.0" name="GENERATOR">
+    <meta content="C#" name="CODE_LANGUAGE">
+    <meta content="http://schemas.microsoft.com/intellisense/ie5" name="vs_targetSchema">
+    <script data-main="/scripts/main" src="~/Scripts/libs/require/require.js"></script>
+    <script type="text/javascript">
+    <!--
+    var tblBackup		// Save an updatable copy of the order table
+    var target;			// Used for keyboard navigation
+    var focusTimer;		//	"
+    var taxPct;			// Sales tax
+    var highIndex = 0;	// Used to assign unique control ids
+    var numMask = new RegExp("^([0-9]*|[0-9]*\.[0-9]*)$"); // for editing dollar amounts
+
+    function window_onload()
+        {
+        var ok = AddHandlers();
+
+        if (ok)
+            {
+            // get rid of gecko dreck
+            //
+            var obj = document.getElementById('tblOrders');
+            if (obj.hasChildNodes())
+                obj.removeChild.firstChild;
+            Redirect('txtTaxPercent');
+        }
+        return (ok)
+    }
+
+    function AddHandlers()
+        {
+        var ok;
+        ok = AddHandler(null, 'keydown', window_onkeydown, true);
+        if (ok) AddHandler('txtTaxPercent', 'blur',txtTaxPercent_onblur, false);
+        if (ok) AddHandler('txtTipPercent', 'blur', txtTipPercent_onblur, false);
+        if (ok) AddHandler('txtDeliveryAmount', 'blur', txtDeliveryAmount_onblur, false);
+        if (ok) AddHandler('selChange', 'click', selChange_onclick, false);
+        if (ok) AddHandler('optGross', 'click', ReCalc, false);
+        if (ok) AddHandler('optNet', 'click', ReCalc, false);
+        if (ok) AddHandler('cmdAddOrder', 'click', cmdAddOrder_onclick, false);
+        if (ok) AddHandler('cmdPrint', 'click', cmdPrint_onclick, false);
+        if (ok) AddHandler('cmdRestore', 'click', cmdRestore_onclick, false);
+        return ok;
+    }
+
+    function AddHandler(id, eventName, functionPointer, capture)
+        {
+        var ok = true;
+        var obj = (id) ? document.getElementById(id) : document ;
+        if (obj)
+            {
+            if (obj.addEventListener)
+                obj.addEventListener(eventName, functionPointer, capture);
+            else
+                {
+                obj.detachEvent('on' + eventName);
+                obj.attachEvent('on' + eventName, functionPointer);
+            }
+        }
+        else
+            {
+            ok = false;
+            alert(id + ' is not a valid element id');
+        }
+        return ok;
+    }
+
+    // The tabindex-based navigation system doesn't work well with
+    // dynamic content, so this routine intercepts keystrokes,
+    // traps the tab characters and fires the Redirect code.
+    //
+    function window_onkeydown(e) {
+
+        var suffix;
+        var target;
+        var trap = false;
+        var key = e.keyCode;
+        var shift = e.shiftKey;
+        var ctl = (e.target) ? e.target : e.srcElement;
+
+        if (key == 9)
+            {
+            if (shift)
+                target = ctl.getAttribute('backtab');
+            else
+                target = ctl.getAttribute('tab');
+
+            if (target != null) {
+                trap = true;
+            }
+        }
+        if (trap) {
+            Redirect(target);
+        }
+        return (!trap)
+    }
+
+    // Re-compute the change
+    //
+    function selChange_onclick(e) {
+
+        ReCalc();
+    }
+
+    // Add an item to an order
+    //
+    function cmdAddItem_onclick(e) {
+
+        // Add a new editable row to the item table
+        //
+        var ctl = GetControl(e);
+        var myNode;
+        var rowIndex;
+        var tbl;
+        var cell;
+        var cmdID = ctl.id;
+        var uniqueID = ctl.id.replace(/[A-Za-z]*/i, '');
+        var cellID = 'celItems' + uniqueID;
+        var cell = document.getElementById(cellID);
+        if (!cell.hasChildNodes())
+            {
+            // It's the first item on this order
+            // so we need to add a new table
+            //
+            tbl = document.createElement('TABLE');
+            tbl.border = 0;
+            tbl.cellSpacing = 0;
+            tbl.cellPadding = 0;
+            tbl.width = '100%';
+            tbl.appendChild(document.createElement('TBODY'));
+            cell.appendChild(tbl);
+        }
+        // Create unique control ids
+        //
+        highIndex++;
+        var rowID = 'itm' + highIndex;
+        var itemID = 'txtItem' + highIndex;
+        var instID = 'txtInst' + highIndex;
+        var dropID = 'cmdDropItem' + highIndex;
+        var priceID = 'txtPrice' + highIndex;
+        tbl = cell.firstChild.firstChild;  // gets the tbody element
+        var templateRow = document.getElementById('editItemTemplate');	// get the template...
+        var newRow = templateRow.cloneNode(true);						// and clone it
+        newRow.id = rowID;
+
+        if (newRow.firstChild.nodeType == 3)
+            {
+            newRow.removeChild(newRow.firstChild);
+        }
+        rowIndex = tbl.childNodes.length + 1;
+        newRow.firstChild.appendChild(document.createTextNode(rowIndex));
+        tbl.insertBefore(newRow, null);
+
+        // Set the control ids and keyboard navigation targets
+        //
+        myNode = document.getElementById('txtItem');
+        myNode.setAttribute('tab', instID);
+        myNode.setAttribute('backtab', cmdID);
+        myNode.id = itemID;
+        myNode = document.getElementById('txtInstructions');
+        myNode.setAttribute('tab', priceID);
+        myNode.setAttribute('backtab', itemID);
+        myNode.id = instID;
+        myNode = document.getElementById('txtPrice');
+        myNode.setAttribute('tab', cmdID);
+        myNode.setAttribute('backtab', instID);
+        myNode.id = priceID;
+        myNode = document.getElementById('cmdDropItem');
+        myNode.id = dropID;
+        AddHandler(dropID, 'click', cmdDropItem_onclick, false);
+        AddHandler(priceID, 'blur', txtPrice_onblur, false);
+        Redirect(document.getElementById(itemID));
+    }
+
+    // Add a new order
+    //
+    function cmdAddOrder_onclick() {
+
+        var myNode;
+        var rowIndex;
+        var tbl = document.getElementById('tblOrders');
+        var templateRow = document.getElementById('editOrderTemplate');
+        var newRow = templateRow.cloneNode(true);
+
+        // Create unique control ids
+        //
+        highIndex++;
+        var nameID = 'txtName' + highIndex;
+        var addID = 'cmdAddItem' + highIndex;
+        var dropID = 'cmdDropOrder' + highIndex;
+        var itemID = 'celItems' + highIndex;
+        var paidID = 'txtPaid' + highIndex;
+        var subID = 'rowsubtotal' + highIndex;
+        var taxID = 'rowtax' + highIndex;
+        var tipID = 'rowtip' + highIndex;
+        var delID = 'rowdelivery' + highIndex;
+        var totID = 'rowtotal' + highIndex;
+        var ovrID = 'rowchange' + highIndex;
+        var rowID = 'row' + highIndex;
+        newRow.id = rowID;
+        if (newRow.firstChild.nodeType == 3)
+            newRow.removeChild(newRow.firstChild); // get rid of gecko dreck
+
+        rowIndex = tbl.childNodes.length + 1;
+        newRow.firstChild.appendChild(document.createTextNode(rowIndex));
+
+        // Append the new row, set the control ids and keyboard
+        // navigation shortcuts.
+        //
+        tbl.insertBefore(newRow, null);
+        myNode = document.getElementById('txtName');
+        myNode.setAttribute('tab', addID);
+        myNode.setAttribute('backtab', 'cmdAddOrder');
+        myNode.id = nameID;
+        myNode = document.getElementById('cmdAddItem');
+        myNode.setAttribute('tab', paidID);
+        myNode.setAttribute('backtab', nameID);
+        myNode.id = addID;
+        myNode = document.getElementById('celItems');
+        myNode.id = itemID;
+        myNode = document.getElementById('txtPaid');
+        myNode.setAttribute('tab', 'cmdAddOrder');
+        myNode.setAttribute('backtab', addID);
+        myNode.id = paidID;
+        document.getElementById('rowsubtotal').id = subID;
+        document.getElementById('rowtax').id = taxID;
+        document.getElementById('rowtip').id = tipID;
+        document.getElementById('rowdelivery').id = delID;
+        document.getElementById('rowtotal').id = totID;
+        document.getElementById('rowchange').id = ovrID;
+        document.getElementById('cmdDropOrder').id = dropID
+        AddHandler(addID, 'click', cmdAddItem_onclick, false)
+        AddHandler(dropID, 'click', cmdDropOrder_onclick, false);
+        AddHandler(paidID, 'blur', txtPayment_onblur, false);
+        Redirect(document.getElementById(nameID));
+    }
+
+    // Drop an item from an order
+    //
+    function cmdDropItem_onclick(e) {
+
+        var ctl = GetControl(e);
+        var objRow = ctl.parentNode.parentNode;
+        var objTbl = objRow.parentNode;
+        objTbl.removeChild(objRow);
+        Renumber(objTbl);
+        ReCalc();
+    }
+
+    // Drop an entire order
+    //
+    function cmdDropOrder_onclick(e) {
+
+        var ctl = GetControl(e);
+        var objRow = ctl.parentNode.parentNode;
+        var objTbl = objRow.parentNode;
+        objTbl.removeChild(objRow);
+        Renumber(objTbl);
+        ReCalc();
+    }
+
+    // We changed the tip percent
+    //
+    function txtTipPercent_onblur(e) {
+
+        var ctl = GetControl(e);
+        var ok = CheckNumeric(ctl);
+        if (ok) ReCalc();
+        return (ok);
+    }
+
+    // We changed the tax percent
+    //
+    function txtTaxPercent_onblur(e) {
+
+        var ctl = GetControl(e);
+        var ok = CheckNumeric(ctl);
+        if (ok) ReCalc();
+        return (ok);
+    }
+
+    // We changed the delivery amount
+    //
+    function txtDeliveryAmount_onblur(e) {
+
+        var ctl = GetControl(e);
+        var ok = CheckNumeric(ctl);
+        if (ok)
+            {
+            var delivery  = Currency(ctl.value);
+            ctl.value = delivery;
+            SetInnerText('celDelivery', delivery);
+            ReCalc();
+        }
+        return (ok);
+    }
+
+    // We changed or entered the price of an item
+    //
+    function txtPrice_onblur(e) {
+
+        var ctl = GetControl(e);
+        var ok = CheckNumeric(ctl);
+        if (ok) ReCalc();
+        return (ok);
+    }
+
+    // We changed or entered a payment
+    //
+    function txtPayment_onblur(e) {
+
+        var ctl = GetControl(e);
+        var ok = CheckNumeric(ctl);
+        if (ok)
+            {
+            var payment = Currency(ctl.value)
+            ctl.value = payment;
+            ReCalc();
+        }
+        return (ok);
+    }
+
+    function cmdPrint_onclick() {
+
+        status = '';
+        var tblOrders = document.getElementById('tblOrders');
+        var divIntro = document.getElementById('divIntro');
+        var cmdAddOrder = document.getElementById('cmdAddOrder');
+        var cmdPrint = document.getElementById('cmdPrint');
+        var cmdRestore = document.getElementById('cmdRestore');
+        var tblBackup = tblOrders.cloneNode(true);
+        tblBackup.id = 'tblBackup';
+        tblOrders.style.visibility = 'hidden';
+        tblOrders.style.display = 'none';
+        tblOrders.parentNode.appendChild(tblBackup);
+        PrepForPrint(tblBackup, 0);
+        divIntro.style.display = 'none';
+        cmdAddOrder.style.visibility = 'hidden';
+        cmdPrint.style.display = 'none';
+        cmdRestore.style.display = 'inline';
+        window.print();
+    }
+
+    function cmdRestore_onclick() {
+
+        var tblOrders = document.getElementById('tblOrders');
+        var tblBackup = document.getElementById('tblBackup');
+        var divIntro = document.getElementById('divIntro');
+        var cmdPrint = document.getElementById('cmdPrint');
+        var cmdRestore = document.getElementById('cmdRestore');
+        var cmdAddOrder = document.getElementById('cmdAddOrder');
+        tblOrders.parentNode.removeChild(tblBackup);
+        tblOrders.style.visibility = 'visible';
+        tblOrders.style.display = 'inline';
+        divIntro.style.display = 'inline';
+        cmdRestore.style.display = 'none';
+        cmdPrint.style.display = 'inline';
+        cmdAddOrder.style.visibility = 'visible';
+    }
+
+    // Hide the text boxes and command buttons
+    //
+    function PrepForPrint(obj) {
+
+        if (obj.hasChildNodes()) {
+            var nodes = obj.childNodes.length;
+            for (var idx = 0; idx < nodes; idx++)
+                PrepForPrint(obj.childNodes[idx]);
+        }
+        else {
+            if (obj.tagName == 'INPUT') {
+                if (obj.type == 'text')
+                    obj.parentNode.innerHTML = obj.value;
+                if (obj.type == 'button')
+                    obj.style.visibility = 'hidden';
+            }
+        }
+    }
+
+    // Recalc the entire page
+    //
+    function ReCalc()
+        {
+        var tblOrders = document.getElementById('tblOrders');
+        for (var idx = 0; idx < tblOrders.childNodes.length; idx++)
+            {
+            var node = tblOrders.childNodes[idx];
+            if (node.nodeType == 1)
+                {
+                if (node.tagName == 'TR')
+                    CalcOrder(node);
+            }
+        }
+        CalcTotals();
+        CalcDelivery();
+    }
+
+    // Total up an order, apply tax and tip
+    //
+    function CalcOrder(node)
+        {
+        var tax;
+        var tip;
+        var paid;
+        var total;
+        var basis;
+        var orderRow;
+        var delivery;
+        var tipOption;
+        var overShort;
+        var rowID = GetUniqueID(node);
+        var subtotal = 0;
+        var celID = 'celItems' + rowID;
+        var subID = 'rowsubtotal' + rowID;
+        var taxID = 'rowtax' + rowID;
+        var tipID = 'rowtip' + rowID;
+        var totID = 'rowtotal' + rowID;
+        var pmtID = 'txtPaid' + rowID;
+        var chgID = 'rowchange' + rowID;
+        var delID = 'rowdelivery' + rowID;
+        var itemCell = document.getElementById(celID);
+        if (itemCell.hasChildNodes())
+            {
+            var itemTable = itemCell.firstChild.firstChild; // drill down to <td><table><tbody>
+            for (var idx = 0; idx < itemTable.childNodes.length; idx++)
+                {
+                var node = itemTable.childNodes[idx];
+                if (node.nodeType == 1)
+                    {
+                    if (node.tagName == 'TR')
+                        {
+                        var rowID = GetUniqueID(node);
+                        var priceID = 'txtPrice' + rowID;
+                        var price = document.getElementById(priceID).value;
+                        subtotal += (price*1);
+                    }
+                }
+            }
+        }
+        tax = CalcTax(subtotal);
+        delivery = GetInnerText(delID)*1;
+        paid = document.getElementById(pmtID).value*1;
+        if (document.getElementById('optGross').getAttribute('checked'))
+            basis = subtotal + tax;
+        else
+            basis = subtotal;
+        tip = CalcTip(basis);
+        total = subtotal + tax + tip + delivery;
+        var overShort = CalcChange(total, paid);
+        SetInnerText(subID, Currency(subtotal));
+        SetInnerText(taxID, Currency(tax));
+        SetInnerText(tipID, Currency(tip));
+        SetInnerText(totID, Currency(total));
+        SetInnerText(chgID, Currency(overShort));
+    }
+
+    // Calculate tax
+    //
+    function CalcTax(amount)
+        {
+        var taxPct = document.getElementById('txtTaxPercent').value;
+        var tax = Math.round(amount * (taxPct/100) * 100) / 100;
+        if (isNaN(tax))
+            tax = 0;
+        return (tax);
+    }
+
+    // Calculate tip
+    //
+    function CalcTip(amount)
+        {
+        var tipPct = document.getElementById('txtTipPercent').value;
+        var tip = Math.round(amount * (tipPct/100) * 100) / 100;
+        if (isNaN(tip))
+            tip = 0;
+        return (tip);
+    }
+
+    // Delivery charges are distributed on percentage basis:
+    // The charge is multiplied by the order value / total order value
+    //
+    function CalcDelivery()
+        {
+        var tbl;
+        var tax;
+        var tip;
+        var pct;
+        var paid;
+        var subtotal;
+        var delivery;
+        var overShort;
+        var orderTotal;
+        var priorDelivery;
+        var delivery;
+        var totalDelivery = document.getElementById('txtDeliveryAmount').value;
+        if (isNaN(totalDelivery)) totalDelivery = 0;
+        var lunchTotal
+            = GetInnerText('celSubtotal')*1
+            + GetInnerText('celTax')*1
+            + GetInnerText('celTip')*1;
+        tbl = document.getElementById('tblOrders');
+        for (var idx = 0; idx < tbl.childNodes.length; idx++)
+            {
+            var node = tbl.childNodes[idx];
+            if (node.nodeType == 1)
+                {
+                var rowID = GetUniqueID(node);
+                subID = 'rowsubtotal' + rowID;
+                taxID = 'rowtax' + rowID;
+                tipID = 'rowtip' + rowID;
+                pmtID = 'txtPaid' + rowID;
+                delID = 'rowdelivery' + rowID;
+                totID = 'rowtotal' + rowID;
+                ovrID = 'rowchange' + rowID;
+                orderTotal
+                    = GetInnerText(subID)*1
+                    + GetInnerText(taxID)*1
+                    + GetInnerText(tipID)*1;
+                paid = document.getElementById(pmtID).getAttribute('value');
+                priorDelivery = GetInnerText(delID)*1;
+                if (lunchTotal != 0) {
+                    pct = orderTotal / lunchTotal;
+                    delivery = totalDelivery * pct;
+                    delivery = Math.round(delivery * 100) / 100;
+                }
+                else
+                    delivery = 0;
+                orderTotal += delivery;
+                if (delivery != priorDelivery)
+                    {
+                    overShort = CalcChange(orderTotal, paid);
+                    SetInnerText(delID, Currency(delivery));
+                    SetInnerText(totID, Currency(orderTotal));
+                    SetInnerText(ovrID, Currency(overShort));
+                }
+            }
+        }
+    }
+
+    // Beautify the numbers
+    //
+    function Currency(amount)
+        {
+        var sign;
+        var extra;
+        amount = Math.round(amount * 100) / 100;
+        if (amount < 0)	{
+            sign = '-';
+            amount = 0 - amount;
+        }
+        else
+            sign = '';
+
+        amount = amount.toString();
+        var idx = amount.indexOf('.', 0);
+        if (idx < 0)
+            extra = '.00';
+        else {
+            if (amount.length - 2 - idx == 0)
+                extra = '0';
+            else
+                extra = '';
+        }
+        amount = sign.concat(amount);
+        amount = amount.concat(extra);
+        return (amount);
+    }
+
+    // Reject non-numeric values
+    //
+    function CheckNumeric(e)
+        {
+        var ctl = GetControl(e);
+        var result = true;
+        if (ctl)
+            {
+            var num = ctl.value;
+            if (!isNaN(num))
+                {
+                num = Currency(num);
+                ctl.value = num;
+            }
+            else
+                result = false;
+        }
+        return (result);
+    }
+
+    // Compute the change
+    //
+    function CalcChange(due, paid)
+        {
+        if (isNaN(due)) due = 0;
+        if (isNaN(paid)) paid = 0;
+        var change = parseInt(document.getElementById('selChange').value);
+        var overShort = paid - due;
+        if (change > 1)
+            {
+            overShort = Math.round((overShort*100) / change) * change / 100;
+        }
+        return (overShort);
+    }
+
+    // Total the order
+    //
+    function CalcTotals()
+        {
+        var tipOption;
+        if (document.getElementById('optGross').checked)
+            tipOption = document.getElementById('optGross').value;
+        else
+            tipOption = document.getElementById('optNet').value;
+        var subtotal = 0;
+        var paid = 0;
+        var tax;
+        var tip;
+        var total;
+        var overShort;
+        var dinerPaid;
+        var dinerSubtotal;
+        var deliveryAmt = document.getElementById('txtDeliveryAmount').value;
+        var order = document.getElementById('tblOrders');
+        for (var idx = 0; idx < order.childNodes.length; idx++)
+            {
+            var node = order.childNodes[idx];
+            if (node.nodeType == 1)
+                {
+                var rowID = GetUniqueID(node);
+                var subID = 'rowsubtotal' + rowID
+                var pmtID = 'txtPaid' + rowID;
+                var subAmt = GetInnerText(subID);
+                var pmtAmt = document.getElementById(pmtID).value;
+                subtotal += (isNaN(subAmt)) ? 0 : (subAmt*1);
+                paid += (isNaN(pmtAmt)) ? 0 : (pmtAmt*1);
+            }
+        }
+        tax = CalcTax(subtotal);
+        if (tipOption == 'g')
+            tip = CalcTip(subtotal + (tax*1));
+        else
+            tip = CalcTip(subtotal);
+        total = subtotal + tax + (tip*1);
+        if (!isNaN(deliveryAmt))
+            total += (deliveryAmt*1);
+        overShort = paid - total;
+
+        SetInnerText('celSubtotal', Currency(subtotal));
+        SetInnerText('celTax', Currency(tax));
+        SetInnerText('celTip', Currency(tip));
+        SetInnerText('celTotal', Currency(total));
+        SetInnerText('celPaid', Currency(paid));
+        SetInnerText('celChange', Currency(overShort));
+    }
+
+    // Renumber the rows in a table
+    //
+    function Renumber(table)
+        {
+        var rowNumber = 0;
+        for (var i = 0; i < table.childNodes.length; i++)
+            {
+            var row = table.childNodes[i];
+            for (var j = 0; j < row.childNodes.length; j++)
+                {
+                var cell = row.childNodes[j];
+                if (cell.nodeType == 1)
+                    {
+                    if (cell.tagName == 'TD')
+                        {
+                        if (cell.hasChildNodes())
+                            cell = cell.childNodes[0];
+                        cell.nodeValue = ++rowNumber;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // Initiate a change in focus.
+    // You can't directly set focus to a new control from a control event.
+    // This routine launches a 50 millisecond timer that sets focus
+    // when it expires.
+    //
+    function Redirect(control)
+        {
+        target = control;
+        focusTimer = window.setInterval(Refocus, 50);
+    }
+
+    // Fires when the interval timer runs down.
+    //
+    function Refocus()
+        {
+        var ctl;
+        if (typeof(target) == 'string')
+            ctl = document.getElementById(target);
+        else
+            ctl = target;
+        window.clearInterval(focusTimer);
+        ctl.focus();
+    }
+
+    // Provide a single function to return text from a node
+    // via either a text sub-node or the nodeValue of the
+    // element
+    function GetInnerText(nodeID)
+        {
+        var node = document.getElementById(nodeID);
+        if (typeof(node.innerText) == 'undefined')
+            {
+            if (node.hasChildNodes())
+                node = node.firstChild;
+    //		if (node.nodeType == 3)
+            return node.nodeValue;
+        }
+        else
+            return node.innerText;
+    }
+
+    // Provide a single function to update a node value
+    // via either a next sub-node or the innerText of
+    // the element
+    //
+    function SetInnerText(nodeID, text)
+        {
+        var node = document.getElementById(nodeID);
+        if (typeof(node.innerText) == 'undefined')
+            {
+            if (node.hasChildNodes())
+                node.firstChild.nodeValue = text;
+            else
+                node.appendChild(document.createTextNode(text));
+        }
+        else
+            node.innerText = text;
+    }
+
+    // Fetch the unique id number from the row
+    //
+    function GetUniqueID(node)
+        {
+        var id =  node.id;
+        id = id.replace(/[A-Za-z]*/i, '');
+        return id;
+    }
+
+    function GetControl(e)
+        {
+        return (e.target) ? e.target : e.srcElement;
+    }
+    //-->
+    </script>
+    <link href="SplitTheCheck.css" type="text/css" rel="stylesheet">
+    <script data-main="/scripts/main" src="scripts/require/require.js"></script>
+</head>
+<body>
+    <form name="SplitTheCheck" method="post">
+
+        <div id="divIntro">
+            <p class="Normal" style="FONT-WEIGHT: bold; FONT-SIZE: larger; FONT-FAMILY: 'Comic Sans MS'"
+               align="center">
+                <a href="http://www.northrup.org/photos/prairie-dogs/" target="_blank">
+                    <img style="FLOAT: left" height="200" alt="Prarie dog standing" hspace="15" src="images/prairiedog.jpg"
+                         border="0">
+                </a>Split The Check
+            </p>
+            <p class="Normal">How often has this happened to you:</p>
+            <p class="Normal">
+                <a href="http://www.northrup.org/photos/prairie-dogs/" target="_blank"></a>It's
+                11:30 in the morning, and your stomach alarm goes off.&nbsp; When you make the
+                mistake of saying "I'm hungry" heads start popping up above the cubicle walls
+                like prairie dogs&nbsp;at a coyote convention.
+            </p>
+            <p class="Normal">
+                Pretty soon your co-workers are swarming your cube, waving menus
+                and twenty-dollar bills, shouting orders,&nbsp;condiment choices, special
+                dietary requirements, and&nbsp;food preparation instructions.&nbsp;&nbsp;Since
+                you&nbsp;opened your mouth first, you're elected to take the delivery
+                order,&nbsp;account for the money, phone it in, get all the condiments
+                and&nbsp;preparation&nbsp;instructions straight, and make change for all the
+                twenties.&nbsp; And here's what you get for thanks:&nbsp; Harry orders a 4.75
+                burger, drops a five, winks and says "Forget the change."
+            </p>
+            <p class="Normal">
+                And when it's all over you're out five bucks&nbsp;because nobody
+                accounted for tax and tip.
+            </p>
+            <p class="Normal">
+                You can't make your co-workers any less boorish, but you
+                can&nbsp;make your life easier&nbsp;by using the "Split the Check" lunch order
+                form below.&nbsp; Enter your local sales tax percent, tip percent, and delivery
+                charge if applicable.&nbsp; You can calculate the tip on gross (including tax)
+                or net (excluding tax), depending on how generous you feel.&nbsp; The delivery
+                charge is allocated in proportion to the dollar value of each order.&nbsp; You
+                can give change&nbsp;to the nearest&nbsp;penny, nickel, dime, quarter or
+                dollar.
+            </p>
+            <ul class="Normal">
+                <li>
+                    Click (or spacebar) on&nbsp;the plus signs to add an order or an item.
+                <li>
+                    Click the minus signs to remove an order or item.
+                <li>
+                    Use the tab key and shift-tab key to navigate forward and backward.
+                </li>
+            </ul>
+            <hr>
+        </div>
+        <p>
+            <table>
+                <tr>
+                    <td>
+                        <table>
+                            <tr>
+                                <td>
+                                    <table id="Table2">
+                                        <tr>
+                                            <td></td>
+                                            <td><span id="lblDate">@DateTime.Now</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Tax %:</td>
+                                            <td>
+                                                <input class="FlatText" id="txtTaxPercent" title="Sales tax %"
+                                                       tabindex="1" type="text" maxlength="5" size="2">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Tip %:</td>
+                                            <td>
+                                                <input class="FlatText" id="txtTipPercent" title="Percent to tip"
+                                                       tabindex="2" type="text" maxlength="5" size="2">
+                                                <input id="optGross" title="Include tax in tip calculation" accesskey="g" onclick="ReCalc()"
+                                                       type="radio" value="g" name="optTip">
+                                                <span>Gross</span>
+                                                <input id="optNet" title="Exclude tax from tip calculation" accesskey="n" onclick="ReCalc()"
+                                                       type="radio" checked value="n" name="optTip"><span>Net</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Delivery $:</td>
+                                            <td>
+                                                <input class="FlatText" id="txtDeliveryAmount" title="Delivery amount"
+                                                       tabindex="3" type="text">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Change:</td>
+                                            <td>
+                                                <select class="FlatText" id="selChange" title="Make change to the nearest..."
+                                                        tabindex="4" name="selChange">
+                                                    <option value="1">Penny</option>
+                                                    <option value="5">Nickel</option>
+                                                    <option value="10">Dime</option>
+                                                    <option value="25" selected>Quarter</option>
+                                                    <option value="100">Dollar</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td>
+                        <table id="tblSummary">
+                            <tr>
+                                <td>Subtotal</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Tax</td>
+                                <td></td>
+                                <td id="celTax" width="50%"></td>
+                            </tr>
+                            <tr>
+                                <td>Tip</td>
+                                <td></td>
+                                <td id="celTip" width="50%"></td>
+                            </tr>
+                            <tr>
+                                <td>Delivery</td>
+                                <td></td>
+                                <td id="celDelivery" width="50%"></td>
+                            </tr>
+                            <tr>
+                                <td>Total</td>
+                                <td></td>
+                                <td id="celTotal" width="50%"></td>
+                            </tr>
+                            <tr>
+                                <td>Paid</td>
+                                <td></td>
+                                <td id="celPaid" width="50%"></td>
+                            </tr>
+                            <tr>
+                                <td>Over / Short</td>
+                                <td></td>
+                                <td id="celChange" width="50%"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </p>
+        <div id="divEvent">
+            <table id="Table3">
+                <tr>
+                    <td>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <td class="header">
+                                        <input id="cmdAddOrder" title="Click to add an order"
+                                               tabindex="5" type="button" value="+">
+                                    </td>
+                                    <td class="header">Name</td>
+                                    <td class="header"></td>
+                                    <td class="header">
+                                        <table id="tblItemHeader">
+                                            <tr>
+                                                <td class="header"></td>
+                                                <td class="header">Item</td>
+                                                <td class="header">Instructions</td>
+                                                <td class="header">Price</td>
+                                                <td class="header"></td>
+                                                <td class="header"></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td class="header">Subtotal</td>
+                                    <td class="header">Tax</td>
+                                    <td class="header">Tip</td>
+                                    <td class="header">Del.</td>
+                                    <td class="header">Total</td>
+                                    <td class="header">Paid</td>
+                                    <td class="header">Over&nbsp;/ Short</td>
+                                    <td class="header"></td>
+                                </tr>
+                            </thead>
+                            <tbody id="tblOrders"></tbody>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            <br>
+            <table>
+                <tr>
+                    <td><input id="cmdPrint" type="button" value="Print"> <input id="cmdRestore" style="DISPLAY: none" type="button" value="Restore"></td>
+                </tr>
+            </table>
+        </div>
+        <!-- These are the templates for the new grid rows -->
+        <div id="divTemplate" style="DISPLAY: none">
+            <table id="tblItemTemplate">
+                <tr id="editItemTemplate">
+                    <td class="ItemCell"></td>
+                    <td class="ItemCell"><input class="FlatText" id="txtItem" type="text"></td>
+                    <td class="ItemCell"><input class="FlatText" id="txtInstructions" type="text"></td>
+                    <td class="ItemCell"><input class="FlatText" id="txtPrice" type="text"></td>
+                    <td class="ItemCell">
+                        <input id="cmdDropItem" title="Click to delete this item"
+                               type="button" value="-">
+                    </td>
+                </tr>
+            </table>
+            <table id="tblOrderTemplate">
+                <tr id="editOrderTemplate">
+                    <td></td>
+                    <td class="ItemCell"><input class="FlatText" id="txtName" type="text" name="txtName"></td>
+                    <td>
+                        <input id="cmdAddItem" title="Click to add an item"
+                               accesskey="+" type="button" value="+">
+                    </td>
+                    <td class="ItemCell" id="celItems"></td>
+                    <td class="ItemCell" id="rowsubtotal"></td>
+                    <td class="ItemCell" id="rowtax"></td>
+                    <td class="ItemCell" id="rowtip"></td>
+                    <td class="ItemCell" id="rowdelivery"></td>
+                    <td class="ItemCell" id="rowtotal"></td>
+                    <td class="ItemCell"><input class="FlatText" id="txtPaid" type="text"></td>
+                    <td class="ItemCell" id="rowchange"></td>
+                    <td>
+                        <input id="cmdDropOrder" title="Click to delete this entire order"
+                               type="button" value="-">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <input id="cmdDebug" style="DISPLAY: none" onclick="debugger;" type="button"
+               value="Debug">
+    </form>
+    <hr>
+    <table>
+        <tr>
+            <td></td>
+            <td>
+                <p>
+                    <a href="mailto:firstfather@gmail.com">
+                        Tom
+                        Erickson
+                    </a> wrote this thing.&nbsp;&nbsp;Kenny made me do it.
+                </p>
+            </td>
+            <td><img alt="flying fish" src="images/fish01.gif"></td>
+        </tr>
+    </table>
+</body>
+</html>
+
