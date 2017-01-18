@@ -2,88 +2,95 @@
     {{title}}
 </h1>
 <header>
-    <p>
+    <p id="title">
         <a href="http://www.northrup.org/photos/prairie-dogs/" target="_blank">
-            <img style="float:left;height:200px;border:none;" alt="Prairie dog standing" src="./app/images/prairiedog.jpg">
+            <img id="prairiedog" title="Prairie dog standing" src="./app/images/prairiedog.jpg">
         </a>Split The Check
     </p>
     <p>How often has this happened to you:</p>
     <p>
-        <a href="http://www.northrup.org/photos/prairie-dogs/" target="_blank"></a>It's 11:30 in the morning, and your stomach alarm goes off.&nbsp; When you make the mistake of saying "I'm hungry" heads start popping up above the cubicle walls like prairie dogs&nbsp;at a coyote convention.
+        <a href="http://www.northrup.org/photos/prairie-dogs/" target="_blank"></a>
+        It's 11:30 in the morning, and your stomach alarm goes off.&ensp;When you make the mistake of saying "I'm hungry" heads start popping up above the cubicle walls like prairie dogs at a coyote convention.
     </p>
     <p>
-        Pretty soon your co-workers are swarming your cube, waving menus and twenty-dollar bills, shouting orders,&nbsp;condiment choices, special dietary requirements, and&nbsp;food preparation instructions.&nbsp;&nbsp;Since you&nbsp;opened your mouth first,
-        you're elected to take the delivery order,&nbsp;account for the money, phone it in, get all the condiments and&nbsp;preparation&nbsp;instructions straight, and make change for all the twenties.&nbsp; And here's what you get for thanks:&nbsp; Harry
-        orders a 4.75 burger, drops a five, winks and says "Forget the change."
+        Pretty soon your co-workers are swarming your cube, waving menus and twenty-dollar bills, shouting orders, condiment choices, special dietary requirements, and food preparation instructions.&ensp;Since you opened your mouth first, you're elected to take
+        the delivery order, account for the money, phone it in, get all the condiments and preparation instructions straight, and make change for all the twenties.&ensp;And here's what you get for thanks:&ensp;Harry orders a 4.75 burger, drops a five,
+        winks and says "Forget the change."
     </p>
     <p>
-        And when it's all over you're out five bucks&nbsp;because nobody accounted for tax and tip.
+        And when it's all over you're out five bucks because nobody accounted for tax and tip.
     </p>
     <p>
-        You can't make your co-workers any less boorish, but you can&nbsp;make your life easier&nbsp;by using the "Split the Check" lunch order form below.&nbsp; Enter your local sales tax percent, tip percent, and delivery charge if applicable.&nbsp; You can
-        calculate the tip on gross (including tax) or net (excluding tax), depending on how generous you feel.&nbsp; The delivery charge is allocated in proportion to the dollar value of each order.&nbsp; You can give change&nbsp;to the nearest&nbsp;penny,
-        nickel, dime, quarter or dollar.
+        You can't make your co-workers any less boorish, but you can make your life easier by using the "Split the Check" lunch order form below.&ensp;Enter your local sales tax percent, tip percent, and delivery charge if applicable.&ensp;You can calculate the
+        tip on gross (including tax) or net (excluding tax), depending on how generous you feel.&ensp;The delivery charge is allocated in proportion to the dollar value of each order.&ensp;You can give change to the nearest penny, nickel, dime, quarter
+        or dollar.
     </p>
     <ul>
         <li>
-            Click (or spacebar) on&nbsp;the plus signs to add an order or an item.
-            <li>
-                Click the minus signs to remove an order or item.
-                <li>
-                    Use the tab key and shift-tab key to navigate forward and backward.
-                </li>
+            Click (or spacebar) on the plus signs to add an order or an item.</li>
+        <li>
+            Click the minus signs to remove an order or item.</li>
+        <li>
+            Use the tab key and shift-tab key to navigate forward and backward.
+        </li>
     </ul>
     <hr>
 </header>
-<div class="table">
+<div class="table form-group">
     <div class="tr">
         <div class="td"><label for="txtTax">Sales Tax Percent:</label></div>
-        <div class="td"><input id="txtTax" class="form-control" type="text" [ngModel]="header.salesTaxPercent" (ngModelChange)="value=$event" decimalformatter:2></div>
-        <div class="td"><label>Subtotal</label></div>
-        <div class="td">{{header.subTotal}}</div>
+        <div class="td value">
+            <input id="txtTax" class="form-control" type="text" [(ngModel)]="header.salesTaxPercent" myCurrencyFormatter>
+        </div>
+        <div class="td"><label>Subtotal:</label></div>
+        <div class="td value"><label>{{header.subTotal| number:'1.2-2'}}</label></div>
     </div>
     <div class="tr">
         <div class="td"><label for="txtTip">Tip Percent:</label></div>
-        <div class="td"><input id="txtTip" class="form-control" type="text" [ngModel]="header.tipPercent" (ngModelChange)="value=$event" decimalformatter:2></div>
+        <div class="td value">
+            <input id="txtTip" class="form-control" type="text" [(ngModel)]="header.tipPercent" myCurrencyFormatter>
+        </div>
         <div class="td"><label>Sales Tax:</label></div>
-        <div class="td"><label>{{header.tax}}</label></div>
+        <div class="td value"><label>{{header.tax | number:'1.2-2'}}</label></div>
     </div>
     <div class="tr">
-        <div class="td"><label for="selTipBasis">Tip Basis:</label></div>
-        <div class="td"><select id="selTipBasis" class="form-control">
-                    <option *ngFor="let basis of tipBases" [value]="basis.value" [label]="basis.description"></option>
+        <div class="td"><label for="selTipBasis ">Tip Basis:</label></div>
+        <div class="td value">
+            <select id="selTipBasis " class="form-control " [(ngModel)]="header.tipBasis">
+                    <option *ngFor="let basis of tipBases " [value]="basis.value" [label]="basis.description"></option>
           </select>
         </div>
         <div class="td"><label>Tip:</label></div>
-        <div class="td">{{header.tip}}</div>
+        <div class="td value"><label>{{header.tip | number:'1.2-2'}}</label></div>
     </div>
     <div class="tr">
-        <div class="td"><label for="txtDel">Delivery:</label></div>
-        <div class="td"><input class="form-control" id="txtDel" type="text" [ngModel]="header.delivery" (ngModelChange)="value=$event" decimalformatter:2></div>
+        <div class="td"><label for="txtDelivery ">Delivery:</label></div>
+        <div class="td value">
+            <input class="form-control" id="txtDelivery " type="text " [(ngModel)]="header.delivery" myCurrencyFormatter></div>
         <div class="td"><label>Delivery:</label></div>
-        <div class="td">{{header.delivery}}</div>
+        <div class="td value"><label>{{header.delivery| number:'1.2-2'}}</label></div>
     </div>
     <!-- Change and Total -->
     <div class="tr">
         <div class="td"><label for="selChange">Change Basis:</label></div>
-        <div class="td">
-            <select class="form-control" [ngModel]="header.changeBasis">
-                    <option *ngFor="let opt of changeBases" [ngValue]="opt.value" [label]="opt.description"></option>
+        <div class="td value">
+            <select class="form-control" id="selChange" [(ngModel)]="header.changeBasis">
+                    <option *ngFor="let opt of changeBases" [value]="opt.value" [label]="opt.description"></option>
                     </select>
         </div>
-        <div class="td"><label for="lblTotal">Total:</label></div>
-        <div class="td"><label id="lblTotal">{{header.total}}</label></div>
-    </div>
-    <div class "tr">
-        <div class="td"></div>
-        <div class="td"></div>
-        <div class="td"><label for="lblPaid">Paid:</label></div>
-        <div class="td"><label id="lblPaid">{{header.paid}}</label></div>
+        <div class="td"><label for="lblTotal ">Total:</label></div>
+        <div class="td value"><label id="lblTotal ">{{header.total | number:'1.2-2'}}</label></div>
     </div>
     <div class="tr">
         <div class="td"></div>
         <div class="td"></div>
-        <div class="td"><label for="lblChange">Over  Short:</label></div>
-        <div class="td"><label id="lblChange">{{header.total-header.paid}}</label></div>
+        <div class="td"><label for="lblPaid ">Paid:</label></div>
+        <div class="td value"><label id="lblPaid ">{{header.paid| number:'1.2-2'}}</label></div>
+    </div>
+    <div class="tr">
+        <div class="td"></div>
+        <div class="td"></div>
+        <div class="td"><label for="lblChange">Over / Short:</label></div>
+        <div class="td value"><label id="lblChange">{{(header.total-header.paid) | number:'1.2-2'}}</label></div>
     </div>
 </div>

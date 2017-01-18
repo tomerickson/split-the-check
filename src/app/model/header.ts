@@ -1,18 +1,19 @@
 import { order } from './order';
 
 export class header {
-    salesTaxPercent: number = 5;
-    deliveryChange: number = 0;
-    tipPercent: number = 0;
-    subTotal: number = 0;
-    tax: number = 0;
-    tip: number = 0;
-    delivery: number = 0;
-    total: number = 0;
-    paid: number = 0;
-    overShort: number = 0;
-    changeBasis: number = .25;
-    orders: order[];
+    public salesTaxPercent: number = 5;
+    public deliveryChange: number = 0;
+    public tipPercent: number = 0;
+    public subTotal: number = 0;
+    public tax: number = 0;
+    public tip: number = 0;
+    public delivery: number = 0;
+    public total: number = 0;
+    public paid: number = 0;
+    public overShort: number = 0;
+    public changeBasis: number = .25;
+    public tipBasis: number = 0;
+    public orders: order[];
 
 
     constructor() {

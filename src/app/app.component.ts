@@ -33,4 +33,9 @@ export class AppComponent {
     this.header = new header();
     this.changeBasis = this.header.changeBasis;
   }
+
+  reCalc(event: any){
+    console.log('recalc!' + this.header.changeBasis);
+    console.log(event);
+  }
 }
