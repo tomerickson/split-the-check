@@ -1,15 +1,16 @@
-import {item} from './item';
-export class order {
+import {Item} from './item';
+export class Order {
     name: string;
-    subTotal: number = 0;
+    subtotal: number = 0;
     tax: number = 0;
     tip: number = 0;
     delivery: number = 0;
     paid: number = 0;
     overShort: number = 0;
-    items: item[];
+    items: Item[];
 
     constructor() {
-        this.items = new Array<item>();
+        this.name = "Your name";
+        this.items = new Array<Item>();
     }
 }

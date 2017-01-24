@@ -30,3 +30,7 @@ div.value {
     padding-right: 3em;
     padding-top: 5px;
 }
+
+div#prompts .list-group-item {
+    line-height: 1em;
+}

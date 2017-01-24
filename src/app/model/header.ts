@@ -1,4 +1,4 @@
-import { order } from './order';
+import { Order } from './order';
 
 export class header {
     public salesTaxPercent: number = 5;
@@ -13,10 +13,10 @@ export class header {
     public overShort: number = 0;
     public changeBasis: number = .25;
     public tipBasis: number = 0;
-    public orders: order[];
+    public orders: Order[];
 
 
     constructor() {
-        this.orders = new Array<order>();
+        this.orders = new Array<Order>();
     }
 }

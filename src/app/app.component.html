@@ -37,99 +37,81 @@
     <hr>
 </header>
 <form #f="ngForm" (ngSubmit)="submitForm()">
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
-            <div class="col-xs-6 form-group">
-                <div class="row">
-                    <div class="col-xs-4"><label for="txtTax">Sales Tax Percent:</label></div>
-                    <div class="col-xs-4 value">
-                        <input id="txtTax" class="form-control" type="text" name="salesTaxPercent" [(ngModel)]="header.salesTaxPercent" myCurrencyFormatter>
+            <div class="col-xs-12">
+                <div class="row" id="prompts">
+                    <div class="col-xs-1">
+                        <!-- spacer -->
                     </div>
-                    <!--<div class="td"><label>Subtotal:</label></div>
-          <div class="td value"><label>{{header.subTotal| number:'1.2-2'}}</label></div>-->
-                </div>
-                <div class="tr">
-                    <div class="td"><label for="txtTip">Tip Percent:</label></div>
-                    <div class="td value">
-                        <input id="txtTip" class="form-control" type="text" name="tipPercent" [(ngModel)]="header.tipPercent" myCurrencyFormatter>
-                    </div>
-                    <!--<div class="td"><label>Sales Tax:</label></div>
-                    <div class="td value"><label>{{header.tax | number:'1.2-2'}}</label></div>-->
-                </div>
-                <div class="tr">
-                    <div class="td"><label for="selTipBasis ">Tip Basis:</label></div>
-                    <div class="td value">
-                        <select id="selTipBasis" class="form-control" name="tipBasis" [(ngModel)]="header.tipBasis">
-                    <option *ngFor="let basis of tipBases " [value]="basis.value" [label]="basis.description"></option>
-          </select>
-                    </div>
-                    <!--<div class="td"><label>Tip:</label></div>
-                    <div class="td value"><label>{{header.tip | number:'1.2-2'}}</label></div>-->
-                </div>
-                <div class="tr">
-                    <div class="td"><label for="txtDelivery ">Delivery:</label></div>
-                    <div class="td value">
-                        <input class="form-control" id="txtDelivery" type="text" name="delivery" [(ngModel)]="header.delivery" myCurrencyFormatter></div>
-                    <!--<div class="td"><label>Delivery:</label></div>
-                    <div class="td value"><label>{{header.delivery| number:'1.2-2'}}</label></div>-->
-                </div>
-                <!-- Change and Total -->
-                <div class="tr">
-                    <div class="td"><label for="selChange">Change Basis:</label></div>
-                    <div class="td value">
-                        <select class="form-control" id="selChange" name="change" [(ngModel)]="header.changeBasis">
+                    <div class="card col-xs-5">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <!-- vertical spacer -->
+                            </li>
+                            <li class="list-group-item">
+                                <label class="col-xs-6 text-xs-right">Sales Tax Percent:</label>
+                                <input class="col-xs-4 form-control" id="txtTax" type="text" name="salesTaxPercent" tabindex="0" [(ngModel)]="header.salesTaxPercent" myCurrencyFormatter>
+                            </li>
+                            <li class="list-group-item">
+                                <label class="col-xs-6 text-xs-right" for="txtTip">Tip Percent:</label>
+                                <input id="txtTip" class="col-xs-4 form-control" type="text" name="tipPercent" tabindex="0" [(ngModel)]="header.tipPercent" myCurrencyFormatter>
+                            </li>
+                            <li class="list-group-item">
+                                <label class="col-xs-6 text-xs-right" for="selTipBasis ">Tip Basis:</label>
+                                <select id="selTipBasis" class="col-xs-4 form-control" name="tipBasis" [(ngModel)]="header.tipBasis">
+                    <option *ngFor="let basis of tipBases " [value]="basis.value" [label]="basis.description"></option></select>
+                            </li>
+                            <li class="list-group-item">
+                                <label class="col-xs-6 text-xs-right">Delivery:</label>
+                                <input class="col-xs-4 form-control" id="txtDelivery" type="text" name="delivery" [(ngModel)]="header.delivery" myCurrencyFormatter>
+                            </li>
+                            <li class="list-group-item">
+                                <label class="col-xs-6 text-xs-right">Change Basis:</label>
+                                <select class="col-xs-4 form-control" id="selChange" name="change" [(ngModel)]="header.changeBasis">
                     <option *ngFor="let opt of changeBases" [value]="opt.value" [label]="opt.description"></option>
                     </select>
+                            </li>
+                        </ul>
                     </div>
-                    <!--<div class="td"><label for="lblTotal">Total:</label></div>
-                    <div class="td value"><label id="lblTotal">{{header.total|number:'1.2-2'}}</label></div>-->
+                    <!-- Running totals -->
+                    <div class="card col-xs-5">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <label class="col-xs-6 text-xs-right">Subtotal:</label>
+                                <label class="col-xs-4 text-xs-right">{{header.subTotal| number:'1.2-2'}}</label>
+                            </li>
+                            <li class="list-group-item">
+                                <label class="col-xs-6 text-xs-right">Sales Tax:</label>
+                                <label class="col-xs-4 text-xs-right">{{header.tax | number:'1.2-2'}}</label>
+                            </li>
+                            <li class="list-group-item">
+                                <label class="col-xs-6 text-xs-right">Tip:</label>
+                                <label class="col-xs-4 text-xs-right">{{header.tip | number:'1.2-2'}}</label>
+                            </li>
+                            <li class="list-group-item">
+                                <label class="col-xs-6 text-xs-right">Delivery:</label>
+                                <label class="col-xs-4 text-xs-right">{{header.delivery| number:'1.2-2'}}</label>
+                            </li>
+                            <li class="list-group-item">
+                                <label class="col-xs-6 text-xs-right">Total:</label>
+                                <label class="col-xs-4 text-xs-right">{{header.total|number:'1.2-2'}}</label>
+                            </li>
+                            <li class="list-group-item">
+                                <label class="col-xs-6 text-xs-right">Paid:</label>
+                                <label class="col-xs-4 text-xs-right">{{header.paid|number:'1.2-2'}}</label>
+                            </li>
+                            <li class="list-group-item">
+                                <label class="col-xs-6 text-xs-right">Over / Short:</label>
+                                <label class="col-xs-4 text-xs-right">{{(header.total-header.paid) | number:'1.2-2'}}</label>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="tr">
-                    <div class="td"></div>
-                    <div class="td"></div>
-                    <!--<div class="td"><label for="lblPaid">Paid:</label></div>
-                    <div class="td value"><label id="lblPaid">{{header.paid|number:'1.2-2'}}</label></div>-->
-                </div>
-                <div class="tr">
-                    <div class="td"></div>
-                    <div class="td"></div>
-                    <!--<div class="td"><label for="lblChange">Over / Short:</label></div>
-                    <div class="td value"><label id="lblChange">{{(header.total-header.paid) | number:'1.2-2'}}</label></div>-->
-                </div>
-            </div>
-            <!-- Running totals -->
-            <div class="card col-xs-6">
-                <ul>
-                    <li>
-                        <div class="td"><label>Subtotal:</label></div>
-                        <div class="td value"><label>{{header.subTotal| number:'1.2-2'}}</label></div>
-                    </li>
-                    <li>
-                        <div class="td"><label>Sales Tax:</label></div>
-                        <div class="td value"><label>{{header.tax | number:'1.2-2'}}</label></div>
-                    </li>
-                    <li>
-                        <div class="td"><label>Tip:</label></div>
-                        <div class="td value"><label>{{header.tip | number:'1.2-2'}}</label></div>
-                    </li>
-                    <li>
-                        <div class="td"><label>Delivery:</label></div>
-                        <div class="td value"><label>{{header.delivery| number:'1.2-2'}}</label></div>
-                    </li>
-                    <li>
-                        <div class="td"><label for="lblTotal">Total:</label></div>
-                        <div class="td value"><label id="lblTotal">{{header.total|number:'1.2-2'}}</label></div>
-                    </li>
-                    <li>
-                        <div class="td"><label for="lblPaid">Paid:</label></div>
-                        <div class="td value"><label id="lblPaid">{{header.paid|number:'1.2-2'}}</label></div>
-                    </li>
-                    <li>
-                        <div class="td"><label for="lblChange">Over / Short:</label></div>
-                        <div class="td value"><label id="lblChange">{{(header.total-header.paid) | number:'1.2-2'}}</label></div>
-                    </li>
-                </ul>
             </div>
         </div>
     </div>
+    <hr>
+    <!--<order-list-outlet></order-list-outlet>-->
+    <div order-list-outlet></div>
 </form>

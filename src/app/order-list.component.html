@@ -1,0 +1,22 @@
+<p>This is the order component.</p>
+<table>
+    <thead>
+        <tr>
+            <th><button type="button" class="button" (click)="addOrder()">+</button></th>
+            <th>#</th>
+            <th>Name</th>
+            <th>Items</th>
+            <th>SubTotal</th>
+            <th>Tax</th>
+            <th>Tip</th>
+            <th>Delivery</th>
+            <th>Total</th>
+            <th>Paid</th>
+            <th>Over / Short</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr order-outlet *ngFor="let order of orders; let i = index" [order]="order" [index]="i">
+        </tr>
+    </tbody>
+</table>

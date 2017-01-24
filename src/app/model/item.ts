@@ -1,4 +1,4 @@
-export class item {
+export class Item {
     description: string;
     quantity: number;
     instructions: string;

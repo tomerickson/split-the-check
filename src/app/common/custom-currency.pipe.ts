@@ -15,6 +15,10 @@ export class MyCurrencyPipe implements PipeTransform {
   }
 
   transform(value: number | string, fractionSize: number = 2): string {
+
+    if (value === "") {
+      value = 0;
+    }
     let [ integer, fraction = "" ] = (value || "").toString()
       .split(this.DECIMAL_SEPARATOR);
 
@@ -28,6 +32,7 @@ export class MyCurrencyPipe implements PipeTransform {
   }
 
   parse(value: string, fractionSize: number = 2): string {
+
     let [ integer, fraction = "" ] = (value || "").split(this.DECIMAL_SEPARATOR);
 
     integer = integer.replace(new RegExp(this.THOUSANDS_SEPARATOR, "g"), "");

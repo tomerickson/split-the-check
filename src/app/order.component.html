@@ -1,0 +1,11 @@
+<td><button type="button" class="button" (click)="alert('clicked')">-</button></td>
+<td>{{index | number:'1.0-0'}}</td>
+<td>{{order.name}}</td>
+<td>Items&nbsp;<button type="button" class="button" (click)="alert('clicked')">+</button></td>
+<td>{{order.subtotal | number:'1.2-2'}}</td>
+<td>{{order.tax | number:'1.2-2'}}</td>
+<td>{{order.delivery | number:'1.2-2'}}</td>
+<td>{{order.tip | number:'1.2-2'}}</td>
+<td>{{order.subtotal + order.tax + order.delivery + order.tip | number:'1.2-2'}}</td>
+<td>{{order.paid | number:'1.2-2'}}</td>
+<td>{{order.overShort | number:'1.2-2'}}</td>
