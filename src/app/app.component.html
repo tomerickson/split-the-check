@@ -14,37 +14,39 @@
     </p>
     <p>
         Pretty soon your co-workers are swarming your cube, waving menus and twenty-dollar bills, shouting orders, condiment choices, special dietary requirements, and food preparation instructions.&ensp;Since you opened your mouth first, you're elected to take
-        the delivery order, account for the money, phone it in, get all the condiments and preparation instructions straight, and make change for all the twenties.&ensp;And here's what you get for thanks:&ensp;Harry orders a 4.75 burger, drops a five,
-        winks and says "Forget the change."
+        the delivery order, account for the money, phone it in, get all the condiments and preparation instructions straight, and make change for all the twenties.&ensp;And what thanks do you get for your efforts?&ensp;Harry orders a 4.75 burger, drops
+        a five, winks and says "Forget the change."
     </p>
     <p>
-        And when it's all over you're out five bucks because nobody accounted for tax and tip.
-    </p>
-    <p>
-        You can't make your co-workers any less boorish, but you can make your life easier by using the "Split the Check" lunch order form below.&ensp;Enter your local sales tax percent, tip percent, and delivery charge if applicable.&ensp;You can calculate the
-        tip on gross (including tax) or net (excluding tax), depending on how generous you feel.&ensp;The delivery charge is allocated in proportion to the dollar value of each order.&ensp;You can give change to the nearest penny, nickel, dime, quarter
-        or dollar.
-    </p>
-    <ul>
-        <li>
-            Click (or spacebar) on the plus signs to add an order or an item.</li>
-        <li>
-            Click the minus signs to remove an order or item.</li>
-        <li>
-            Use the tab key and shift-tab key to navigate forward and backward.
-        </li>
-    </ul>
+        When it's all over you're out five bucks because nobody accounted for tax and tip.</p>
+    <p>You can't make your co-workers any less boorish, but you can make your life easier by using the "Split the Check" lunch order form below.</p>
+
+
     <hr>
 </header>
 <form #f="ngForm" (ngSubmit)="submitForm()">
     <div class="container-fluid">
         <div class="row">
             <div class="col-xs-12">
+                <div class="row">
+                    <div class="col-xs-1"></div>
+                    <div class="col-xs-10">
+                        <ul>
+                            <li>
+                                Enter your local sales tax percent, tip percent, and delivery charge if applicable.</li>
+                            <li>
+                                You can calculate the tip on gross (including tax) or net (excluding tax), depending on how generous you feel.</li>
+                            <li>The delivery charge is allocated in proportion to the dollar value of each order.</li>
+                            <li>You can give change to the nearest penny, nickel, dime, quarter or dollar.</li>
+                        </ul>
+                    </div>
+                </div>
                 <div class="row" id="prompts">
                     <div class="col-xs-1">
                         <!-- spacer -->
                     </div>
                     <div class="card col-xs-5">
+
                         <ul class="list-group">
                             <li class="list-group-item">
                                 <!-- vertical spacer -->

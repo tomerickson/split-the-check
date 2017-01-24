@@ -4,6 +4,7 @@ import { Order } from './model/order';
 @Component({
     selector: '[order-list-outlet]',
     styles: ['table {border: 1px solid black;border-collapse: separate}'],
+    styleUrls: ['./order-list.component.less'],
     templateUrl: './order-list.component.html'
 })
 
