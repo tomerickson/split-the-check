@@ -1,21 +1,26 @@
-import { Component } from '@angular/core';
-import { Order } from './model/order';
+import {Component, Input} from "@angular/core";
+import {Order} from "./model/order";
+import {OrderService} from "./order.service";
 
 @Component({
-    selector: '[order-list-outlet]',
-    styles: ['table {border: 1px solid black;border-collapse: separate}'],
-    styleUrls: ['./order-list.component.less'],
-    templateUrl: './order-list.component.html'
+  selector: '[order-list-outlet]',
+  styles: ['table {border: 1px solid black;border-collapse: separate}'],
+  styleUrls: ['./order-list.component.less'],
+  templateUrl: './order-list.component.html'
 })
 
 export class OrderListComponent {
+  @Input() orders: Order[];
 
-    orders: Array<Order>;
-    constructor() {
-        this.orders = new Array<Order>();
-    }
+  constructor(private orderService: OrderService) {
+  }
 
-    addOrder() {
-        this.orders.push(new Order());
-    }
+  addOrder() {
+    this.orderService.addOrder();
+    this.orders = this.orderService.getOrders();
+  }
+
+  onRemove(index: number) {
+    this.orderService.removeOrder(index);
+  }
 }

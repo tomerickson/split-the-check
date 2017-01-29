@@ -1,25 +1,25 @@
-p#title {
-    font-weight: bold;
-    font-size: larger;
-    font-family: 'Comic Sans MS', Helvetica, Sans Serif;
-    text-align: center;
-}
 
-img#prairiedog {
-    float: left;
-    margin-right: 1em;
-}
-form {
-    width:100%;
-}
-div.container-fluid {
-    width:100%;
-}
-div.col-xs-12 {
-    width:100%;
-    margin-left:auto;
-    margin-right:auto;
-    .list-group-item {
-        height: .75rem;
+  div#header {
+    p {
+      margin-left: 10px;
     }
-}
+  }
+
+  p#title {
+    > a {
+      > img {
+        float: left;
+        margin-left: 10px;
+        margin-right: 10px;
+      }
+    }
+    text-align: center;
+    font-size: 18pt;
+    font-weight: bolder;
+  }
+
+  .text-xs-right {
+    display: block;
+  }
+  .form-control { display: inline-block !important; }
+

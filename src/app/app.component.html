@@ -1,119 +1,165 @@
 <h1>
-    {{title}}
+  {{title}}
 </h1>
-<header>
-    <p id="title">
-        <a href="http://www.northrup.org/photos/prairie-dogs/" target="_blank">
-            <img id="prairiedog" title="Prairie dog standing" src="./app/images/prairiedog.jpg">
-        </a>Split The Check
-    </p>
-    <p>How often has this happened to you:</p>
-    <p>
-        <a href="http://www.northrup.org/photos/prairie-dogs/" target="_blank"></a>
-        It's 11:30 in the morning, and your stomach alarm goes off.&ensp;When you make the mistake of saying "I'm hungry" heads start popping up above the cubicle walls like prairie dogs at a coyote convention.
-    </p>
-    <p>
-        Pretty soon your co-workers are swarming your cube, waving menus and twenty-dollar bills, shouting orders, condiment choices, special dietary requirements, and food preparation instructions.&ensp;Since you opened your mouth first, you're elected to take
-        the delivery order, account for the money, phone it in, get all the condiments and preparation instructions straight, and make change for all the twenties.&ensp;And what thanks do you get for your efforts?&ensp;Harry orders a 4.75 burger, drops
-        a five, winks and says "Forget the change."
-    </p>
-    <p>
-        When it's all over you're out five bucks because nobody accounted for tax and tip.</p>
-    <p>You can't make your co-workers any less boorish, but you can make your life easier by using the "Split the Check" lunch order form below.</p>
-
-
-    <hr>
-</header>
+<div id="header">
+  <p id="title">
+    <a href="http://www.northrup.org/photos/prairie-dogs/" target="_blank">
+      <img id="prairiedog" title="Prairie dog standing" src="./app/images/prairiedog.jpg">
+    </a>Split The Check
+  </p>
+  <p>How often has this happened to you:</p>
+  <p>
+    It's 11:30 in the morning, and your stomach alarm goes off.&ensp;When you make the mistake of saying "I'm hungry"
+    heads start popping up above the cubicle walls like prairie dogs at a coyote convention.
+  </p>
+  <p>
+    Pretty soon your co-workers are swarming your cube, waving menus and twenty-dollar bills, shouting orders, condiment
+    choices, special dietary requirements, and food preparation instructions.&ensp;Since you opened your mouth first,
+    you're elected to take
+    the delivery order, account for the money, phone it in, get all the condiments and preparation instructions
+    straight, and make change for all the twenties.&ensp;And what thanks do you get for your efforts?&ensp;Harry orders
+    a 4.75 burger, drops
+    a five, winks and says "Forget the change."
+  </p>
+  <p>
+    When it's all over you're out five bucks because nobody accounted for tax and tip.</p>
+  <p>You can't make your co-workers any less boorish, but you can make your life easier by using the "Split the Check"
+    lunch order form below.</p>
+  <hr>
+</div>
 <form #f="ngForm" (ngSubmit)="submitForm()">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="row">
-                    <div class="col-xs-1"></div>
-                    <div class="col-xs-10">
-                        <ul>
-                            <li>
-                                Enter your local sales tax percent, tip percent, and delivery charge if applicable.</li>
-                            <li>
-                                You can calculate the tip on gross (including tax) or net (excluding tax), depending on how generous you feel.</li>
-                            <li>The delivery charge is allocated in proportion to the dollar value of each order.</li>
-                            <li>You can give change to the nearest penny, nickel, dime, quarter or dollar.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="row" id="prompts">
-                    <div class="col-xs-1">
-                        <!-- spacer -->
-                    </div>
-                    <div class="card col-xs-5">
-
-                        <ul class="list-group">
-                            <li class="list-group-item">
-                                <!-- vertical spacer -->
-                            </li>
-                            <li class="list-group-item">
-                                <label class="col-xs-6 text-xs-right">Sales Tax Percent:</label>
-                                <input class="col-xs-4 form-control" id="txtTax" type="text" name="salesTaxPercent" tabindex="0" [(ngModel)]="header.salesTaxPercent" myCurrencyFormatter>
-                            </li>
-                            <li class="list-group-item">
-                                <label class="col-xs-6 text-xs-right" for="txtTip">Tip Percent:</label>
-                                <input id="txtTip" class="col-xs-4 form-control" type="text" name="tipPercent" tabindex="0" [(ngModel)]="header.tipPercent" myCurrencyFormatter>
-                            </li>
-                            <li class="list-group-item">
-                                <label class="col-xs-6 text-xs-right" for="selTipBasis ">Tip Basis:</label>
-                                <select id="selTipBasis" class="col-xs-4 form-control" name="tipBasis" [(ngModel)]="header.tipBasis">
-                    <option *ngFor="let basis of tipBases " [value]="basis.value" [label]="basis.description"></option></select>
-                            </li>
-                            <li class="list-group-item">
-                                <label class="col-xs-6 text-xs-right">Delivery:</label>
-                                <input class="col-xs-4 form-control" id="txtDelivery" type="text" name="delivery" [(ngModel)]="header.delivery" myCurrencyFormatter>
-                            </li>
-                            <li class="list-group-item">
-                                <label class="col-xs-6 text-xs-right">Change Basis:</label>
-                                <select class="col-xs-4 form-control" id="selChange" name="change" [(ngModel)]="header.changeBasis">
-                    <option *ngFor="let opt of changeBases" [value]="opt.value" [label]="opt.description"></option>
-                    </select>
-                            </li>
-                        </ul>
-                    </div>
-                    <!-- Running totals -->
-                    <div class="card col-xs-5">
-                        <ul class="list-group">
-                            <li class="list-group-item">
-                                <label class="col-xs-6 text-xs-right">Subtotal:</label>
-                                <label class="col-xs-4 text-xs-right">{{header.subTotal| number:'1.2-2'}}</label>
-                            </li>
-                            <li class="list-group-item">
-                                <label class="col-xs-6 text-xs-right">Sales Tax:</label>
-                                <label class="col-xs-4 text-xs-right">{{header.tax | number:'1.2-2'}}</label>
-                            </li>
-                            <li class="list-group-item">
-                                <label class="col-xs-6 text-xs-right">Tip:</label>
-                                <label class="col-xs-4 text-xs-right">{{header.tip | number:'1.2-2'}}</label>
-                            </li>
-                            <li class="list-group-item">
-                                <label class="col-xs-6 text-xs-right">Delivery:</label>
-                                <label class="col-xs-4 text-xs-right">{{header.delivery| number:'1.2-2'}}</label>
-                            </li>
-                            <li class="list-group-item">
-                                <label class="col-xs-6 text-xs-right">Total:</label>
-                                <label class="col-xs-4 text-xs-right">{{header.total|number:'1.2-2'}}</label>
-                            </li>
-                            <li class="list-group-item">
-                                <label class="col-xs-6 text-xs-right">Paid:</label>
-                                <label class="col-xs-4 text-xs-right">{{header.paid|number:'1.2-2'}}</label>
-                            </li>
-                            <li class="list-group-item">
-                                <label class="col-xs-6 text-xs-right">Over / Short:</label>
-                                <label class="col-xs-4 text-xs-right">{{(header.total-header.paid) | number:'1.2-2'}}</label>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="container">
+    <!-- Instructions -->
+    <div class="row">
+      <div class="col-xs-1"></div>
+      <div class="col-xs-10">
+        <ul>
+          <li>
+            Enter your local sales tax percent, tip percent, and delivery charge if applicable.
+          </li>
+          <li>
+            You can calculate the tip on gross (including tax) or net (excluding tax), depending on how generous you
+            feel.
+          </li>
+          <li>The delivery charge is allocated in proportion to the dollar value of each order.</li>
+          <li>You can give change to the nearest penny, nickel, dime, quarter or dollar.</li>
+        </ul>
+      </div>
     </div>
-    <hr>
-    <!--<order-list-outlet></order-list-outlet>-->
-    <div order-list-outlet></div>
+    <div class="row" id="prompts">
+      <div class="col-xs-1">
+        <!-- spacer -->
+      </div>
+      <div class="col">
+        <div class="row">
+          <div class="col"><label class="text-xs-right" for="txtTax">Sales Tax Percent:</label>
+          </div>
+          <div class="col">
+            <input class="form-control" id="txtTax" type="text" name="salesTaxPercent" tabindex="0"
+                   [(ngModel)]="header.salesTaxPercent" myCurrencyFormatter>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label class="text-xs-right" for="txtTip">Tip Percent:</label>
+          </div>
+          <div class="col">
+            <input id="txtTip" class="form-control" type="text" name="tipPercent" tabindex="0"
+                   [(ngModel)]="header.tipPercent" myCurrencyFormatter>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label class="text-xs-right" for="selTipBasis">Tip Basis:</label>
+          </div>
+          <div class="col">
+            <select id="selTipBasis" class="form-control" name="tipBasis" [(ngModel)]="header.tipBasis">
+              <option *ngFor="let basis of tipBases " [value]="basis.value" [label]="basis.description"></option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label class="text-xs-right" for="txtDelivery">Delivery:</label>
+          </div>
+          <div class="col">
+            <input class="form-control" id="txtDelivery" type="text" name="delivery"
+                   [(ngModel)]="header.delivery" myCurrencyFormatter>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label class="text-xs-right" for="selChange">Change Basis:</label>
+          </div>
+          <div class="col">
+            <select class="form-control" id="selChange" name="change" [(ngModel)]="header.changeBasis">
+              <option *ngFor="let opt of changeBases" [value]="opt.value" [label]="opt.description"></option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- Running totals -->
+      <div class="col">
+        <div class="row">
+        <div class="col">
+          <label class="col-xs-6 text-xs-right">Subtotal:</label>
+        </div>
+        <div class="col">
+          <label class="col-xs-4 text-xs-right">{{header.subTotal| number:'1.2-2'}}</label>
+        </div>
+      </div>
+        <div class="row">
+          <div class="col">
+            <label class="text-xs-right">Sales Tax:</label>
+          </div>
+          <div class="col">
+            <label class="text-xs-right">{{header.tax | number:'1.2-2'}}</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label class="text-xs-right">Tip:</label>
+          </div>
+          <div class="col">
+            <label class="text-xs-right">{{header.tip | number:'1.2-2'}}</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label class="text-xs-right">Delivery:</label>
+          </div>
+          <div class="col">
+            <label class="text-xs-right">{{header.delivery| number:'1.2-2'}}</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label class="text-xs-right">Total:</label>
+          </div>
+          <div class="col">
+            <label class="text-xs-right">{{header.total|number:'1.2-2'}}</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label class="text-xs-right">Paid:</label>
+          </div>
+          <div class="col">
+            <label class="text-xs-right">{{header.paid|number:'1.2-2'}}</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label class="text-xs-right">Over / Short:</label>
+          </div>
+          <div class="col">
+            <label class="text-xs-right">{{(header.total-header.paid) | number:'1.2-2'}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <!--<order-list-outlet></order-list-outlet>-->
+  <div order-list-outlet></div>
 </form>

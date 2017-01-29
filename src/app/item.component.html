@@ -1,0 +1,6 @@
+<td><button type="button" class="btn-default" (click)="removeItem()">-</button></td>
+<td>{{index+1 | number:'1.0-0'}}</td>
+<td>{{item.description}}</td>
+<td>{{item.quantity}}</td>
+<td>{{item.price | number:'1.2-2'}}</td>
+<td>{{(item.price * item.quantity) | number:'1.2-2'}}</td>
