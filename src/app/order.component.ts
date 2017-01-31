@@ -12,6 +12,7 @@ export class OrderComponent {
     @Input() order: Order;
     @Input() index: number;
     @Output() onRemove = new EventEmitter<number>();
+  @Output() changeTrigger = new EventEmitter();
 
     constructor(private orderService: OrderService) {
     }
@@ -22,5 +23,19 @@ export class OrderComponent {
 
     removeOrder() {
       this.onRemove.emit(this.index);
+    }
+
+    removeItem(index:number){
+      this.orderService.removeItem(this.order, index);
+    }
+
+    updatePaid() {
+      this.orderService.calculateOrder(this.order);
+    }
+    // When an item is changed or removed
+      // recalculate the tax, tip and deliver
+  // allocated to the order
+    changeOrder(changeValue: number) {
+
     }
 }

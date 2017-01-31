@@ -1,6 +1,7 @@
-<td><button type="button" class="btn-default" (click)="removeItem()">-</button></td>
+<td><button type="button" class="btn-default" (click)="onRemove()">-</button></td>
 <td>{{index+1 | number:'1.0-0'}}</td>
-<td>{{item.description}}</td>
-<td>{{item.quantity}}</td>
-<td>{{item.price | number:'1.2-2'}}</td>
+<td><input type="text" [(ngModel)]="item.description" title="Description" placeholder="Description"></td>
+<td><input type="text" [(ngModel)]="item.quantity" size="3" title="Quantity" myCurrencyFormatter (change)="onChange()"></td>
+<td><input type="text" [(ngModel)]="item.price" size="7" title="Price" myCurrencyFormatter></td>
+<td><input type="text" [(ngModel)]="item.instructions" title="Instructions" placeholder="Instructions"></td>
 <td>{{(item.price * item.quantity) | number:'1.2-2'}}</td>

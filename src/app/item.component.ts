@@ -1,23 +1,34 @@
-import {Component, Input} from "@angular/core";
+import {Component, Input, Output, EventEmitter} from "@angular/core";
 import {Item} from "./model/item";
 import {Order} from "./model/order";
 import {OrderService} from "./order.service";
 
 @Component({
-    selector: "[item-outlet]",
-    templateUrl: "./item.component.html"
+  selector: "[item-outlet]",
+  templateUrl: "./item.component.html"
 })
 
 export class ItemComponent {
-    @Input() item: Item;
-    @Input() index: Number;
-    @Input() order: Order;
+  @Input() item: Item;
+  @Input() index: number;
+  @Input() order: Order;
+  @Output() valueChange = new EventEmitter<number>();
+  @Output() removeItem = new EventEmitter<number>();
 
-    constructor(private orderService: OrderService){
+  private priorValue: number;
 
+  constructor(private orderService: OrderService) {
+    this.priorValue = 0;
+  }
+
+  onRemove() {
+    this.removeItem.emit(this.index);
+  }
+
+  onChange() {
+    let valueChange = this.orderService.changeItem(this.item, this.priorValue);
+    if (valueChange != 0) {
+      this.valueChange.emit(valueChange);
     }
-
-    removeItem() {
-      this.orderService.removeItem(this.order, this.item);
-    }
+  }
 }

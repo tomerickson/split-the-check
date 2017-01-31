@@ -2,7 +2,6 @@ import { Order } from './order';
 
 export class Header {
     public salesTaxPercent: number = 5;
-    public deliveryChange: number = 0;
     public tipPercent: number = 0;
     public subTotal: number = 0;
     public tax: number = 0;

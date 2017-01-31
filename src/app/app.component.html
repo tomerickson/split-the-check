@@ -74,7 +74,7 @@
           </div>
           <div class="col">
             <select id="selTipBasis" class="form-control" name="tipBasis" [(ngModel)]="header.tipBasis">
-              <option *ngFor="let basis of tipBases " [value]="basis.value" [label]="basis.description"></option>
+              <option *ngFor="let basis of service.tipBases " [value]="basis.value" [label]="basis.description"></option>
             </select>
           </div>
         </div>
@@ -93,7 +93,7 @@
           </div>
           <div class="col">
             <select class="form-control" id="selChange" name="change" [(ngModel)]="header.changeBasis">
-              <option *ngFor="let opt of changeBases" [value]="opt.value" [label]="opt.description"></option>
+              <option *ngFor="let opt of service.changeBases" [value]="opt.value" [label]="opt.description"></option>
             </select>
           </div>
         </div>

@@ -1,5 +1,5 @@
 <td>
-  <button type="button" class="button" (click)="removeOrder()">-</button>
+  <button type="button" class="button" (click)="removeOrder($event)">-</button>
 </td>
 <td>{{index+1 | number:'1.0-0'}}</td>
 <td>{{order.name}}</td>
@@ -9,6 +9,7 @@
     <table class="table table-striped">
       <thead>
       <tr>
+        <th></th>
         <th></th>
         <th>Item</th>
         <th>Quantity</th>
@@ -21,7 +22,8 @@
       <tr item-outlet *ngFor="let item of order.items; let i = index"
           [order]="order"
           [item]="item"
-          [index]="i"></tr>
+          [index]="i"
+          (removeItem)="removeItem($event)"></tr>
       </tbody>
     </table>
   </div>
@@ -31,5 +33,5 @@
 <td>{{order.delivery | number:'1.2-2'}}</td>
 <td>{{order.tip | number:'1.2-2'}}</td>
 <td>{{order.subtotal + order.tax + order.delivery + order.tip | number:'1.2-2'}}</td>
-<td><input type="text" title="paid" class="form-control" id="txtPaid" [(ngModel)]="order.paid"></td>
+<td><input type="text" title="paid" id="txtPaid" [(ngModel)]="order.paid" (change)="updatePaid()" size=6 myCurrencyFormatter=""></td>
 <td>{{order.overShort | number:'1.2-2'}}</td>
