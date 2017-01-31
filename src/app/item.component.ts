@@ -12,7 +12,7 @@ export class ItemComponent {
   @Input() item: Item;
   @Input() index: number;
   @Input() order: Order;
-  @Output() valueChange = new EventEmitter<number>();
+  @Output() changeItem = new EventEmitter();
   @Output() removeItem = new EventEmitter<number>();
 
   private priorValue: number;
@@ -26,9 +26,9 @@ export class ItemComponent {
   }
 
   onChange() {
-    let valueChange = this.orderService.changeItem(this.item, this.priorValue);
-    if (valueChange != 0) {
-      this.valueChange.emit(valueChange);
+    if (this.item.quantity * this.item.price != this.priorValue) {
+      this.priorValue = this.item.quantity * this.item.price;
+      this.changeItem.emit();
     }
   }
 }

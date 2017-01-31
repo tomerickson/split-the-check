@@ -90,7 +90,7 @@ export class OrderService {
   }
 
   calculateTax(order: Order) {
-    order.tax = order.subtotal * this.header.salesTaxPercent;
+    order.tax = order.subtotal * this.header.salesTaxPercent / 100;
   }
 
   calculateTip(order: Order) {
