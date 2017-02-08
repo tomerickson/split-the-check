@@ -1,7 +1,6 @@
 {
     "project": {
-        "version": "1.0.0-beta.25.5",
-        "name": "split-the-check"
+        "version": "1.0.0-beta.30"
     },
     "apps": [{
         "root": "src",
@@ -39,6 +38,10 @@
         }
     },
     "defaults": {
+        "styles": [
+            "../node_modules/bootstrap/dist/css/bootstrap.css",
+            "styles.css"
+        ],
         "styleExt": "less",
         "prefixInterfaces": false,
         "inline": {

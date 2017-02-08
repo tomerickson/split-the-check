@@ -1,6 +1,5 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {Order} from './model/order';
-import {Item} from "./model/item";
 import {OrderService} from "./order.service";
 
 @Component({
@@ -23,14 +22,6 @@ export class OrderComponent {
 
   removeOrder() {
     this.onRemove.emit(this.index);
-  }
-
-  removeItem(index: number) {
-    this.orderService.removeItem(this.order, index);
-  }
-
-  changeItem() {
-    this.orderService.calculateOrder(this.order)
   }
 
   updatePaid() {

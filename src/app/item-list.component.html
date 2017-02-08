@@ -1,0 +1,23 @@
+<span>Items</span>
+<button type="button" class="btn-default" (click)="addItem()" tabindex="0">+</button>
+<table class="table table-striped">
+  <thead>
+  <tr>
+    <th></th>
+    <th></th>
+    <th>Item</th>
+    <th>Quantity</th>
+    <th>Price</th>
+    <th>Instructions</th>
+    <th>Amount</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr item-outlet *ngFor="let item of order.items; let i = index"
+      [order]="order"
+      [item]="item"
+      [index]="i"
+      (removeItem)="removeItem($event)"
+      (changeItem)="changeItem()"></tr>
+  </tbody>
+</table>
