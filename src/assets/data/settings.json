@@ -1,0 +1,20 @@
+{
+  "settings": {
+    "salesTaxPercent": "6",
+    "tipPercent": "20",
+    "deliveryCharge":  "0",
+    "changeBasis": ".25",
+    "tipBasis": "1"
+  },
+  "tipBases": [
+    {"value": "0", "description": "Gross"},
+    {"value": "1", "description": "Net"}
+  ],
+  "changeBases": [
+    {"value": ".01", "description": "Penny"},
+    {"value": ".05", "description": "Nickel"},
+    {"value": ".10", "description": "Dime"},
+    {"value": ".25", "description": "Quarter"},
+    {"value": "1",   "description": "Dollar"}
+  ]
+}
