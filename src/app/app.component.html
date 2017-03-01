@@ -1,6 +1,9 @@
 <h1>
   {{title}}
 </h1>
+<md-toolbar color="primary">
+  <span>Split The Check</span>
+</md-toolbar>
 <div id="header">
   <p id="title">
     <a href="http://www.northrup.org/photos/prairie-dogs/" target="_blank">
@@ -56,7 +59,9 @@
           </div>
           <div class="col">
             <input class="form-control" id="txtTax" type="text" name="salesTaxPercent" tabindex="0"
-                   [(ngModel)]="header.salesTaxPercent" myCurrencyFormatter>
+                   [ngModel]="(settings$|async)?.salesTaxPercent"
+                   (ngModelChange)="item.value=$event"
+                   myCurrencyFormatter>
           </div>
         </div>
         <div class="row">
@@ -65,7 +70,8 @@
           </div>
           <div class="col">
             <input id="txtTip" class="form-control" type="text" name="tipPercent" tabindex="0"
-                   [(ngModel)]="header.tipPercent" myCurrencyFormatter>
+                   [ngModel]="(settings$|async)?.tipPercent"
+                   (ngModelChange)="item.value=$event" myCurrencyFormatter>
           </div>
         </div>
         <div class="row">
@@ -73,8 +79,10 @@
             <label class="text-xs-right" for="selTipBasis">Tip Basis:</label>
           </div>
           <div class="col">
-            <select id="selTipBasis" class="form-control" name="tipBasis" [(ngModel)]="header.tipBasis">
-              <option *ngFor="let basis of service.tipBases " [value]="basis.value" [label]="basis.description"></option>
+            <select id="selTipBasis" class="form-control" name="tipBasis"
+                    [ngModel]="(settings$|async)?.tipBasis"
+                    (ngModelChange)="this.UpdateTipBasis($event)">
+              <option *ngFor="let basis of tipBases" [value]="basis.id" [label]="basis.description"></option>
             </select>
           </div>
         </div>
@@ -84,7 +92,8 @@
           </div>
           <div class="col">
             <input class="form-control" id="txtDelivery" type="text" name="delivery"
-                   [(ngModel)]="header.delivery" myCurrencyFormatter>
+                   [ngModel]="(settings$|async)?.delivery"
+                   (ngModelChange)="item.value=$event" myCurrencyFormatter>
           </div>
         </div>
         <div class="row">
@@ -92,74 +101,22 @@
             <label class="text-xs-right" for="selChange">Change Basis:</label>
           </div>
           <div class="col">
-            <select class="form-control" id="selChange" name="change" [(ngModel)]="header.changeBasis">
-              <option *ngFor="let opt of service.changeBases" [value]="opt.value" [label]="opt.description"></option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <!-- Running totals -->
-      <div class="col">
-        <div class="row">
-        <div class="col">
-          <label class="col-xs-6 text-xs-right">Subtotal:</label>
-        </div>
-        <div class="col">
-          <label class="col-xs-4 text-xs-right">{{header.subTotal| number:'1.2-2'}}</label>
-        </div>
-      </div>
-        <div class="row">
-          <div class="col">
-            <label class="text-xs-right">Sales Tax:</label>
-          </div>
-          <div class="col">
-            <label class="text-xs-right">{{header.tax | number:'1.2-2'}}</label>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label class="text-xs-right">Tip:</label>
-          </div>
-          <div class="col">
-            <label class="text-xs-right">{{header.tip | number:'1.2-2'}}</label>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label class="text-xs-right">Delivery:</label>
-          </div>
-          <div class="col">
-            <label class="text-xs-right">{{header.delivery| number:'1.2-2'}}</label>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label class="text-xs-right">Total:</label>
-          </div>
-          <div class="col">
-            <label class="text-xs-right">{{header.subTotal + header.tax + header.tip + header.delivery|number:'1.2-2'}}</label>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label class="text-xs-right">Paid:</label>
-          </div>
-          <div class="col">
-            <label class="text-xs-right">{{header.paid|number:'1.2-2'}}</label>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label class="text-xs-right">Over / Short:</label>
-          </div>
-          <div class="col">
-            <label class="text-xs-right">{{(header.subTotal + header.tax + header.tip + header.delivery -header.paid) | number:'1.2-2'}}</label>
+            <md-select class="form-control" id="selChange" formControlName="change"
+                    [ngModel]="(settings$|async)?.changeBasis"
+                    (ngModelChange)="UpdateChangeBasis()">
+              <md-option *ngFor="let opt of changeBases" [value]="opt.id">{{opt.description}}</md-option>
+            </md-select>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <hr>
-  <!--<order-list-outlet></order-list-outlet>-->
-  <div order-list-outlet></div>
 </form>
+<hr>
+<div class="container">
+  <div class="row">
+    <order-list-outlet class="col-sm-8"></order-list-outlet>
+    <!-- Running totals -->
+    <order-totals class="col-sm-4"></order-totals>
+  </div>
+</div>

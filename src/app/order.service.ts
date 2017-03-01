@@ -1,78 +1,93 @@
 import {Injectable} from "@angular/core";
+import {Http, Response} from "@angular/http";
+import {Observable} from "rxjs";
+
 import "rxjs/Rx";
-import {Http} from "@angular/http";
 import {Order} from "./model/order";
 import {Item} from "./model/item";
-import {Header} from "./model/header";
 import {TipBasis} from "./model/tip-basis";
 import {ChangeBasis} from "./model/change-basis";
+import {Settings} from "./model/settings";
+import {Totals} from "./model/totals";
 
 @Injectable()
 
 export class OrderService {
 
   /* Tip Basis dropdown values */
-  public tipBases: Array<TipBasis> = [
-    {value: 0, description: 'Gross'},
-    {value: 1, description: 'Net'}];
+  public tipBases: Array<TipBasis>;
 
-  /* Change Basis dropdown values */
+  public changeBases: Array<ChangeBasis>;
 
-  public changeBases: Array<ChangeBasis> = [
-    {value: .01, description: 'Penny'},
-    {value: .05, description: 'Nickel'},
-    {value: .10, description: 'Dime'},
-    {value: .25, description: 'Quarter'},
-    {value:   1, description: 'Dollar'}];
-
-
-//  ordersChange = new EventEmitter<Order[]>();
-
-  private header: Header;
-
-  private orders: Order[] = [];
+  private settingsUrl = "./assets/data/settings.json";
+  private totalsUrl = "./assets/data/totals.json";
+  totals: Totals;
+  settings: Settings;
 
   constructor(private http: Http) {
-    this.header = new Header();
+  }
+
+  private static handleError(error: Response | any) {
+    // In a real world app, we might use a remote logging infrastructure
+    let errMsg: string;
+    if (error instanceof Response) {
+      const body = error.json() || '';
+      const err = body.error || JSON.stringify(body);
+      errMsg = error.status + ' - ' + (error.statusText || '') + ' ' + err;
+    } else {
+      errMsg = error.message ? error.message : error.toString();
+    }
+    console.error(errMsg);
+    return Observable.throw(errMsg);
+  }
+
+  getTotals(): Observable<Totals> {
+    return this.http.get(this.totalsUrl)
+      .map(res => res.json().totals)
+      .catch(err => OrderService.handleError(err));
+  }
+
+  getSettings() : Observable<Settings> {
+    return this.http.get(this.settingsUrl)
+      .map(res  => res.json())
+      .catch((err: any) => OrderService.handleError(err));
+  }
+
+  getTipBases(): Observable<TipBasis[]> {
+    return this.http.get(this.settingsUrl)
+      .map(res => res.json().tipBases)
+      .catch(err => OrderService.handleError(err))
+  }
+
+  getChangeBases(): Observable<ChangeBasis[]> {
+    return this.http.get(this.settingsUrl)
+      .map(res => res.json().changeBases)
+      .catch(err => OrderService.handleError(err))
   }
 
   public addOrder(): void {
-    this.header.orders.push(new Order());
+    this.totals.Orders.push(new Order(this.settings, this.totals));
   }
 
   public removeOrder(index: number) {
-    let orders: Order[] = this.header.orders;
+    let orders: Order[] = this.totals.Orders;
     orders.splice(index, 1);
-    this.header.orders = orders;
+    this.totals.Orders = orders;
   }
 
-  public addItem(order: Order) {
+  public static addItem(order: Order) {
     order.items.push(new Item());
   }
 
-  public removeItem(order: Order, index:number) {
-    order.items.splice(index,1);
-    this.calculateOrder(order);
-  }
-
-  public editItem(item: Item) {
-
-  }
-
-  public changeItem(item: Item, priorValue: number) {
-    let currentValue = item.price * item.quantity;
-    return currentValue - priorValue;
-  }
-
-  public getHeader() {
-    return this.header;
+  public static removeItem(order: Order, index: number) {
+    order.items.splice(index, 1);
   }
 
   public getOrders(): Order[] {
-    return this.header.orders;
+    return this.totals.Orders;
   }
 
-  public getItems(order: Order) {
+  public static getItems(order: Order) {
     return order.items;
   }
 
@@ -81,54 +96,12 @@ export class OrderService {
     for (let item of order.items) {
       orderValue += item.price * item.quantity;
     }
-    order.subtotal = orderValue;
-    this.calculateTax(order);
-    this.calculateTip(order);
-    this.summarizeOrders();
-    this.calculateDelivery(order);
     this.calculateChange(order);
   }
 
-  calculateTax(order: Order) {
-    order.tax = order.subtotal * this.header.salesTaxPercent / 100;
-  }
-
-  calculateTip(order: Order) {
-    if (this.header.tipBasis === 0){
-      order.tip = order.subtotal * this.header.tipPercent;
-    } else {
-      if (this.header.tipBasis === 1) {
-        order.tip = (order.subtotal + order.tax) * this.header.tipPercent;
-      }
-    }
-  }
-
-  calculateChange(order: Order){
-    let due = order.subtotal + order.tax + order.tip + order.delivery;
+  calculateChange(order: Order) {
+    let due = order.subtotal + +order.tax + order.tip + order.delivery;
     let overShort = order.paid - due;
-    order.overShort = Math.round(overShort/this.header.changeBasis)*this.header.changeBasis;
-  }
-
-  summarizeOrders(){
-    let subtotal = 0;
-    let tax = 0;
-    let tip = 0;
-    let paid = 0;
-    for (let order of this.header.orders){
-      subtotal += order.subtotal;
-      tax += order.tax;
-      tip += order.tip;
-      paid += order.paid;
-    }
-    this.header.subTotal = subtotal;
-    this.header.tax = tax;
-    this.header.tip = tip;
-    this.header.paid = paid;
-  }
-
-  calculateDelivery(order: Order){
-    if (this.header.subTotal > 0) {
-      order.delivery = this.header.delivery * (order.subtotal / this.header.subTotal);
-    }
+    order.overShort = Math.round(overShort / this.settings.changeBasis) * this.settings.changeBasis;
   }
 }

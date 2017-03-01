@@ -1,0 +1,59 @@
+<!-- Running totals -->
+<div class="row">
+  <div class="col">
+    <label class="col-xs-6 text-xs-right">Subtotal:</label>
+  </div>
+  <div class="col">
+    <!--<label class="col-xs-4 text-xs-right" name="subtotal" [ngModel]="(totals|async)?.Subtotal|number:'1.2-2'"></label>
+    -->
+    <label class="col-xs-4 text-xs-right">{{(totals|async)?.Subtotal| number:'1.2-2'}}</label>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <label class="text-xs-right">Sales Tax:</label>
+  </div>
+  <div class="col">
+    <label class="text-xs-right">{{(totals|async)?.Tax | number:'1.2-2'}}</label>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <label class="text-xs-right">Tip:</label>
+  </div>
+  <div class="col">
+    <label class="text-xs-right">{{(totals|async)?.Tip | number:'1.2-2'}}</label>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <label class="text-xs-right">Delivery:</label>
+  </div>
+  <div class="col">
+    <label class="text-xs-right">{{(totals|async)?.Delivery| number:'1.2-2'}}</label>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <label class="text-xs-right">Total:</label>
+  </div>
+  <div class="col">
+    <label class="text-xs-right">{{(totals|async)?.Total|number:'1.2-2'}}</label>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <label class="text-xs-right">Paid:</label>
+  </div>
+  <div class="col">
+    <label class="text-xs-right">{{(totals|async)?.Paid|number:'1.2-2'}}</label>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <label class="text-xs-right">Over / Short:</label>
+  </div>
+  <div class="col">
+    <label class="text-xs-right">{{((totals|async)?.OverShort) | number:'1.2-2'}}</label>
+  </div>
+</div>

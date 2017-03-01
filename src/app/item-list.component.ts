@@ -19,12 +19,12 @@ export class ItemListComponent {
   }
 
   addItem() {
-    this.orderService.addItem(this.order);
-    this.items = this.orderService.getItems(this.order);
+    OrderService.addItem(this.order);
+    this.items= OrderService.getItems(this.order);
   }
 
   removeItem(index: number) {
-  this.orderService.removeItem(this.order, index);
+  OrderService.removeItem(this.order, index);
 }
 
   changeItem() {

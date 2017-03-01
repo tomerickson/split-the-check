@@ -1,8 +1,8 @@
 import { Order } from './order';
 
 export class Header {
-    public salesTaxPercent: number = 5;
-    public tipPercent: number = 0;
+    public salesTaxPercent; number;
+    public tipPercent: number;
     public subTotal: number = 0;
     public tax: number = 0;
     public tip: number = 0;
@@ -11,11 +11,10 @@ export class Header {
     public paid: number = 0;
     public overShort: number = 0;
     public changeBasis: number = .25;
-    public tipBasis: number = 0;
+    public tipBasis: number = 1;
     public orders: Order[];
 
-
-    constructor() {
-        this.orders = new Array<Order>();
+  constructor() {
+    this.orders = [];
     }
 }

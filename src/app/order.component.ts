@@ -1,10 +1,11 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {Order} from './model/order';
+import {Component, Input, Output, EventEmitter} from "@angular/core";
+import {Order} from "./model/order";
 import {OrderService} from "./order.service";
 
 @Component({
-  selector: '[order-outlet]',
-  templateUrl: './order.component.html'
+  selector: 'order-outlet',
+  templateUrl: './order.component.html',
+  styleUrls: ['order.component.scss']
 })
 
 export class OrderComponent {
@@ -14,10 +15,6 @@ export class OrderComponent {
   @Output() changeTrigger = new EventEmitter();
 
   constructor(private orderService: OrderService) {
-  }
-
-  addItem() {
-    this.orderService.addItem(this.order);
   }
 
   removeOrder() {

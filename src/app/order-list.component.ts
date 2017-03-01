@@ -3,8 +3,9 @@ import {Order} from "./model/order";
 import {OrderService} from "./order.service";
 
 @Component({
-  selector: '[order-list-outlet]',
+  selector: 'order-list-outlet',
   styles: ['table {border: 1px solid black;border-collapse: separate}'],
+  styleUrls: ["order-list.component.scss"],
   templateUrl: './order-list.component.html'
 })
 
