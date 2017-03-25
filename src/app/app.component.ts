@@ -1,8 +1,10 @@
-import {Component, OnInit, OnDestroy, NgZone, ElementRef} from "@angular/core";
+import {Component, OnInit, OnDestroy} from "@angular/core";
 import {Settings, ChangeBasis, TipBasis} from "./model/";
-import {OrderService} from "./order.service";
+import {HeaderService} from "./header.service";
 import {Totals} from "./model/totals";
-import {Observable} from "rxjs";
+import {BehaviorSubject, Observable, Subscription} from "rxjs";
+import {Header} from "./model/header";
+import {async} from "rxjs/scheduler/async";
 
 @Component({
   selector: 'app-root',
@@ -14,56 +16,62 @@ export class AppComponent implements OnInit, OnDestroy {
   /* data to model */
   settings: Settings = null;
   totals: Totals;
-  changeBasis: number = .25;
-  changeBases: ChangeBasis[];
-  tipBases: TipBasis[];
-//  headerSubscription: ISubscription<Header>;
+  header: Header;
+  //changeBasis: number = .25;
+  salesTaxPercent: Observable<number>;
+  tipPercent: Observable<number>;
+  delivery: Observable<number>;
+  changeBases: Observable<ChangeBasis[]>;
+  changeBasis: BehaviorSubject<ChangeBasis>;
+  tipBases: BehaviorSubject<TipBasis[]>;
+  tipBasis: BehaviorSubject<TipBasis>;
+  subTotal: Observable<number>;
+  total: Observable<number>;
+  tax: Observable<number>;
+  tip: Observable<number>;
+  defaultTip: Subscription;
+  defaultChange: Subscription;
   /* masking for 2-position decimal numbers */
   decimalMask = [/\d/, /\d/, '.', /\d/, /\d/];
 
+  constructor(public service: HeaderService) {
+    this.header = new Header();
+  }
+
   ngOnInit() {
-    this.loadSettings();
-    //debugger;
-    this.loadTipBases();
-    this.loadChangeBases();
-    this.loadTotals();
-    //this.changeBasis = this.settings.ChangeBasis;
+    this.tipBases = this.service.getTipBases();
+    this.tipBasis = this.service.tipBasis;
+    this.changeBases = this.service.getChangeBases();
+    this.changeBasis = this.service.chgBasis;
+    this.salesTaxPercent = this.service.getSalesTaxPercent();
+    this.tipPercent = this.service.getTipPercent();
+    this.total = this.service.getTotal();
+    this.subTotal = this.service.getSubTotal();
+    this.delivery = this.service.getDelivery();
+    this.tax = this.service.getTax();
+    this.tip = this.service.getTip();
+    console.log(this.tipBases);
+    console.log(this.tipBasis);
+    console.log(this.defaultTip);
+   // debugger;
   }
 
   ngOnDestroy() {
+    this.defaultTip.unsubscribe();
   }
 
-  constructor(public service: OrderService, private zone: NgZone) {
+  UpdateTipBasis(event, newValue) {
+    this.service.setTipBasis(newValue);
+    console.log('this.tipBasis  = ' + this.tipBasis);
   }
 
-  loadTipBases() {
-    this.service.getTipBases().subscribe(data => this.tipBases = data);
+  UpdateChangeBasis(event, newValue) {
+    this.service.setChangeBasis(newValue);
+    console.log('this.service.changeBasis = ' + this.service.chgBasis);
   }
 
-
-  loadChangeBases() {
-    this.service.getChangeBases().subscribe(data => this.changeBases = data);
-  }
-
-  loadTotals() {
-    this.service.getTotals().subscribe(data => this.totals = data);
-  }
-
-  loadSettings() {
-    this.service.getSettings().subscribe(data =>
-      this.settings = data);
-  }
-
-  UpdateTipBasis(newValue) {
-    debugger;
-    this.settings.tipBasis = newValue;
-    console.log('this.tipBasis  = ' + this.settings.tipBasis);
-  }
-
-  UpdateChangeBasis(newValue) {
-    debugger;
-    this.settings.changeBasis = newValue;
-    console.log('ChangeBasis = ' + this.settings.changeBasis);
+  UpdateDelivery(event, newValue) {
+    this.service.setDelivery(newValue);
   }
 }
 

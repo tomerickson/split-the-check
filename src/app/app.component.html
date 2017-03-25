@@ -4,11 +4,11 @@
 <md-toolbar color="primary">
   <span>Split The Check</span>
 </md-toolbar>
-<div id="header">
+<md-card id="header">
   <p id="title">
     <a href="http://www.northrup.org/photos/prairie-dogs/" target="_blank">
-      <img id="prairiedog" title="Prairie dog standing" src="./app/images/prairiedog.jpg">
-    </a>Split The Check
+      <img id="prairiedog" title="Prairie dog standing" src="./assets/images/prairiedog.jpg">
+    </a>
   </p>
   <p>How often has this happened to you:</p>
   <p>
@@ -29,8 +29,8 @@
   <p>You can't make your co-workers any less boorish, but you can make your life easier by using the "Split the Check"
     lunch order form below.</p>
   <hr>
-</div>
-<form #f="ngForm" (ngSubmit)="submitForm()">
+</md-card>
+<form #f="ngForm">
   <div class="container">
     <!-- Instructions -->
     <div class="row">
@@ -53,13 +53,13 @@
       <div class="col-xs-1">
         <!-- spacer -->
       </div>
-      <div class="col">
+      <div class="col-xs-3">
         <div class="row">
           <div class="col"><label class="text-xs-right" for="txtTax">Sales Tax Percent:</label>
           </div>
           <div class="col">
             <input class="form-control" id="txtTax" type="text" name="salesTaxPercent" tabindex="0"
-                   [ngModel]="(settings$|async)?.salesTaxPercent"
+                   [ngModel]="(settings|async)?.salesTaxPercent"
                    (ngModelChange)="item.value=$event"
                    myCurrencyFormatter>
           </div>
@@ -68,9 +68,9 @@
           <div class="col">
             <label class="text-xs-right" for="txtTip">Tip Percent:</label>
           </div>
-          <div class="col">
+          <div class="col mat-input-container">
             <input id="txtTip" class="form-control" type="text" name="tipPercent" tabindex="0"
-                   [ngModel]="(settings$|async)?.tipPercent"
+                   [ngModel]="(settings|async)?.tipPercent"
                    (ngModelChange)="item.value=$event" myCurrencyFormatter>
           </div>
         </div>
@@ -78,11 +78,14 @@
           <div class="col">
             <label class="text-xs-right" for="selTipBasis">Tip Basis:</label>
           </div>
-          <div class="col">
-            <select id="selTipBasis" class="form-control" name="tipBasis"
-                    [ngModel]="(settings$|async)?.tipBasis"
-                    (ngModelChange)="this.UpdateTipBasis($event)">
-              <option *ngFor="let basis of tipBases" [value]="basis.id" [label]="basis.description"></option>
+          <div class="col mat-select">
+            <select #selTipBasis id="selTipBasis" class="form-control" name="tipBasis"
+                    [ngModel]="tipBasis"
+                    (ngModelChange)="UpdateTipBasis($event, selTipBasis.value)">
+              <option *ngFor="let basis of (tipBases|async)"
+                      [ngValue]="basis"
+                      [attr.selected]="basis == (tipBasis|async)"
+                      [label]="basis.description"></option>
             </select>
           </div>
         </div>
@@ -90,22 +93,25 @@
           <div class="col">
             <label class="text-xs-right" for="txtDelivery">Delivery:</label>
           </div>
-          <div class="col">
-            <input class="form-control" id="txtDelivery" type="text" name="delivery"
-                   [ngModel]="(settings$|async)?.delivery"
-                   (ngModelChange)="item.value=$event" myCurrencyFormatter>
+          <div class="col mat-input-container">
+            <input #txtDelivery class="form-control" id="txtDelivery" type="text" name="delivery"
+                   [ngModel]="(settings|async)?.delivery"
+                   (ngModelChange)="UpdateDelivery($event, txtDelivery.value)" myCurrencyFormatter>
           </div>
         </div>
         <div class="row">
           <div class="col">
             <label class="text-xs-right" for="selChange">Change Basis:</label>
           </div>
-          <div class="col">
-            <md-select class="form-control" id="selChange" formControlName="change"
-                    [ngModel]="(settings$|async)?.changeBasis"
-                    (ngModelChange)="UpdateChangeBasis()">
-              <md-option *ngFor="let opt of changeBases" [value]="opt.id">{{opt.description}}</md-option>
-            </md-select>
+          <div class="col mat-select">
+            <select #selChange class="form-control" id="selChange" name="changeBasis"
+                    [ngModel]="changeBasis"
+                    (ngModelChange)="UpdateChangeBasis($event, selChange.value)">
+              <option *ngFor="let opt of (changeBases|async)"
+                      [ngValue]="opt"
+                      [attr.selected]="opt == (changeBasis|async)"
+                      [label]="opt.description"></option>
+            </select>
           </div>
         </div>
       </div>

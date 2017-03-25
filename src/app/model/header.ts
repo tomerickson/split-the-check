@@ -12,9 +12,9 @@ export class Header {
     public overShort: number = 0;
     public changeBasis: number = .25;
     public tipBasis: number = 1;
-    public orders: Order[];
+    public Orders: Order[];
 
   constructor() {
-    this.orders = [];
+    this.Orders = [];
     }
 }

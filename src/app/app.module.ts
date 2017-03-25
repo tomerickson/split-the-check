@@ -9,6 +9,7 @@ import {MyCurrencyFormatterDirective} from "./common/custom-currency.directive";
 import {AppComponent} from "./app.component";
 import {OrderListComponent} from "./order-list.component";
 import {OrderComponent} from "./order.component";
+import {HeaderService} from "./header.service";
 import {OrderService} from "./order.service";
 import {ItemListComponent} from "./item-list.component";
 import {ItemComponent} from "./item.component";
@@ -31,7 +32,7 @@ import { OrderTotalsComponent } from './order-totals/order-totals.component';
     HttpModule,
     MaterialModule],
 
-  providers: [MyCurrencyPipe, OrderService],
+  providers: [MyCurrencyPipe, HeaderService, OrderService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

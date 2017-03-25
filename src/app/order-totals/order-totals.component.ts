@@ -1,5 +1,5 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
-import {OrderService} from "../order.service";
+import {HeaderService} from "../header.service";
 import {Totals} from "../model/totals";
 
 @Component({
@@ -13,7 +13,7 @@ export class OrderTotalsComponent implements OnInit, OnDestroy {
 
   totals: Totals;
 
-  constructor(private service: OrderService) {}
+  constructor(private service: HeaderService) {}
 
   ngOnInit() {
    // this.service.getTotals().subscribe(data => this.totals = data);

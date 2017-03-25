@@ -4,7 +4,7 @@
 import {Component, Input} from "@angular/core";
 import {Order} from "./model/order";
 import {Item} from "./model/item";
-import {OrderService} from "./order.service";
+import {HeaderService} from "./header.service";
 
 @Component({
   selector: "item-list-outlet",
@@ -14,24 +14,16 @@ import {OrderService} from "./order.service";
 
 export class ItemListComponent {
   @Input() order: Order;
-  @Input() items: Item[];
-  constructor(private orderService: OrderService) {
+//  @Input() items: Item[];
+
+  constructor(private orderService: HeaderService) {
   }
 
   addItem() {
-    OrderService.addItem(this.order);
-    this.items= OrderService.getItems(this.order);
+    this.order.addItem();
   }
 
   removeItem(index: number) {
-  OrderService.removeItem(this.order, index);
-}
-
-  changeItem() {
-    this.orderService.calculateOrder(this.order)
-  }
-
-  updatePaid() {
-    this.orderService.calculateOrder(this.order);
+    this.order.removeItem(index);
   }
 }

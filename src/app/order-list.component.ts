@@ -1,6 +1,8 @@
 import {Component, Input} from "@angular/core";
 import {Order} from "./model/order";
-import {OrderService} from "./order.service";
+import {HeaderService} from "./header.service";
+import {Header} from "./model/header";
+import {BehaviorSubject, Observable} from "rxjs";
 
 @Component({
   selector: 'order-list-outlet',
@@ -10,17 +12,17 @@ import {OrderService} from "./order.service";
 })
 
 export class OrderListComponent {
-  @Input() orders: Order[];
-
-  constructor(private orderService: OrderService) {
+  @Input() header: Header;
+  orders: Observable<Order[]>;
+  constructor(private service: HeaderService) {
+    this.orders = service.getOrders();
   }
 
   addOrder() {
-    this.orderService.addOrder();
-    this.orders = this.orderService.getOrders();
+    this.orders = this.service.addOrder();
   }
 
-  onRemove(index: number) {
-    this.orderService.removeOrder(index);
+  onRemove(order: Order) {
+    this.orders = this.service.removeOrder(order);
   }
 }

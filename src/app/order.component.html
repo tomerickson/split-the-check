@@ -15,7 +15,7 @@
       <button type="button" class="btn-primary" (click)="removeOrder($event)">-</button>
     </div>
     <div class="col text-right">{{index+1}}</div>
-    <div class="col text-right"><p>{{order.subtotal | number:'1.2-2'}}</p></div>
+    <div class="col text-right"><p>{{(order.subtotal|async) | number:'1.2-2'}}</p></div>
     <div class="col pull-right">{{+order.tax | number:'1.2-2'}}</div>
     <div class="col text-right">{{order.delivery | number:'1.2-2'}}</div>
     <div class="col text-right">{{order.tip | number:'1.2-2'}}</div>

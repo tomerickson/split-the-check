@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter} from "@angular/core";
 import {Item} from "./model/item";
 import {Order} from "./model/order";
-import {OrderService} from "./order.service";
+import {HeaderService} from "./header.service";
 
 @Component({
   selector: "[item-outlet]",
@@ -17,7 +17,7 @@ export class ItemComponent {
 
   private priorValue: number;
 
-  constructor(private orderService: OrderService) {
+  constructor(private orderService: HeaderService) {
     this.priorValue = 0;
   }
 
