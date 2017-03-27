@@ -2,7 +2,7 @@
   {{title}}
 </h1>
 <md-toolbar color="primary">
-  <span>Split The Check</span>
+  <span>{{header.title}}</span>
 </md-toolbar>
 <md-card id="header">
   <p id="title">
@@ -84,7 +84,7 @@
                     (ngModelChange)="UpdateTipBasis($event, selTipBasis.value)">
               <option *ngFor="let basis of (tipBases|async)"
                       [ngValue]="basis"
-                      [attr.selected]="basis == (tipBasis|async)"
+                      [attr.selected]="basis.value == (tipBasis|async)?.value ? true : null"
                       [label]="basis.description"></option>
             </select>
           </div>
@@ -109,7 +109,7 @@
                     (ngModelChange)="UpdateChangeBasis($event, selChange.value)">
               <option *ngFor="let opt of (changeBases|async)"
                       [ngValue]="opt"
-                      [attr.selected]="opt == (changeBasis|async)"
+                      [attr.selected]="(opt.value == (changeBasis|async)?.value) ? true : null"
                       [label]="opt.description"></option>
             </select>
           </div>

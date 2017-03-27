@@ -7,8 +7,8 @@
     "tipBasis": "1"
   },
   "tipBases": [
-    {"value": "0", "description": "Gross", "isDefault": true},
-    {"value": "1", "description": "Net", "isDefault": false}
+    {"value": "0", "description": "Gross", "isDefault": false},
+    {"value": "1", "description": "Net", "isDefault": true}
   ],
   "changeBases": [
     {"value": ".01", "description": "Penny"},

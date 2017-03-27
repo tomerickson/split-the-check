@@ -1,7 +1,7 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
 import {Settings, ChangeBasis, TipBasis} from "./model/";
 import {HeaderService} from "./header.service";
-import {Totals} from "./model/totals";
+// import {Totals} from "./model/totals";
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
 import {Header} from "./model/header";
 import {async} from "rxjs/scheduler/async";
@@ -15,7 +15,7 @@ import {async} from "rxjs/scheduler/async";
 export class AppComponent implements OnInit, OnDestroy {
   /* data to model */
   settings: Settings = null;
-  totals: Totals;
+  //totals: Totals;
   header: Header;
   //changeBasis: number = .25;
   salesTaxPercent: Observable<number>;
@@ -51,8 +51,9 @@ export class AppComponent implements OnInit, OnDestroy {
     this.tax = this.service.getTax();
     this.tip = this.service.getTip();
     console.log(this.tipBases);
-    console.log(this.tipBasis);
-    console.log(this.defaultTip);
+    console.info(this.tipBasis);
+    console.info(this.changeBasis);
+    console.info(this.defaultTip);
    // debugger;
   }
 

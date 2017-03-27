@@ -3,23 +3,23 @@
  */
 import {HttpModule, Response, Headers, RequestOptions, Http} from "@angular/http";
 import "rxjs/Rx";
-import {Observable} from "rxjs/Observable";
+// import "rxjs/observable/"
+// import {Observable} from "rxjs";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Injectable} from "@angular/core";
 import {TipBasis} from "./model/tip-basis";
 import {ChangeBasis} from "./model/change-basis";
 import {Order} from "./model/order";
-import {Header} from "./model/header";
-import {map} from "rxjs/operator/map";
-import {Subscription} from "rxjs";
 import {IDefault} from "./model/IDefault";
+import {ArrayObservable} from "rxjs/observable/ArrayObservable";
+import {Observable} from "rxjs";
 
 @Injectable()
 
 export class HeaderService {
 
   private readonly settingsUrl = "./assets/data/settings.json";
-  private readonly  totalsUrl = "./assets/data/totals.json";
+  private readonly totalsUrl = "./assets/data/totals.json";
 
   private httpHeaders: Headers;
   private options: RequestOptions;
@@ -46,8 +46,8 @@ export class HeaderService {
     this.tipPercent = new BehaviorSubject<number>(0);
     this.delivery = new BehaviorSubject<number>(0);
     this.subTotal = new BehaviorSubject<number>(0);
-    // this.tipBasis = new BehaviorSubject<TipBasis>(null);
-    // this.chgBasis = new BehaviorSubject<ChangeBasis>(null);
+    this.tipBasis = new BehaviorSubject<TipBasis>(null);
+    this.chgBasis = new BehaviorSubject<ChangeBasis>(null);
     this.tipBases = new BehaviorSubject<TipBasis[]>(null);
     this.changeBases = new BehaviorSubject<ChangeBasis[]>(null);
 
@@ -64,7 +64,7 @@ export class HeaderService {
         return (amt + (amt * pct / 100));
       });
     this.tipAmount = Observable.combineLatest(this.subTotal, this.taxAmount, this.tipPercent, this.tipBasis)
-      .map(([sub, tax,  pct, basis]) => {
+      .map(([sub, tax, pct, basis]) => {
         return (basis.value == 1) ? sub * pct / 100 : (sub + tax) * pct / 100;
       });
     this.total = Observable.combineLatest(this.subTotal, this.taxAmount, this.tipAmount, this.delivery)
@@ -83,12 +83,13 @@ export class HeaderService {
 
   // Create the subscriptions for the settings
   //
-  private subscribeToSetting(subscriber: BehaviorSubject<number>, node: string): void {
+  private subscribeToSetting(subscriber: BehaviorSubject<number>, setting: string): void {
     this.http.get(this.settingsUrl, this.options)
       .map((res) => {
-        console.log(res.json());
-        console.log(res.json().settings[node]);
-        return res.json().settings[node];
+        let arr = new Array(res.json()["settings"]);
+        console.info(arr);
+        let obj = arr.filter(obj => obj.name == setting)[0];
+        return obj.value;
       })
       .subscribe(result => subscriber.next(result));
   }
@@ -104,9 +105,28 @@ export class HeaderService {
   private subscribeToDefault(subscriber: BehaviorSubject<any>, list: string): void {
     this.http.get(this.settingsUrl, this.options)
       .map((res) => {
-        return res.json()[list].filter((item: IDefault) => {return item.isDefault === true});
+        let arr: IDefault[] = res.json()[list];
+        arr = arr.filter(obj => obj.isDefault);
+        return arr[0];
       })
+      .catch((res) => {
+        console.log(res);return res;
+      })
+      .subscribe(result => subscriber.next(result));
   }
+
+  /*
+  private filterthis(res: any, list: string): Observable<IDefault[]> {
+    let theList: IDefault[] = res.json()[list];
+    let theResult = new Observable<IDefault[]>;
+    for (let theItem of theList) {
+      if (theItem.isDefault) {
+        theResult.next(theItem);
+        theResult.push(theItem);
+      }
+    }
+    return theResult;
+  }*/
 
   private subscribeToTotal(subscriber: BehaviorSubject<number>, node: string): void {
     this.http.get(this.totalsUrl, this.options)
@@ -148,7 +168,7 @@ export class HeaderService {
     this.tipPercent.next(value);
   }
 
-  setTipBasis(value: TipBasis){
+  setTipBasis(value: TipBasis) {
     this.tipBasis.next(value);
   }
 

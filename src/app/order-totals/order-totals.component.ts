@@ -1,6 +1,6 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
 import {HeaderService} from "../header.service";
-import {Totals} from "../model/totals";
+// import {Totals} from "../model/totals";
 
 @Component({
   selector: 'order-totals',
@@ -11,7 +11,7 @@ import {Totals} from "../model/totals";
 export class OrderTotalsComponent implements OnInit, OnDestroy {
 
 
-  totals: Totals;
+  //totals: Totals;
 
   constructor(private service: HeaderService) {}
 
