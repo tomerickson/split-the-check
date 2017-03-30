@@ -34,7 +34,7 @@ export class OrderComponent {
   }
 
   updatePaid(value: number) {
-    this.order.setPaid(value);
+    this.order.paid = value;
   }
 
   // When an item is changed or removed

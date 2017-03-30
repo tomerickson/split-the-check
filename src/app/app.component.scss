@@ -1,30 +1,9 @@
 
-  div#header {
-    p {
-      margin-left: 10px;
-    }
+div#header {
+  p {
+    margin-left: 10px;
   }
-
-  p#title {
-    > a {
-      > img {
-        float: left;
-        margin-left: 10px;
-        margin-right: 10px;
-      }
-    }
-    text-align: center;
-    font-size: 18pt;
-    font-weight: bolder;
-  }
-
-  .text-xs-right {
-    display: block;
-    text-align:right;
-  }
-  .form-control { display: inline-block !important; }
-
-  input [myCurrencyFormatter]{
-    text-align:right!important;
-  }
-
+}
+[mdInput], [mdSelect] {
+  background-color:ghostwhite;
+}

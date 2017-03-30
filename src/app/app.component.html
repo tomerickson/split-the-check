@@ -4,38 +4,41 @@
 <md-toolbar color="primary">
   <span>{{header.title}}</span>
 </md-toolbar>
-<md-card id="header">
-  <p id="title">
-    <a href="http://www.northrup.org/photos/prairie-dogs/" target="_blank">
-      <img id="prairiedog" title="Prairie dog standing" src="./assets/images/prairiedog.jpg">
-    </a>
-  </p>
-  <p>How often has this happened to you:</p>
-  <p>
-    It's 11:30 in the morning, and your stomach alarm goes off.&ensp;When you make the mistake of saying "I'm hungry"
-    heads start popping up above the cubicle walls like prairie dogs at a coyote convention.
-  </p>
-  <p>
-    Pretty soon your co-workers are swarming your cube, waving menus and twenty-dollar bills, shouting orders, condiment
-    choices, special dietary requirements, and food preparation instructions.&ensp;Since you opened your mouth first,
-    you're elected to take
-    the delivery order, account for the money, phone it in, get all the condiments and preparation instructions
-    straight, and make change for all the twenties.&ensp;And what thanks do you get for your efforts?&ensp;Harry orders
-    a 4.75 burger, drops
-    a five, winks and says "Forget the change."
-  </p>
-  <p>
-    When it's all over you're out five bucks because nobody accounted for tax and tip.</p>
-  <p>You can't make your co-workers any less boorish, but you can make your life easier by using the "Split the Check"
-    lunch order form below.</p>
-  <hr>
-</md-card>
-<form #f="ngForm">
-  <div class="container">
-    <!-- Instructions -->
-    <div class="row">
-      <div class="col-xs-1"></div>
-      <div class="col-xs-10">
+<div>
+  <md-card>
+    <md-card-title-group>
+      <md-card-title>
+        <img md-card-md-image id="prairiedog"
+             title="Prairie dog standing"
+             src="./assets/images/prairiedog.jpg">
+        Split the Check
+      </md-card-title>
+    </md-card-title-group>
+    <md-card-content id="intro">
+      <div>
+        <p>How often has this happened to you:</p>
+        <p>
+          It's 11:30 in the morning, and your stomach alarm goes off.&ensp;When you make the mistake of saying "I'm
+          hungry"
+          heads start popping up above the cubicle walls like prairie dogs at a coyote convention.
+        </p>
+        <p>
+          Pretty soon your co-workers are swarming your cube, waving menus and twenty-dollar bills, shouting orders,
+          condiment
+          choices, special dietary requirements, and food preparation instructions.&ensp;Since you opened your mouth
+          first,
+          you're elected to take
+          the delivery order, account for the money, phone it in, get all the condiments and preparation instructions
+          straight, and make change for all the twenties.&ensp;And what thanks do you get for your efforts?&ensp;Harry
+          orders
+          a 4.75 burger, drops
+          a five, winks and says "Forget the change."
+        </p>
+        <p>
+          When it's all over you're out five bucks because nobody accounted for tax and tip.</p>
+        <p>You can't make your co-workers any less boorish, but you can make your life easier by using the "Split the
+          Check"
+          lunch order form below.</p>
         <ul>
           <li>
             Enter your local sales tax percent, tip percent, and delivery charge if applicable.
@@ -48,81 +51,90 @@
           <li>You can give change to the nearest penny, nickel, dime, quarter or dollar.</li>
         </ul>
       </div>
-    </div>
-    <div class="row" id="prompts">
-      <div class="col-xs-1">
-        <!-- spacer -->
-      </div>
-      <div class="col-xs-3">
-        <div class="row">
-          <div class="col"><label class="text-xs-right" for="txtTax">Sales Tax Percent:</label>
-          </div>
-          <div class="col">
-            <input class="form-control" id="txtTax" type="text" name="salesTaxPercent" tabindex="0"
-                   [ngModel]="(settings|async)?.salesTaxPercent"
-                   (ngModelChange)="item.value=$event"
-                   myCurrencyFormatter>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label class="text-xs-right" for="txtTip">Tip Percent:</label>
-          </div>
-          <div class="col mat-input-container">
-            <input id="txtTip" class="form-control" type="text" name="tipPercent" tabindex="0"
-                   [ngModel]="(settings|async)?.tipPercent"
-                   (ngModelChange)="item.value=$event" myCurrencyFormatter>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label class="text-xs-right" for="selTipBasis">Tip Basis:</label>
-          </div>
-          <div class="col mat-select">
-            <select #selTipBasis id="selTipBasis" class="form-control" name="tipBasis"
-                    [ngModel]="tipBasis"
-                    (ngModelChange)="UpdateTipBasis($event, selTipBasis.value)">
-              <option *ngFor="let basis of (tipBases|async)"
-                      [ngValue]="basis"
-                      [attr.selected]="basis.value == (tipBasis|async)?.value ? true : null"
-                      [label]="basis.description"></option>
-            </select>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label class="text-xs-right" for="txtDelivery">Delivery:</label>
-          </div>
-          <div class="col mat-input-container">
-            <input #txtDelivery class="form-control" id="txtDelivery" type="text" name="delivery"
-                   [ngModel]="(settings|async)?.delivery"
-                   (ngModelChange)="UpdateDelivery($event, txtDelivery.value)" myCurrencyFormatter>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label class="text-xs-right" for="selChange">Change Basis:</label>
-          </div>
-          <div class="col mat-select">
-            <select #selChange class="form-control" id="selChange" name="changeBasis"
-                    [ngModel]="changeBasis"
-                    (ngModelChange)="UpdateChangeBasis($event, selChange.value)">
-              <option *ngFor="let opt of (changeBases|async)"
-                      [ngValue]="opt"
-                      [attr.selected]="(opt.value == (changeBasis|async)?.value) ? true : null"
-                      [label]="opt.description"></option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</form>
-<hr>
-<div class="container">
-  <div class="row">
-    <order-list-outlet class="col-sm-8"></order-list-outlet>
-    <!-- Running totals -->
-    <order-totals class="col-sm-4"></order-totals>
-  </div>
+    </md-card-content>
+  </md-card>
+  <md-grid-list cols="2">
+    <md-grid-tile>
+      <md-card-content>
+        <form #f="ngForm">
+          <table>
+            <tbody>
+            <tr>
+              <td><label class="text-xs-right" for="txtTax">Sales Tax Percent:</label></td>
+              <td>
+                <md-input-container>
+                  <input mdInput class="form-control" id="txtTax" type="text" name="salesTaxPercent" tabindex="0"
+                         [ngModel]="(this.service.taxPercent|async)"
+                         (ngModelChange)="item.value=$event"
+                         myCurrencyFormatter>
+                </md-input-container>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="text-xs-right" for="txtTip">Tip Percent:</label></td>
+              <td>
+                <md-input-container>
+                  <input mdInput id="txtTip" class="form-control" type="text" name="tipPercent"
+                         tabindex="0"
+                         [ngModel]="(this.service.tipPercent|async)"
+                         (ngModelChange)="item.value=$event"
+                         myCurrencyFormatter>
+                </md-input-container>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="text-xs-right" for="selTipBasis">Tip Basis:</label></td>
+              <td>
+                <md-select mdSelect #selTipBasis id="selTipBasis" class="form-control" name="tipBasis"
+                           [ngModel]="(tipBasis|async)?.value"
+                           (change)="UpdateTipBasis($event)"
+                >
+                  <md-option mdOption *ngFor="let basis of (tipBases|async)"
+                             [value]="basis.value"
+                             [attr.selected]="basis.value == (tipBasis|async)?.value ? true : null">
+                    {{basis.description}}
+                  </md-option>
+                </md-select>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="text-xs-right" for="txtDelivery">Delivery:</label></td>
+              <td>
+                <md-input-container>
+                  <input mdInput #txtDelivery class="form-control" id="txtDelivery" type="text" name="delivery"
+                         [ngModel]="(this.service.delivery|async)"
+                         (ngModelChange)="UpdateDelivery($event, txtDelivery.value)"
+                         myCurrencyFormatter>
+                </md-input-container>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="text-xs-right" for="selChange">Change Basis:</label></td>
+              <td>
+                <md-select mdSelect #selChange class="form-control" id="selChange" name="changeBasis"
+                           [ngModel]="(changeBasis|async)?.value"
+                           (change)="UpdateChangeBasis($event)">
+                  <md-option mdOption *ngFor="let opt of (changeBases|async)"
+                             [value]="opt.value"
+                             [attr.selected]="opt.value == (changeBasis|async)?.value ? true : null"
+                  >{{opt.description}}
+                  </md-option>
+                </md-select>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </form>
+      </md-card-content>
+    </md-grid-tile>
+    <md-grid-tile>
+      <!-- Running totals -->
+      <md-card-content>
+        <order-totals></order-totals>
+      </md-card-content>
+    </md-grid-tile>
+  </md-grid-list>
+  <md-card>
+    <order-list-outlet></order-list-outlet>
+  </md-card>
 </div>

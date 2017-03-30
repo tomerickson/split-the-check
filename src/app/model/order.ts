@@ -5,61 +5,53 @@ import {ChangeBasis} from "./change-basis";
 
 export class Order {
   name: string;
-  tipBasis: BehaviorSubject<number>;
-  chgBasis: BehaviorSubject<number>;
   taxPercent: Observable<number>;
   tipPercent: Observable<number>;
-  subtotal: Observable<number>;
-  tax: Observable<number>;
-  tip: Observable<number>;
-  delivery: Observable<number>;
-  total: Observable<number>;
   overShort: Observable<number>;
   _items: Item[] = [];
   _paid: number;
+  _subtotal: number;
   items: Observable<Item[]>;
-  paid: Observable<number>;
 
   constructor(private service: HeaderService) {
     this._paid = 0;
     this.items = Observable.of(this._items);
-    this.paid = Observable.of(this._paid);
-    this.subtotal = Observable.from(this._items)
-      .map(item => item.quantity * item.price)
-      .reduce((result, acc) => result + acc, 0);
-    this.tax = Observable.combineLatest(this.subtotal, this.service.getSalesTaxPercent(), (amt, pct) => {
-      return amt * pct / 100;});
-    this.tip = Observable.combineLatest(this.subtotal, this.service.getTipPercent(), (amt, pct) => {
-      return amt * pct / 100;});
-    this.delivery = Observable.combineLatest(this.service.getSubTotal()
-      , this.service.getDelivery()
-      , this.subtotal
-      , (totalAmount, delivery, thisAmount) => {
-      let amt: number = 0;
-      if (totalAmount > 0){
-        if (thisAmount > 0) {
-          if (delivery > 0) {
-            amt = (thisAmount / totalAmount) * delivery;
-          }
-        }
-      }
-      return amt;
-    });
-    this.total = Observable.combineLatest(this.subtotal, this.tax, this.tip, this.delivery, (subtotal, tax, tip, delivery) => {
-      return subtotal + tax + tip + delivery;
-    });
-    this.overShort = Observable.combineLatest(this.total, this.paid, this.service.chgBasis,
-      (total, paid, basis:ChangeBasis) => {
-      let amt:number = 0;
-      if (total > 0) {
-        let chg: number = basis.value;
-        amt = Math.round((total - paid) / amt) * amt;
-      }
-      return amt;
-    });
+    this.taxPercent = service.taxPercent;
+    this.tipPercent = service.tipPercent;
+
+    // The delivery charge is allocated to individual orders
+    // on the basis of relative dollar value:
+    //  delivery charge / total order value * individual order value
   }
 
-  setPaid(amount: number) {
+  get subtotal() {
+    return this._subtotal;
+  }
+
+  set subtotal(delta: number){
+    this._subtotal += delta;
+  }
+
+  get tax() {
+    return this._subtotal * this.service.taxPercent.getValue() / 100;
+  }
+
+  get tip() {
+    return this.service.calculateTip(this._subtotal, this.tax);
+  }
+
+  get delivery() {
+    return this.service.calculateDelivery(this.subtotal);
+  }
+
+  get total() {
+    return this.subtotal + this.tax + this.tip + this.delivery;
+  }
+
+  get paid() {
+    return this._paid;
+  }
+  set paid(amount: number) {
     this._paid = amount;
   }
 

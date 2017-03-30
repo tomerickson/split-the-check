@@ -1,10 +1,8 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
 import {Settings, ChangeBasis, TipBasis} from "./model/";
 import {HeaderService} from "./header.service";
-// import {Totals} from "./model/totals";
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
 import {Header} from "./model/header";
-import {async} from "rxjs/scheduler/async";
 
 @Component({
   selector: 'app-root',
@@ -20,15 +18,14 @@ export class AppComponent implements OnInit, OnDestroy {
   //changeBasis: number = .25;
   salesTaxPercent: Observable<number>;
   tipPercent: Observable<number>;
-  delivery: Observable<number>;
+  delivery: number;
   changeBases: Observable<ChangeBasis[]>;
-  changeBasis: BehaviorSubject<ChangeBasis>;
-  tipBases: BehaviorSubject<TipBasis[]>;
-  tipBasis: BehaviorSubject<TipBasis>;
-  subTotal: Observable<number>;
-  total: Observable<number>;
-  tax: Observable<number>;
-  tip: Observable<number>;
+  changeBasis: Observable<ChangeBasis>;
+  tipBases: Observable<TipBasis[]>;
+  tipBasis: Observable<TipBasis>;
+  total: number;
+  tax: number;
+  tip: number;
   defaultTip: Subscription;
   defaultChange: Subscription;
   /* masking for 2-position decimal numbers */
@@ -43,36 +40,32 @@ export class AppComponent implements OnInit, OnDestroy {
     this.tipBasis = this.service.tipBasis;
     this.changeBases = this.service.getChangeBases();
     this.changeBasis = this.service.chgBasis;
-    this.salesTaxPercent = this.service.getSalesTaxPercent();
+    this.salesTaxPercent = this.service.taxPercent;
     this.tipPercent = this.service.getTipPercent();
-    this.total = this.service.getTotal();
-    this.subTotal = this.service.getSubTotal();
-    this.delivery = this.service.getDelivery();
-    this.tax = this.service.getTax();
-    this.tip = this.service.getTip();
-    console.log(this.tipBases);
+    this.total = this.service.total;
+    this.delivery = this.service.delivery;
+    this.tax = this.service.tax;
+    this.tip = this.service.tip;
+    console.info(this.tipBases);
     console.info(this.tipBasis);
     console.info(this.changeBasis);
-    console.info(this.defaultTip);
-   // debugger;
   }
 
   ngOnDestroy() {
     this.defaultTip.unsubscribe();
+    this.service.wrapup();
   }
 
-  UpdateTipBasis(event, newValue) {
-    this.service.setTipBasis(newValue);
-    console.log('this.tipBasis  = ' + this.tipBasis);
+  UpdateTipBasis(newValue) {
+    this.service.tipBasis = newValue;
   }
 
-  UpdateChangeBasis(event, newValue) {
-    this.service.setChangeBasis(newValue);
-    console.log('this.service.changeBasis = ' + this.service.chgBasis);
+  UpdateChangeBasis(newValue) {
+    this.service.changeBasis = newValue;
   }
 
-  UpdateDelivery(event, newValue) {
-    this.service.setDelivery(newValue);
+  UpdateDelivery(newValue) {
+    this.service.delivery = newValue;
   }
 }
 
