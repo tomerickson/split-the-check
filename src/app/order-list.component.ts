@@ -1,8 +1,8 @@
 import {Component, Input} from "@angular/core";
 import {Order} from "./model/order";
 import {HeaderService} from "./header.service";
-import {Header} from "./model/header";
-import {BehaviorSubject, Observable} from "rxjs";
+import {NgbAccordion} from "@ng-bootstrap/ng-bootstrap";
+import {NgbPanel} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'order-list-outlet',
@@ -12,17 +12,17 @@ import {BehaviorSubject, Observable} from "rxjs";
 })
 
 export class OrderListComponent {
-  @Input() header: Header;
-  orders: Observable<Order[]>;
-  constructor(private service: HeaderService) {
-    this.orders = service.getOrders();
+  service: HeaderService;
+
+  constructor(svc: HeaderService) {
+    this.service = svc;
   }
 
   addOrder() {
-    this.orders = this.service.addOrder();
+    this.service.addOrder();
   }
 
-  onRemove(order: Order) {
-    this.orders = this.service.removeOrder(order);
+  onRemove(event: Event, index: number) {
+    this.service.removeOrder(index);
   }
 }

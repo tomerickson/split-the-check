@@ -12,25 +12,18 @@ import {BehaviorSubject} from "rxjs";
 })
 
 export class OrderComponent {
-  _order: Order;
-  get order() {
-    return this._order;
-  }
 
-  set order(value) {
-    this._order = value;
-  }
+  @Input() order: Order;
   @Input() index: number;
   @Output() onRemove = new EventEmitter<Order>();
   @Output() changeTrigger = new EventEmitter();
   paid: number;
 
   constructor(private service: HeaderService) {
-    this._order = new Order(service);
   }
 
   removeOrder() {
-    this.onRemove.emit(this._order);
+    this.onRemove.emit(this.order);
   }
 
   updatePaid(value: number) {

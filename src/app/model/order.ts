@@ -11,11 +11,11 @@ export class Order {
   _items: Item[] = [];
   _paid: number;
   _subtotal: number;
-  items: Observable<Item[]>;
+  items: BehaviorSubject<Item[]>;
 
   constructor(private service: HeaderService) {
     this._paid = 0;
-    this.items = Observable.of(this._items);
+    this.items = new BehaviorSubject(this._items);
     this.taxPercent = service.taxPercent;
     this.tipPercent = service.tipPercent;
 
@@ -55,12 +55,20 @@ export class Order {
     this._paid = amount;
   }
 
-  removeItem(index: number){
-    this._items = this._items.splice(index,1);
+  removeItem(index: number) : Observable<Item[]> {
+    let myItems = this._items;
+    myItems.splice(index,1);
+    this._items = myItems;
+    this.items.next(this._items);
+    return this.items;
   }
 
-  addItem(){
-    this._items = this._items.concat(new Item());
+  addItem() : Observable<Item[]> {
+    let myItems = this._items;
+    myItems.push(new Item());
+    this._items = myItems;
+    this.items.next(this._items);
+    return this.items;
   }
 
   changeItem(item: Item) {

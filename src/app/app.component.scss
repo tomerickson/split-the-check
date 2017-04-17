@@ -1,9 +1,14 @@
-
-div#header {
-  p {
-    margin-left: 10px;
-  }
+div.container {
+  margin-left: 0 !important;
 }
-[mdInput], [mdSelect] {
-  background-color:ghostwhite;
+
+div#prairiedog {
+  float: left;
+  margin: 1rem;
+  button {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1em;
+  }
 }

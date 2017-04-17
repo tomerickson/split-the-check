@@ -3,27 +3,25 @@
  */
 import {Component, Input} from "@angular/core";
 import {Order} from "./model/order";
-import {Item} from "./model/item";
 import {HeaderService} from "./header.service";
 
 @Component({
   selector: "item-list-outlet",
-  styles: ["table {border: 1px solid black;border-collapse: separate;}"],
   templateUrl: "./item-list.component.html"
 })
 
 export class ItemListComponent {
-  @Input() order: Order;
-//  @Input() items: Item[];
 
-  constructor(private orderService: HeaderService) {
+  @Input() order: Order;
+
+  constructor(private service: HeaderService) {
   }
 
   addItem() {
-    this.order.addItem();
+    this.service.addItem(this.order);
   }
 
   removeItem(index: number) {
-    this.order.removeItem(index);
+    this.service.removeItem(this.order, index);
   }
 }

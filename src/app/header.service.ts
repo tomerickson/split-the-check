@@ -10,6 +10,7 @@ import {Injectable} from "@angular/core";
 import {TipBasis} from "./model/tip-basis";
 import {ChangeBasis} from "./model/change-basis";
 import {Order} from "./model/order";
+import {Item} from "./model/item";
 import {IDefault} from "./model/IDefault";
 import {ArrayObservable} from "rxjs/observable/ArrayObservable";
 import {Observable, Subscription} from "rxjs";
@@ -23,15 +24,15 @@ export class HeaderService {
 
   private httpHeaders: Headers;
   private options: RequestOptions;
-  taxPercent: BehaviorSubject<number>;
-  tipPercent: BehaviorSubject<number>;
-  private _tipBasis: TipBasis;
-  private _chgBasis: ChangeBasis;
-  private _delivery: number;
   private tipBases: BehaviorSubject<TipBasis[]>;
   private changeBases: BehaviorSubject<ChangeBasis[]>;
   private _orders: Order[];
-  private orders: BehaviorSubject<Order[]>;
+  readonly orders: BehaviorSubject<Order[]>;
+  public count: Observable<number>;
+  subtotal: BehaviorSubject<number>;
+  taxPercent: BehaviorSubject<number>;
+  tipPercent: BehaviorSubject<number>;
+  delivery: BehaviorSubject<number>;
   tipBasis: BehaviorSubject<TipBasis>;
   chgBasis: BehaviorSubject<ChangeBasis>;
 
@@ -40,10 +41,19 @@ export class HeaderService {
     this.httpHeaders.append("content-type", "application/json");
     this.options = new RequestOptions({headers: this.httpHeaders});
     this._orders = [];
-    this.orders = new BehaviorSubject<Order[]>(this._orders);
+    this.orders = new BehaviorSubject(this._orders);
+
+    this.count = Observable.of(this._orders.reduce(
+      (acc, val) => acc += 1, 0));
+
+    this.subtotal = new BehaviorSubject(this._orders
+      .map((arr, i) => arr[i].subtotal)
+      .reduce((acc, val) => acc += val, 0));
+
 
     this.taxPercent = new BehaviorSubject<number>(0);
     this.tipPercent = new BehaviorSubject<number>(0);
+    this.delivery = new BehaviorSubject<number>(0);
     this.tipBases = new BehaviorSubject<TipBasis[]>([]);
     this.changeBases = new BehaviorSubject<ChangeBasis[]>([]);
     this.tipBasis = new BehaviorSubject<TipBasis>(null);
@@ -55,54 +65,48 @@ export class HeaderService {
     this.subscribeToList(this.changeBases, "changeBases");
     this.subscribeToDefault(this.tipBasis, "tipBases");
     this.subscribeToDefault(this.chgBasis, "changeBases");
-
   }
 
   wrapup() {
+    this._orders = [];
+    this.orders.next(this._orders);
+    /*
     this.taxPercent.unsubscribe();
     this.tipPercent.unsubscribe();
     this.tipBases.unsubscribe();
     this.changeBases.unsubscribe();
-  }
-
-  get subtotal() {
-    let amt = 0;
-    for (let order of this._orders) {
-      amt += order.subtotal;
-    }
-    return amt;
+    */
   }
 
   get tax() {
-    let amt = 0;
-    for (let order of this._orders) {
-      amt += order.subtotal;
+    let amt = this.subtotal.getValue();
+    let pct = this.taxPercent.getValue();
+    if (amt && pct) {
+      return amt * pct / 100;
     }
-    return amt * this.taxPercent.getValue() / 100;
+    return 0;
   }
 
   get tip() {
-    let amt = 0;
-    for (let order of this._orders) {
-      amt += order.subtotal;
+    let amt = this.subtotal.getValue();
+    let basis: TipBasis = this.tipBasis.getValue();
+    let pct = this.tipPercent.getValue();
+    if (basis && pct) {
+      if (basis.description == "Gross") {
+        amt += this.tax;
+      }
     }
-    if (amt == 0) {
-      return 0;
-    }
-    let basis:TipBasis = this.tipBasis.getValue();
-    if (basis.description == "Gross") {
-      amt += this.tax;
-    }
-    return amt * this.tipPercent.getValue() / 100;
+    return amt * pct / 100;
   }
 
   get total() {
-    return this.subtotal + this.tax + this.tip + this.delivery;
+    let amt = 0;
+    return this.subtotal.getValue() + this.tax + this.tip + this.delivery.getValue();
   }
 
   get paid() {
     let amt = 0;
-    for (let order of this._orders) {
+    for (let order of this.orders.getValue()) {
       amt += order.paid;
     }
     return amt;
@@ -110,7 +114,7 @@ export class HeaderService {
 
   get overShort() {
     let amt = 0;
-    for (let order of this._orders) {
+    for (let order of this.orders.getValue()) {
       amt += order.total - order.paid;
     }
     return amt;
@@ -166,13 +170,6 @@ export class HeaderService {
       .subscribe(result => subscriber.next(result));
   }
 
-  set delivery(value: number) {
-    this._delivery = value;
-  }
-
-  get delivery() {
-    return this._delivery;
-  }
 
   getTipPercent(): Observable<number> {
     return this.tipPercent.asObservable();
@@ -186,35 +183,71 @@ export class HeaderService {
     this.tipBasis.next(value);
   }
 
-  set changeBasis(value: ChangeBasis) {
-    this._chgBasis = value;
+  setChangeBasis(value: ChangeBasis) {
+    this.chgBasis.next(value)
   }
 
+  setDelivery(value: number) {
+    this.delivery.next(value);
+  }
+
+  // Order methods
+  //
   getOrders(): Observable<Order[]> {
     return this.orders.asObservable();
   }
 
   addOrder(): Observable<Order[]> {
-    let myOrders: Order[];
-    myOrders = this.orders.getValue();
-    myOrders.push(new Order(this));
-    this.orders.next(myOrders);
+    let obs = this.saveOrder(new Order(this));
+    obs.subscribe(res => this._orders);
+    console.log("addOrder order count: " + this._orders.length);
+    return obs;
+  }
+
+  saveOrder(newOrder: Order): Observable<Order[]> {
+    let arr = this._orders;
+    arr.push(newOrder);
+    this._orders = arr;
+    this.orders.next(this._orders);
     return this.orders.asObservable();
   }
 
-  removeOrder(order: Order): Observable<Order[]> {
-    let myOrders: Order[];
-    myOrders = this.orders.getValue();
-    myOrders.slice(myOrders.indexOf(order), 1);
-    this.orders.next(myOrders);
-    return this.orders.asObservable();
+  removeOrder(index: number) {
+    this._orders.splice(index, 1);
+    console.log("order count: " + this._orders.length);
+  }
+
+  // Item methods
+  //
+
+  saveItem(order: Order, newItem: Item) : Observable<Item[]> {
+    let arr = order._items;
+    arr.push(newItem);
+    order._items = arr;
+    order.items.next(order._items);
+    return order.items.asObservable();
+  }
+
+  addItem(order: Order) : Observable<Item[]> {
+    let obs = this.saveItem(order, new Item());
+    obs.subscribe(res => order._items);
+    console.log("addItem item count:" + order._items.length);
+    return obs;
+  }
+
+  removeItem(order: Order, item:number){
+    return order.removeItem(item);
+  }
+
+  updateItemField(item: Item, fieldName: string, value: any) {
+    item[fieldName] = value;
   }
 
   calculateDelivery(subtotal) {
     if (subtotal == 0) {
       return 0;
     }
-    return this.delivery * this.subtotal / subtotal;
+    return this.delivery.getValue() * this.subtotal.getValue() / subtotal;
   }
 
   calculateTip(subtotal, tax) {

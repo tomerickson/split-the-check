@@ -1,52 +1,51 @@
-<div class="container">
-  <div class="row">
-    <div class="col"></div>
-    <div class="col text-right">#</div>
-    <div class="col text-right">Subtotal</div>
-    <div class="col pull-right">Tax</div>
-    <div class="col text-right">Delivery</div>
-    <div class="col text-right">Tip</div>
-    <div class="col text-right">Total</div>
-    <div class="col text-right">Paid</div>
-    <div class="col text-right">Change</div>
-  </div>
-  <div class="row">
+<div class="card">
+  <div class="card-header row" role="tab">
+    <div class="col"><span>{{"Order " + (index+1)}}</span></div>
+    <div class="col"><label for="input-order-name">Ordered by:</label></div>
+    <div class="col"><input id="input-order-name" type="text" [ngModel]="order.name"></div>
+    <div class="col"><span>{{order.name}}</span></div>
     <div class="col">
-      <button type="button" class="btn-primary" (click)="removeOrder($event)">-</button>
+      <button type="button" class="btn-danger" (click)="removeOrder(index)">-</button>
     </div>
-    <div class="col text-right">{{index+1}}</div>
-    <div class="col text-right"><p>{{(order.subtotal|async) | number:'1.2-2'}}</p></div>
-    <div class="col pull-right">{{+order.tax | number:'1.2-2'}}</div>
-    <div class="col text-right">{{order.delivery | number:'1.2-2'}}</div>
-    <div class="col text-right">{{order.tip | number:'1.2-2'}}</div>
-    <div class="col text-right">{{order.subtotal + order.tax + order.delivery + order.tip | number:'1.2-2'}}</div>
-    <div class="col text-right"><input type="text" title="paid" id="txtPaid" [(ngModel)]="order.paid"
-                                       (change)="updatePaid()" size=6
-                                       myCurrencyFormatter=""></div>
-    <div class="col text-right">{{order.overShort | number:'1.2-2'}}</div>
   </div>
+  <table class="table">
+    <thead>
+    <tr>
+      <th>#</th>
+      <th>Subtotal</th>
+      <th>Tax</th>
+      <th>Tip</th>
+      <th>Delivery</th>
+      <th>Total</th>
+      <th class="text-right">Paid</th>
+      <th class="text-right">Change</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td class="text-right">{{index+1}}</td>
+      <td class="text-right"><p>{{(order.subtotal|async) | number:'1.2-2'}}</p></td>
+      <td class="pull-right">{{(order.tax|async) | number:'1.2-2'}}</td>
+      <td class="text-right">{{(order.delivery|async) | number:'1.2-2'}}</td>
+      <td class="text-right">{{(order.tip | async) | number:'1.2-2'}}</td>
+      <td class="text-right">{{order.subtotal + order.tax + order.delivery + order.tip | number:'1.2-2'}}</td>
+      <td class="text-right"><input type="text" title="paid" id="txtPaid" [(ngModel)]="order.paid"
+                                    (change)="updatePaid()" size=6
+                                    myCurrencyFormatter=""></td>
+      <td class="text-right">{{order.overShort | number:'1.2-2'}}</td>
+      <td>
+        <button type="button" class="btn-danger" (click)="removeOrder(index)">-</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <div class="row">
+    <div class="col-1"></div>
+    <div class="col">
       <item-list-outlet [order]="order"></item-list-outlet>
+    </div>
+    <div class="col-1"></div>
+  </div>
 </div>
 
-<!--
-<table class="table table-sm">
-  <tr>
-    <td>
-      <button type="button" class="btn-button" (click)="removeOrder($event)">-</button>
-    </td>
-    <td>{{index+1 | number:'1.0-0'}}</td>
-    <td><input type="text" [ngModel]="order.name" placeholder="Ordered by"></td>
-    <td>
-      <item-list-outlet [order]="order"></item-list-outlet>
-    </td>
-    <td>{{order.subtotal | number:'1.2-2'}}</td>
-    <td>{{order.tax | number:'1.2-2'}}</td>
-    <td>{{order.delivery | number:'1.2-2'}}</td>
-    <td>{{order.tip | number:'1.2-2'}}</td>
-    <td>{{order.subtotal + order.tax + order.delivery + order.tip | number:'1.2-2'}}</td>
-    <td><input type="text" title="paid" id="txtPaid" [(ngModel)]="order.paid" (change)="updatePaid()" size=6
-               myCurrencyFormatter=""></td>
-    <td>{{order.overShort | number:'1.2-2'}}</td>
-  </tr>
-</table>
--->

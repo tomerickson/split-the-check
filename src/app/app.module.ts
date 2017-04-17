@@ -2,9 +2,7 @@ import {BrowserModule} from "@angular/platform-browser";
 import {NgModule} from "@angular/core";
 import {FormsModule} from "@angular/forms";
 import {HttpModule} from "@angular/http";
-import {MaterialModule} from "@angular/material";
-import {MdCardModule} from "@angular/material/card";
-import {MdIconModule,MdIconRegistry} from "@angular/material/icon";
+import { NgbModule} from "@ng-bootstrap/ng-bootstrap";
 import "hammerjs";
 import {MyCurrencyPipe} from "./common/custom-currency.pipe";
 import {MyCurrencyFormatterDirective} from "./common/custom-currency.directive";
@@ -32,9 +30,7 @@ import { OrderTotalsComponent } from './order-totals/order-totals.component';
     BrowserModule,
     FormsModule,
     HttpModule,
-    MaterialModule,
-    MdCardModule,
-    MdIconModule],
+  NgbModule.forRoot()],
 
   providers: [MyCurrencyPipe, HeaderService, OrderService],
   bootstrap: [AppComponent]

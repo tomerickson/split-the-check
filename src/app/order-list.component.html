@@ -1,34 +1,36 @@
-<span>This is the order-list component</span>
-<!--
-<ul>
-  <li>
-    <button type="button" class="btn-primary" (click)="addOrder()">+</button>
-  </li>
-</ul>
-<ngb-accordion [type]="info" [closeOthers]="false">
-  <ul>
-    <li>
-      Click (or spacebar) on the plus signs to add an order or an item.
-    </li>
-    <li>
-      Click the minus signs to remove an order or item.
-    </li>
-    <li>
-      Use the tab key and shift-tab key to navigate forward and backward.
-    </li>
-  </ul>
-  <ngb-panel class="card-header" *ngFor="let order of orders; let i = index">
-    <template ngbPanelTitle>
-      <span>{{"Order " + (i+1)}}</span>
-      <span><label>Ordered by:</label><input type="text" [ngModel]="order.name"></span>
-      <span>{{this.order.name}}</span></template>
-    <template ngbPanelContent>
-        <order-outlet
-          [order]="order"
-          [index]="i"
-          (onRemove)="onRemove($event)">
-        </order-outlet>
-    </template>
-  </ngb-panel>
-</ngb-accordion>
--->
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <span>This is the order-list component</span>
+      <ul>
+        <li>
+          <button type="button" class="btn-primary" (click)="addOrder()">+</button>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          Click (or spacebar) on the plus signs to add an order or an item.
+        </li>
+        <li>
+          Click the minus signs to remove an order or item.
+        </li>
+        <li>
+          Use the tab key and shift-tab key to navigate forward and backward.
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div id="accordion" role="tablist" aria-multiline="true">
+        <div class="card" *ngFor="let order of (service.orders) | async;let i = index">
+            <order-outlet
+              [order]="order"
+              [index]="i"
+              (onRemove)="onRemove($event, i)">
+            </order-outlet>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>

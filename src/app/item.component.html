@@ -1,21 +1,17 @@
-<form class="form-horizontal">
-  <div class="form-group">
-    <div class="col-md-1">
-      <button class="form-control" type="button" class="btn-default" (click)="onRemove()">-</button>
-    </div>
-    <div class="col-md-1">{{index+1 | number:'1.0-0'}}</div>
-    <div class="col-md-3"><input class="form-control" type="text" [(ngModel)]="item.description"
-                                 name="description" title="Description"
-                                 placeholder="Description"></div>
-    <div class="col-md-1"><input class="form-control" type="text" [(ngModel)]="item.quantity"
-                                 name="quantity" size="3" title="Quantity"
-                                 myCurrencyFormatter (change)="onChange()"></div>
-    <div class="col-md-2"><input class="form-control" type="text" [(ngModel)]="item.price"
-                                 name="price" size="7" title="Price"
-                                 myCurrencyFormatter (change)="onChange()"></div>
-    <div class="col-md-3"><input class="form-control" type="text" [(ngModel)]="item.instructions"
-                                 name="instructions" title="Instructions"
-                                 placeholder="Instructions"></div>
-    <div class="col-md-2">{{(item.price * item.quantity) | number:'1.2-2'}}</div>
-  </div>
-</form>
+<td>{{index+1 | number:'1.0-0'}}</td>
+<td><input class="form-control" type="text" [(ngModel)]="item.description"
+           name="description" title="Description"
+           placeholder="Description"></td>
+<td><input class="form-control" type="text" [(ngModel)]="item.quantity"
+           name="quantity" size="3" title="Quantity"
+           myCurrencyFormatter (change)="onChange()"></td>
+<td><input class="form-control" type="text" [(ngModel)]="item.price"
+           name="price" size="7" title="Price"
+           myCurrencyFormatter (change)="onChange()"></td>
+<td><input class="form-control" type="text" [(ngModel)]="item.instructions"
+           name="instructions" title="Instructions"
+           placeholder="Instructions"></td>
+<td>{{(item.price * item.quantity) | number:'1.2-2'}}</td>
+<td>
+  <button class="form-control" type="button" class="btn-default" (click)="onRemove()">-</button>
+</td>

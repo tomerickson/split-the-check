@@ -1,59 +1,45 @@
 <!-- Running totals -->
-<table>
-  <tbody>
-  <tr>
-    <td>
-      <label class="col-xs-6 text-xs-right">Subtotal:</label>
-    </td>
-    <td>
-      <label class="col-xs-4 text-xs-right">{{(service.subtotal| number:'1.2-2')}}</label>
-  </tr>
-  <tr>
-    <td>
-      <label class="text-xs-right">Sales Tax:</label>
-    </td>
-    <td>
-      <label class="text-xs-right">{{service.tax | number:'1.2-2'}}</label>
-  </tr>
-  <tr>
-    <td>
-      <label class="text-xs-right">Tip:</label>
-    </td>
-    <td>
-      <label class="text-xs-right">{{service.tip | number:'1.2-2'}}</label>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <label class="text-xs-right">Delivery:</label>
-    </td>
-    <td>
-      <label class="text-xs-right">{{service.delivery| number:'1.2-2'}}</label>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <label class="text-xs-right">Total:</label>
-    </td>
-    <td>
-      <label class="text-xs-right">{{service.total|number:'1.2-2'}}</label>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <label class="text-xs-right">Paid:</label>
-    </td>
-    <td>
-      <label class="text-xs-right">{{service.paid|number:'1.2-2'}}</label>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <label class="text-xs-right">Over / Short:</label>
-    </td>
-    <td>
-      <label class="text-xs-right">{{service.overShort| number:'1.2-2'}}</label>
-    </td>
-  </tr>
-  </tbody>
-</table>
+<div class="row">
+    <table>
+      <thead>
+      <tr>
+        <th colspan="2">Totals</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>Orders:</td>
+        <td><span>{{count | number:'1.0-0'}}</span></td>
+      </tr>
+      <tr>
+        <td>Subtotal:</td>
+        <td>{{(subtotal | number:'1.2-2')}}</td>
+      </tr>
+      <tr>
+        <td>Sales Tax:</td>
+        <td>{{(tax | async | number:'1.2-2')}}</td>
+      </tr>
+      <tr>
+        <td>Tip:</td>
+        <td><span *ngIf="tip">{{(tip | async | number:'1.2-2')}}</span></td>
+      </tr>
+      <tr>
+        <td>Delivery:</td>
+        <td><span *ngIf="delivery">{{delivery | async | number:'1.2-2'}}</span></td>
+      </tr>
+      <tr>
+        <td>Total:</td>
+        <td><span *ngIf="total">{{total | async | number:'1.2-2'}}</span></td>
+      </tr>
+      <tr>
+        <td>Paid:</td>
+        <td><span *ngIf="paid">{{paid | async | number:'1.2-2'}}</span></td>
+      </tr>
+      <tr>
+        <td>Over / Short:</td>
+        <td><span *ngIf="overShort">{{overShort | async | number:'1.2-2'}}</span></td>
+      </tr>
+      </tbody>
+    </table>
+  <button class="btn-outline-warning" (click)="clearOrder($event)">Clear</button>
+</div>

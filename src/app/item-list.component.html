@@ -1,19 +1,26 @@
-<div class="container">
-    <span>Items</span>
-  <div class="row">
-
-    <div class="col-md-1"><button type="button" class="btn-primary" (click)="addItem()" tabindex="0">+</button></div>
-    <div class="col-md-1">&nbsp;</div>
-    <div class="col-md-3">Item</div>
-    <div class="col-md-1">Quantity</div>
-    <div class="col-md-2">Price</div>
-    <div class="col-md-3">Instructions</div>
-    <div class="col-md-2">Amount</div>
-  </div>
-  <div class="row" item-outlet *ngFor="let item of order.items; let i = index"
-      [order]="order"
-      [item]="item"
-      [index]="i"
-      (removeItem)="removeItem($event)">
-  </div>
+<div>
+  <table class="table">
+    <thead>
+    <tr>
+      <th>
+        <button type="button" class="btn-primary" (click)="addItem()">+</button>
+      </th>
+      <th>Item</th>
+      <th>Quantity</th>
+      <th>Price</th>
+      <th>Instructions</th>
+      <th>Amount</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody *ngIf="order.items | async">
+    <tr item-outlet *ngFor="let item of (order.items) | async; let i = index;"
+        [order]="order"
+        [item]="item"
+        [index]="i"
+        (removeItem)="removeItem($event)">
+    </tr>
+    </tbody>
+  </table>
 </div>
+
