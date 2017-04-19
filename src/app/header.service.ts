@@ -107,7 +107,7 @@ export class HeaderService {
   get paid() {
     let amt = 0;
     for (let order of this.orders.getValue()) {
-      amt += order.paid;
+      amt += order._paid;
     }
     return amt;
   }
@@ -115,7 +115,7 @@ export class HeaderService {
   get overShort() {
     let amt = 0;
     for (let order of this.orders.getValue()) {
-      amt += order.total - order.paid;
+      amt += order._subtotal + order._tax + order._tip + order._delivery - order._paid;
     }
     return amt;
   }
@@ -212,6 +212,10 @@ export class HeaderService {
     return this.orders.asObservable();
   }
 
+  setPaid(order: Order, paid: number) {
+    order.setPaid(paid);
+  }
+
   removeOrder(index: number) {
     this._orders.splice(index, 1);
     console.log("order count: " + this._orders.length);
@@ -239,15 +243,21 @@ export class HeaderService {
     return order.removeItem(item);
   }
 
+  changeItem(order: Order, delta: number) {
+    return order.changeItem(delta);
+  }
+
   updateItemField(item: Item, fieldName: string, value: any) {
     item[fieldName] = value;
   }
 
-  calculateDelivery(subtotal) {
-    if (subtotal == 0) {
+  calculateDelivery(orderTotal: number) {
+    let delivery : number = this.delivery.getValue();
+    let grandTotal = this.subtotal.getValue();
+    if (orderTotal == 0 || delivery == 0 || grandTotal == 0) {
       return 0;
     }
-    return this.delivery.getValue() * this.subtotal.getValue() / subtotal;
+    return delivery * grandTotal / orderTotal;
   }
 
   calculateTip(subtotal, tax) {

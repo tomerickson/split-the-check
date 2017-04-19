@@ -1,1 +1,11 @@
+.mi-remove-circle {
+  &:hover {
+    color: rgba(160, 0, 0, 1);
+  }
+}
 
+.mi-add-circle {
+  &:hover {
+    color: rgba(0, 192, 0, 1);
+  }
+}

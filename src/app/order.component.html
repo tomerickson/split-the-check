@@ -5,7 +5,7 @@
     <div class="col"><input id="input-order-name" type="text" [ngModel]="order.name"></div>
     <div class="col"><span>{{order.name}}</span></div>
     <div class="col">
-      <button type="button" class="btn-danger" (click)="removeOrder(index)">-</button>
+      <span class="material-icons mi-remove-circle" (click)="removeOrder(index)" title="Remove this order"></span>
     </div>
   </div>
   <table class="table">
@@ -19,24 +19,25 @@
       <th>Total</th>
       <th class="text-right">Paid</th>
       <th class="text-right">Change</th>
-      <th></th>
     </tr>
     </thead>
     <tbody>
     <tr>
       <td class="text-right">{{index+1}}</td>
-      <td class="text-right"><p>{{(order.subtotal|async) | number:'1.2-2'}}</p></td>
-      <td class="pull-right">{{(order.tax|async) | number:'1.2-2'}}</td>
-      <td class="text-right">{{(order.delivery|async) | number:'1.2-2'}}</td>
-      <td class="text-right">{{(order.tip | async) | number:'1.2-2'}}</td>
-      <td class="text-right">{{order.subtotal + order.tax + order.delivery + order.tip | number:'1.2-2'}}</td>
-      <td class="text-right"><input type="text" title="paid" id="txtPaid" [(ngModel)]="order.paid"
-                                    (change)="updatePaid()" size=6
-                                    myCurrencyFormatter=""></td>
-      <td class="text-right">{{order.overShort | number:'1.2-2'}}</td>
-      <td>
-        <button type="button" class="btn-danger" (click)="removeOrder(index)">-</button>
-      </td>
+      <td class="text-right">{{order?.subtotal | async | number:'1.2-2'}}</td>
+      <td class="pull-right">{{order?.tax | async | number:'1.2-2'}}</td>
+      <td class="text-right">{{order?.delivery | async | number:'1.2-2'}}</td>
+      <td class="text-right">{{order?.tip | async | number:'1.2-2'}}</td>
+      <td class="text-right">{{order?.total | async| number:'1.2-2'}}</td>
+      <td class="text-right"><input type="text" title="paid"
+                                    #txtPaid
+                                    myCurrencyFormatter
+                                    [ngModel]="paid"
+                                    (focus)="onFocus($event)"
+                                    (blur)="onFocusOut($event);updatePaid()"
+                                    (mouseup)="$event.preventDefault()"
+                                    size="6"></td>
+      <td class="text-right">{{order?.overShort | async | number:'1.2-2'}}</td>
     </tr>
     </tbody>
   </table>

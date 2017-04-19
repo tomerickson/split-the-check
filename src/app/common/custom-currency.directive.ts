@@ -1,30 +1,35 @@
-import { Directive, HostListener, ElementRef, OnInit } from "@angular/core";
+import {Directive, HostListener, ElementRef, OnInit, Input} from "@angular/core";
 import { MyCurrencyPipe } from "./custom-currency.pipe";
 
-@Directive({ selector: "[myCurrencyFormatter]" })
+@Directive(
+  { selector: "[myCurrencyFormatter]"}
+  )
+
 export class MyCurrencyFormatterDirective implements OnInit {
 
   private el: HTMLInputElement;
+
+  @Input() decimals: number = 2;
 
   constructor(
     private elementRef: ElementRef,
     private currencyPipe: MyCurrencyPipe
   ) {
-    this.el = this.elementRef.nativeElement;
+    //this.el = this.elementRef.nativeElement;
   }
 
   ngOnInit() {
-    this.el.value = this.currencyPipe.transform(this.el.value);
+    //this.el.value = this.currencyPipe.transform(this.el.value, this.decimals);
   }
 
-  @HostListener("focus", ["$event.target.value"])
-  onFocus(value) {
-    this.el.value = this.currencyPipe.parse(value); // opposite of transform
+  @HostListener("focus", ["$event.target"]) onFocus(target) {
+    target.value = this.currencyPipe.parse(target.value, this.decimals); // opposite of transform
+    target.select();
   }
 
-  @HostListener("blur", ["$event.target.value"])
-  onBlur(value) {
-    this.el.value = this.currencyPipe.transform(value);
+  @HostListener("focusout", ["$event.target"])
+  onFocusOut(target) {
+    target.value = this.currencyPipe.transform(target.value, this.decimals);
   }
 
 }

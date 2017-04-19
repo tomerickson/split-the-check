@@ -7,7 +7,8 @@ import {HeaderService} from "./header.service";
 
 @Component({
   selector: "item-list-outlet",
-  templateUrl: "./item-list.component.html"
+  templateUrl: "./item-list.component.html",
+  styleUrls: ["./item-list.component.scss"]
 })
 
 export class ItemListComponent {
@@ -23,5 +24,9 @@ export class ItemListComponent {
 
   removeItem(index: number) {
     this.service.removeItem(this.order, index);
+  }
+
+  changeItem(delta: number){
+    this.service.changeItem(this.order, delta)
   }
 }

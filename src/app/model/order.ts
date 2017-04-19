@@ -2,64 +2,60 @@ import {Item} from './item';
 import {HeaderService} from "../header.service";
 import {BehaviorSubject, Observable} from "rxjs";
 import {ChangeBasis} from "./change-basis";
+import {observable} from "rxjs/symbol/observable";
 
 export class Order {
   name: string;
   taxPercent: Observable<number>;
   tipPercent: Observable<number>;
   overShort: Observable<number>;
+  subtotal: Observable<number>;
+  delivery: Observable<number>;
+  total: Observable<number>;
+  paid: BehaviorSubject<number>;
+  tax: Observable<number>;
+  tip: Observable<number>;
   _items: Item[] = [];
-  _paid: number;
-  _subtotal: number;
+  _paid: number = 0;
+  _subtotal: number = 0;
+  _tax: number = 0;
+  _tip: number = 0;
+  _delivery: number = 0;
   items: BehaviorSubject<Item[]>;
 
   constructor(private service: HeaderService) {
-    this._paid = 0;
     this.items = new BehaviorSubject(this._items);
     this.taxPercent = service.taxPercent;
-    this.tipPercent = service.tipPercent;
+    this.tipPercent = service.tipPercent
+    this.subtotal = Observable.of(this._items.map(itm => itm.price * itm.quantity)
+      .reduce((acc, val) => acc + val, 0));
+    this.paid = new BehaviorSubject(this._paid);
+    this.tax = Observable.combineLatest(this.subtotal, this.taxPercent, (amt, pct) => amt * pct  / 100);
+    this.tip = Observable.combineLatest(this.subtotal, this.tax, (amt, tax) => this.service.calculateTip(amt, tax));
+    this.delivery = Observable.combineLatest(this.service.subtotal, this.service.delivery, this.subtotal,
+      (total, delivery, subtotal) => {
+        if (total == 0 || delivery == 0 || subtotal == 0) {
+          return 0;
+        }
+        return delivery * total / subtotal;
+      });
+    this.total = Observable.combineLatest(this.subtotal, this.tax, this.tip, this.delivery,
+      (amt, tax, tip, del) => amt + tax + tip + del);
 
     // The delivery charge is allocated to individual orders
     // on the basis of relative dollar value:
     //  delivery charge / total order value * individual order value
   }
 
-  get subtotal() {
-    return this._subtotal;
-  }
-
-  set subtotal(delta: number){
-    this._subtotal += delta;
-  }
-
-  get tax() {
-    return this._subtotal * this.service.taxPercent.getValue() / 100;
-  }
-
-  get tip() {
-    return this.service.calculateTip(this._subtotal, this.tax);
-  }
-
-  get delivery() {
-    return this.service.calculateDelivery(this.subtotal);
-  }
-
-  get total() {
-    return this.subtotal + this.tax + this.tip + this.delivery;
-  }
-
-  get paid() {
-    return this._paid;
-  }
-  set paid(amount: number) {
-    this._paid = amount;
-  }
 
   removeItem(index: number) : Observable<Item[]> {
     let myItems = this._items;
+    let myItem: Item = myItems.slice(index, 1)[0];
+    let delta = 0-myItem.price * myItem.quantity;
     myItems.splice(index,1);
     this._items = myItems;
     this.items.next(this._items);
+    this._subtotal += delta;
     return this.items;
   }
 
@@ -71,10 +67,11 @@ export class Order {
     return this.items;
   }
 
-  changeItem(item: Item) {
-    let index:number = this._items.indexOf(item);
-    let items:Item[] = this._items.slice();
-    items[index] = item;
-    this._items = items;
+  changeItem(delta: number) {
+    this._subtotal += delta;
+  }
+
+  setPaid(paid: number){
+    this.paid.next(paid);
   }
 }

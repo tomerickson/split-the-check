@@ -14,6 +14,7 @@ import {OrderService} from "./order.service";
 import {ItemListComponent} from "./item-list.component";
 import {ItemComponent} from "./item.component";
 import { OrderTotalsComponent } from './order-totals/order-totals.component';
+import {SelectOnFocusDirective} from "./selectonfocus.directive";
 
 @NgModule({
   declarations: [
@@ -32,7 +33,7 @@ import { OrderTotalsComponent } from './order-totals/order-totals.component';
     HttpModule,
   NgbModule.forRoot()],
 
-  providers: [MyCurrencyPipe, HeaderService, OrderService],
+  providers: [MyCurrencyPipe, HeaderService, OrderService, SelectOnFocusDirective],
   bootstrap: [AppComponent]
 })
 export class AppModule {

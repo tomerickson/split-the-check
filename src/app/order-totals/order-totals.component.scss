@@ -1,32 +1,39 @@
+.mi-remove-circle {
+  margin-left: auto;
+  margin-right: auto;
+  &:hover {
+    color: rgba(160, 0, 0, 1);
+  }
+}
+
 div.row {
-  position:fixed;
-  width:10em;
-  top:0;
-  right:0;
-  margin-right:5px;
+  position: fixed;
+  width: 10em;
+  top: 0;
+  right: 0;
+  margin-right: 5px;
   padding: 0;
   border-style: none;
   box-shadow: 5px 5px 3px #cccccc;
-  background-color:white;
+  background-color: white;
   table {
     font-size: 10pt;
-    width:100%;
+    width: 100%;
     thead {
       th {
         text-align: center;
       }
     }
     tbody {
-      tr:nth-child(odd){
+      tr:nth-child(odd) {
         background-color: ghostwhite;
       }
       tr {
         td {
           white-space: nowrap;
-          text-align:right;
-          width:30%;
+          text-align: right;
+          width: 30%;
         }
-
       }
     }
   }

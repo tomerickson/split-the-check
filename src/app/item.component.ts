@@ -5,14 +5,15 @@ import {HeaderService} from "./header.service";
 
 @Component({
   selector: "[item-outlet]",
-  templateUrl: "./item.component.html"
+  templateUrl: "./item.component.html",
+  styleUrls: ["./item.component.scss"]
 })
 
 export class ItemComponent {
   @Input() item: Item;
   @Input() index: number;
   @Input() order: Order;
-  @Output() changeItem = new EventEmitter();
+  @Output() changeItem = new EventEmitter<number>();
   @Output() removeItem = new EventEmitter<number>();
 
   private priorValue: number;
@@ -26,9 +27,10 @@ export class ItemComponent {
   }
 
   onChange() {
-    if (this.item.quantity * this.item.price != this.priorValue) {
+    let delta = this.item.quantity * this.item.price - this.priorValue;
+    if (delta != 0) {
       this.priorValue = this.item.quantity * this.item.price;
-      this.changeItem.emit();
+      this.changeItem.emit(delta);
     }
   }
 }

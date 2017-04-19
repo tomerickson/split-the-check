@@ -20,14 +20,16 @@ export class OrderComponent {
   paid: number;
 
   constructor(private service: HeaderService) {
+    this.paid = 0;
   }
 
   removeOrder() {
     this.onRemove.emit(this.order);
   }
 
-  updatePaid(value: number) {
-    this.order.paid = value;
+  updatePaid() {
+    //this.paid = paid;
+    this.service.setPaid(this.order, this.paid);
   }
 
   // When an item is changed or removed

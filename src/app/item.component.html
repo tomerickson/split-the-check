@@ -4,7 +4,12 @@
            placeholder="Description"></td>
 <td><input class="form-control" type="text" [(ngModel)]="item.quantity"
            name="quantity" size="3" title="Quantity"
-           myCurrencyFormatter (change)="onChange()"></td>
+           decimals="0"
+           myCurrencyFormatter
+           (focus)="onFocus($event)"
+           (blur)="onFocusOut($event)"
+           (mouseup)="$event.preventDefault()"
+           (change)="onChange()"></td>
 <td><input class="form-control" type="text" [(ngModel)]="item.price"
            name="price" size="7" title="Price"
            myCurrencyFormatter (change)="onChange()"></td>
@@ -13,5 +18,5 @@
            placeholder="Instructions"></td>
 <td>{{(item.price * item.quantity) | number:'1.2-2'}}</td>
 <td>
-  <button class="form-control" type="button" class="btn-default" (click)="onRemove()">-</button>
+  <span class="mi mi-remove-circle" (click)="onRemove()"></span>
 </td>
