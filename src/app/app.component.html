@@ -62,8 +62,7 @@
               <label class="col-form-label" for="input-sales-tax">Sales Tax Percent:</label>
               <input class="form-control" type="text"
                      name="input-sales-tax" id="input-sales-tax" [ngModel]="(this.service.taxPercent|async)"
-                     (ngModelChange)="item.value=$event"
-                     myCurrencyFormatter>
+                     (ngModelChange)="this.service.setSalesTaxPercent($event)">
             </div>
           </div>
           <div class="col">
@@ -72,8 +71,7 @@
               <input class="form-control" id="txtTax" type="text"
                      name="input-tip" tabindex="0"
                      [ngModel]="(this.service.tipPercent|async)"
-                     (ngModelChange)="item.value=$event"
-                     myCurrencyFormatter>
+                     (ngModelChange)="this.service.setTipPercent($event)">
             </div>
           </div>
           <div class="col">
@@ -81,8 +79,9 @@
               <label class="col-2 col-form-label text-xs-right" for="txtDelivery">Delivery:</label>
               <input #txtDelivery class="col-10 form-control" id="txtDelivery" type="text" name="delivery"
                      [ngModel]="(this.service.delivery|async)"
-                     (ngModelChange)="UpdateDelivery($event, txtDelivery.value)"
-                     myCurrencyFormatter>
+                     (ngModelChange)="this.service.setDelivery($event);"
+                     onfocus="this.select();"
+                     onchange="this.value=this.value.toFixed(2);preventDefault();">
               <small>The delivery charge applies to the entire order.</small>
             </div>
           </div>

@@ -99,9 +99,8 @@ export class HeaderService {
     return amt * pct / 100;
   }
 
-  get total() {
-    let amt = 0;
-    return this.subtotal.getValue() + this.tax + this.tip + this.delivery.getValue();
+  get total() : Observable<number> {
+    return Observable.of(this.subtotal.getValue() + this.tax + this.tip + this.delivery.getValue());
   }
 
   get paid() {
@@ -179,6 +178,10 @@ export class HeaderService {
     this.tipPercent.next(value);
   }
 
+  setSalesTaxPercent(value: number) {
+    this.taxPercent.next(value);
+  }
+
   setTipBasis(value: TipBasis) {
     this.tipBasis.next(value);
   }
@@ -243,8 +246,8 @@ export class HeaderService {
     return order.removeItem(item);
   }
 
-  changeItem(order: Order, delta: number) {
-    return order.changeItem(delta);
+  changeItem(order: Order, index:number, item: Item) {
+    return order.changeItem(item, index);
   }
 
   updateItemField(item: Item, fieldName: string, value: any) {

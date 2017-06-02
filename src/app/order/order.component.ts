@@ -1,9 +1,9 @@
 import {Component, Input, Output, EventEmitter} from "@angular/core";
-import {Order} from "./model/order";
-import {HeaderService} from "./header.service";
-import {OrderService} from "./order.service";
-import {Header} from "./model/header";
+import {Order} from "../model/order";
+import {HeaderService} from "../header.service";
+import {Header} from "../model/header";
 import {BehaviorSubject} from "rxjs";
+import {DataStoreService} from "../data-store/data-store.service";
 
 @Component({
   selector: 'order-outlet',
@@ -19,7 +19,7 @@ export class OrderComponent {
   @Output() changeTrigger = new EventEmitter();
   paid: number;
 
-  constructor(private service: HeaderService) {
+  constructor(private service: DataStoreService) {
     this.paid = 0;
   }
 
@@ -35,7 +35,7 @@ export class OrderComponent {
   // When an item is changed or removed
   // recalculate the tax, tip and deliver
   // allocated to the order
-  changeOrder(changeValue: number) {
+  changeItem(changeValue: number) {
 
   }
 }

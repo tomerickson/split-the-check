@@ -67,8 +67,10 @@ export class Order {
     return this.items;
   }
 
-  changeItem(delta: number) {
-    this._subtotal += delta;
+  changeItem(item: Item, index: number){
+    let myItems = Array.from(this._items);
+    myItems = myItems.splice(index, 1, item);
+    this._items = myItems;
   }
 
   setPaid(paid: number){

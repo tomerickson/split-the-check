@@ -1,6 +1,6 @@
 {
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "project": {
-    "version": "1.0.0-beta.30",
     "name": "split-the-check"
   },
   "apps": [
@@ -16,13 +16,13 @@
       "polyfills": "polyfills.ts",
       "test": "test.ts",
       "tsconfig": "tsconfig.app.json",
-	  "testTsconfig": "tsconfig.spec.json",
+      "testTsconfig": "tsconfig.spec.json",
       "prefix": "app",
       "styles": [
         "styles.scss"
       ],
       "scripts": [],
-	  "environmentSource": "environments/environments.ts",
+      "environmentSource": "environments/environment.ts",
       "environments": {
         "dev": "environments/environment.ts",
         "prod": "environments/environment.prod.ts"
@@ -38,9 +38,9 @@
     {
       "project": "src/tsconfig.app.json"
     },
-	{
-		"project": "src/tsconfig.spec.json"
-	},
+    {
+      "project": "src/tsconfig.spec.json"
+    },
     {
       "project": "e2e/tsconfig.e2e.json"
     }

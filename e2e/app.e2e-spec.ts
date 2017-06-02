@@ -1,14 +1,16 @@
 import { SplitTheCheckPage } from './app.po';
 
-describe('split-the-check App', function() {
+describe('split-the-check App', () => {
   let page: SplitTheCheckPage;
 
   beforeEach(() => {
     page = new SplitTheCheckPage();
   });
 
-  it('should display message saying app works', () => {
+  it('should display welcome message', done => {
     page.navigateTo();
-    expect(page.getParagraphText()).toEqual('app works!');
+    page.getParagraphText()
+      .then(msg => expect(msg).toEqual('Welcome to app!!'))
+      .then(done, done.fail);
   });
 });

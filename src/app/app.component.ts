@@ -1,7 +1,7 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
-import { ChangeBasis, TipBasis} from "./model/";
-import {HeaderService} from "./header.service";
-import { Observable } from "rxjs";
+import {ChangeBasis, TipBasis} from "./model/";
+import {Observable} from "rxjs";
+import {DataStoreService} from "./data-store/data-store.service";
 
 @Component({
   selector: 'app-root',
@@ -17,49 +17,49 @@ export class AppComponent implements OnInit, OnDestroy {
   changeBasis: Observable<ChangeBasis>;
   tipBases: Observable<TipBasis[]>;
   tipBasis: Observable<TipBasis>;
-  total: number;
-  tax: number;
-  tip: number;
+  total: Observable<number>;
+  tax: Observable<number>;
+  tip: Observable<number>;
 
   showIntro: boolean;
 
   /* masking for 2-position decimal numbers */
   decimalMask = [/\d/, /\d/, '.', /\d/, /\d/];
 
-  constructor(public service: HeaderService) {
+  constructor(public service: DataStoreService) {
     this.showIntro = true;
   }
 
   ngOnInit() {
-    this.tipBases = this.service.getTipBases();
-    this.tipBasis = this.service.tipBasis;
-    this.changeBases = this.service.getChangeBases();
-    this.changeBasis = this.service.chgBasis;
-    this.salesTaxPercent = this.service.taxPercent;
+    this.tipBases = this.service.getTipOptions();
+    this.tipBasis = this.service.DefaultTipOption;
+    this.changeBases = this.service.getChangeOptions();
+    this.changeBasis = this.service.DefaultChangeOption;
+    this.salesTaxPercent = this.service.getTaxPercent();
     this.tipPercent = this.service.getTipPercent();
-    this.delivery = this.service.delivery;
-    this.tax = this.service.tax;
-    this.tip = this.service.tip;
-    this.total = this.service.total;
+    this.delivery = this.service.getDelivery();
+    this.tax = this.service.getTaxAmount();
+    this.tip = this.service.getTipAmount();
+    this.total = this.service.getTotal();
     console.info(this.tipBases);
     console.info(this.tipBasis);
     console.info(this.changeBasis);
   }
 
   ngOnDestroy() {
-    this.service.wrapup();
+    // this.service.wrapup();
   }
 
   UpdateTipBasis(newValue) {
-    this.service.setTipBasis(newValue);
+    // this.service.setTipBasis(newValue);
   }
 
   UpdateChangeBasis(newValue) {
-    this.service.setChangeBasis(newValue);
+    // this.service.setChangeBasis(newValue);
   }
 
   UpdateDelivery(newValue) {
-    this.service.setDelivery(newValue);
+    // this.service.setDelivery(newValue);
   }
 
   toggleIntro() {

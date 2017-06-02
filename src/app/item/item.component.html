@@ -1,0 +1,48 @@
+<td>{{index+1 | number:'1.0-0'}}</td>
+<td><input class="form-control" type="text" [(ngModel)]="item.description"
+           name="description" title="Description"
+           placeholder="Description"></td>
+<td>
+  <!--<input class="form-control" type="text" [(ngModel)]="item.quantity"
+         name="quantity" size="3" title="Quantity"
+         decimals="0"
+         myCurrencyFormatter
+         (focus)="onFocus($event)"
+         (blur)="onFocusOut($event)"
+         (mouseup)="$event.preventDefault()"
+         (change)="onChange()">-->
+  <input class="form-control"
+         [ngModel]="item.quantity"
+         name="quantity"
+         value="0"
+         onfocus="select();"
+         onchange="this.value=this.value.toFixed(2);$event.preventDefault();"
+         ngDefaultControl>
+</td>
+<!--<td><input class="form-control" type="text" [(ngModel)]="item.price"
+           name="price" size="7" title="Price"
+           myCurrencyFormatter
+           (focus)="onFocus($event)"
+           (blur)="onFocusOut($event)"
+           (change)="onChange()"
+           (mouseup)="$event.preventDefault()">
+</td>-->
+<td>
+  <input [ngModel]="item.price"
+                 name="price"
+                 value="0"
+                 onfocus="select();"
+                 onchange="this.value=this.value.toFixed(2);$event.preventDefault();"
+                 ngDefaultControl>
+</td>
+<td><input class="form-control" type="text" [(ngModel)]="item.instructions"
+           name="instructions" title="Instructions"
+           placeholder="Instructions"></td>
+
+<!--
+<td><decimal-input name="instructions" [ngModel]="item.instructions" (blur)="onFocusOut($event)"
+formControlName="instructions"></decimal-input></td>-->
+<td>{{(item.price * item.quantity) | number:'1.2-2'}}</td>
+<td>
+  <span class="material-icons mi-remove-circle" (click)="onRemove()"></span>
+</td>
