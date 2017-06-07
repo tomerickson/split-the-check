@@ -1,7 +1,7 @@
-import {Component, OnInit, OnDestroy} from "@angular/core";
-import {ChangeBasis, TipBasis} from "./model/";
-import {Observable} from "rxjs";
-import {DataStoreService} from "./data-store/data-store.service";
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {ChangeBasis, TipBasis} from './model/';
+import {Observable} from 'rxjs/observable';
+import {DataStoreService} from './data-store/data-store.service';
 
 @Component({
   selector: 'app-root',
@@ -17,9 +17,6 @@ export class AppComponent implements OnInit, OnDestroy {
   changeBasis: Observable<ChangeBasis>;
   tipBases: Observable<TipBasis[]>;
   tipBasis: Observable<TipBasis>;
-  total: Observable<number>;
-  tax: Observable<number>;
-  tip: Observable<number>;
 
   showIntro: boolean;
 
@@ -32,34 +29,31 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.tipBases = this.service.getTipOptions();
-    this.tipBasis = this.service.DefaultTipOption;
+    this.tipBasis = this.tipBases
+      .map(options => options.filter(option => option.isDefault)[0]);
     this.changeBases = this.service.getChangeOptions();
-    this.changeBasis = this.service.DefaultChangeOption;
-    this.salesTaxPercent = this.service.getTaxPercent();
-    this.tipPercent = this.service.getTipPercent();
-    this.delivery = this.service.getDelivery();
-    this.tax = this.service.getTaxAmount();
-    this.tip = this.service.getTipAmount();
-    this.total = this.service.getTotal();
-    console.info(this.tipBases);
-    console.info(this.tipBasis);
-    console.info(this.changeBasis);
+    this.changeBasis = this.changeBases
+      .map(options => options.filter(option => option.isDefault)[0]);
+    this.salesTaxPercent = this.service.DefaultTaxPercent;
+    this.tipPercent = this.service.DefaultTipPercent;
+    this.delivery = this.service.Delivery;
+
+    // Initialize the order summary
+    //
+    this.tipBasis.subscribe((basis) =>
+      this.service.setTipBasis(basis));
+
+    this.changeBasis.subscribe((basis) =>
+      this.service.setChangeBasis(basis));
+
+    this.delivery.subscribe((delivery) =>
+      this.service.setDeliveryCharge(delivery));
+
+    this.salesTaxPercent.subscribe((taxPercent) =>
+      this.service.setTaxPercent(taxPercent));
   }
 
   ngOnDestroy() {
-    // this.service.wrapup();
-  }
-
-  UpdateTipBasis(newValue) {
-    // this.service.setTipBasis(newValue);
-  }
-
-  UpdateChangeBasis(newValue) {
-    // this.service.setChangeBasis(newValue);
-  }
-
-  UpdateDelivery(newValue) {
-    // this.service.setDelivery(newValue);
   }
 
   toggleIntro() {

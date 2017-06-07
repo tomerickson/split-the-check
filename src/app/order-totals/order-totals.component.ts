@@ -1,6 +1,6 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
-import {HeaderService} from "../header.service";
-import {Header} from "../model/header";
+import {DataStoreService} from "../data-store/data-store.service";
+import {Observable} from "rxjs/Observable";
 
 @Component({
   selector: 'order-totals',
@@ -10,13 +10,14 @@ import {Header} from "../model/header";
 
 export class OrderTotalsComponent implements OnInit, OnDestroy {
 
-  service: HeaderService;
-  constructor(service: HeaderService) {
+  service: DataStoreService;
+
+  constructor(service: DataStoreService) {
     this.service = service;
-    console.log(this.service);
   }
 
   ngOnInit() {
+    // debugger;
   }
 
   ngOnDestroy() {
@@ -24,35 +25,36 @@ export class OrderTotalsComponent implements OnInit, OnDestroy {
   }
 
   get count() {
-    return this.service.orders.getValue().length;
+    return this.service.OrderCount;
   }
 
   get subtotal() {
-    return this.service.subtotal.getValue();
+    return this.service.Subtotal;
   }
 
   get tax() {
-    return this.service.tax;
+    return this.service.TaxAmount;
   }
 
   get tip() {
-    return this.service.tip;
+    return this.service.TipAmount;
   }
 
   get delivery() {
-    return this.service.delivery;
+    return this.service.Delivery;
   }
 
   get total() {
-    return this.service.total;
+    return this.service.Total;
   }
 
   get paid() {
-    return this.service.paid;
+    return this.service.Paid;
   }
 
   get overShort() {
-    return this.service.overShort;
+    return Observable.combineLatest(this.total, this.paid,
+      (total, paid) => total - paid) as Observable<number>
   }
 
   clearOrder(e: Event) {

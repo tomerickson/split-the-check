@@ -1,45 +1,45 @@
 <!-- Running totals -->
 <div class="row">
-    <table>
-      <thead>
-      <tr>
-        <th colspan="2">Totals</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr>
-        <td>Orders:</td>
-        <td><span>{{count | number:'1.0-0'}}</span></td>
-      </tr>
-      <tr>
-        <td>Subtotal:</td>
-        <td>{{(subtotal | number:'1.2-2')}}</td>
-      </tr>
-      <tr>
-        <td>Sales Tax:</td>
-        <td>{{(tax | async | number:'1.2-2')}}</td>
-      </tr>
-      <tr>
-        <td>Tip:</td>
-        <td><span *ngIf="tip">{{(tip | async | number:'1.2-2')}}</span></td>
-      </tr>
-      <tr>
-        <td>Delivery:</td>
-        <td><span *ngIf="delivery">{{delivery | async | number:'1.2-2'}}</span></td>
-      </tr>
-      <tr>
-        <td>Total:</td>
-        <td><span *ngIf="total">{{total | async | number:'1.2-2'}}</span></td>
-      </tr>
-      <tr>
-        <td>Paid:</td>
-        <td><span *ngIf="paid">{{paid | async | number:'1.2-2'}}</span></td>
-      </tr>
-      <tr>
-        <td>Over / Short:</td>
-        <td><span *ngIf="overShort">{{overShort | async | number:'1.2-2'}}</span></td>
-      </tr>
-      </tbody>
-    </table>
+  <table>
+    <thead>
+    <tr>
+      <th colspan="2">Totals</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>Orders:</td>
+      <td><span *ngIf="count">{{count | async}}</span></td>
+    </tr>
+    <tr>
+      <td>Subtotal:</td>
+      <td *ngIf="subtotal">{{subtotal | async }}</td>
+    </tr>
+    <tr>
+      <td>Sales Tax:</td>
+      <td *ngIf="tax">{{tax | async}}</td>
+    </tr>
+    <tr>
+      <td>Tip:</td>
+      <td><span *ngIf="tip">{{tip | async}}</span></td>
+    </tr>
+    <tr>
+      <td>Delivery:</td>
+      <td><span *ngIf="delivery">{{delivery | async}}</span></td>
+    </tr>
+    <tr>
+      <td>Total:</td>
+      <td><span *ngIf="total">{{total | async}}</span></td>
+    </tr>
+    <tr>
+      <td>Paid:</td>
+      <td><span *ngIf="paid">{{paid | async }}</span></td>
+    </tr>
+    <tr>
+      <td>Over / Short:</td>
+      <td><span *ngIf="overShort">{{overShort | async}}</span></td>
+    </tr>
+    </tbody>
+  </table>
   <span title="Clear all orders" class="material-icons mi-remove-circle" (click)="clearOrder($event)"></span>
 </div>
