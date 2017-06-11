@@ -1,6 +1,5 @@
 import {Component, Input, Output, EventEmitter} from "@angular/core";
 import {Order} from "../model/order";
-import {HeaderService} from "../header.service";
 import {Header} from "../model/header";
 import {BehaviorSubject} from "rxjs";
 import {DataStoreService} from "../data-store/data-store.service";

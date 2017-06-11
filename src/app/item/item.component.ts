@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter, SimpleChanges} from "@angular/core";
 import {Item} from "../model/item";
 import {Order} from "../model/order";
-import {HeaderService} from "../header.service";
+import {DataStoreService} from "../data-store/data-store.service";
 
 export class itemPayload {
   index: number;
@@ -29,7 +29,7 @@ export class ItemComponent {
 
   private priorValue: number;
 
-  constructor(private orderService: HeaderService) {
+  constructor(private service: DataStoreService) {
     this.priorValue = 0;
   }
 
@@ -43,7 +43,7 @@ export class ItemComponent {
 
   onChange() {
     let delta = this.item.quantity * this.item.price - this.priorValue;
-    if (delta != 0) {
+    if (delta !== 0) {
       this.priorValue = this.item.quantity * this.item.price;
       this.changeItem.emit(new itemPayload(this.index, this.item));
     }

@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {AngularFireDatabase, FirebaseListObservable, FirebaseObjectObservable} from 'angularfire2/database';
 import {TipBasis} from '../model/tip-basis';
 import {Thenable} from "firebase/app";
+import {Observable} from "rxjs/Observable";
 
 @Injectable()
 
@@ -12,12 +13,14 @@ export class DataProviderService {
   //
   private MSG_SUCCESS = " succeeded.";
   private MSG_FAIL = " failed.";
+  private MSG_GET = 'getList';
   private MSG_PUSH = 'push';
   private MSG_SET = "set";
   private MSG_LIST = "list";
   private MSG_OBJECT = "object";
   private MSG_QUERY = "query";
   private MSG_REMOVE = "remove";
+  private MSG_UPDATE = "update";
 
   private static primitiveTypes = ['string', 'float', 'number', 'date', 'boolean'];
   private db: AngularFireDatabase;
@@ -27,38 +30,45 @@ export class DataProviderService {
     this.db = fb;
   }
 
-  getList(path: string): FirebaseListObservable<any[]> {
-    if (this.LOG) console.log('firebase.getList path: ' + path);
+  getList(path: string, take?: any): FirebaseListObservable<any[]> {
+    let result: FirebaseListObservable<any> = null;
     try {
-      return this.db.list(path);
-    } catch (e) {
-      console.log(e);
-      throw e;
-    }
-  }
-
-  getItem(path: string): FirebaseObjectObservable<any> {
-    if (this.LOG) console.log('firebase.getItem path: ' + path);
-    try {
-      if (this.LOG) {
-        console.log(this.setLogInfo("getItem", path, "") + " succeeded.");
+      if (!take.isNullOrUndefined()) {
+        result = this.db.list(path).take(take) as FirebaseListObservable<any>;
+      } else {
+        result = this.db.list(path);
       }
-      return this.db.object(path);
+      if (this.LOG) this.logTask(this.MSG_LIST, path, null, true);
     } catch (err) {
-      console.log(this.setLogInfo("getItem", path));
+      this.logTask(this.MSG_LIST, path, null, false);
       throw err;
     }
+    return result;
   }
 
-  push(path: string, value: object): Thenable<any> {
+  getItem(path: string, take?: any): FirebaseObjectObservable<any> {
+    let result: FirebaseObjectObservable<any>;
+    try {
+      if (!take.isNullOrUndefined()) {
+        result = this.db.object(path).take(take) as FirebaseObjectObservable<any>;
+      }  else {
+         result = this.db.object(path);
+      }
+      if (this.LOG) this.logTask(this.MSG_OBJECT, path, null, true);
+    } catch (err) {
+      this.logTask(this.MSG_OBJECT, path, null, false);
+      throw err;
+    }
+    return result;
+  }
+
+  push<T>(path: string, value: T): Thenable<T> {
     return this.db.list(path).push(value)
       .then(() => {
-        if (this.LOG) {
-          console.log(this.setLogInfo("push", path, value) + " succeeded.");
-        }
+        if (this.LOG) this.logTask(this.MSG_PUSH, path, value, true);
       })
       .catch(err => {
-        console.log(this.setLogInfo("push", path, value) + " failed.");
+        this.logTask(this.MSG_PUSH, path, value, false);
         throw(err);
       });
   }
@@ -66,12 +76,10 @@ export class DataProviderService {
   update(path: string, object: object): Thenable<any> {
     return this.db.object(path).update(object)
       .then(() => {
-        if (this.LOG) {
-          console.log(this.setLogInfo("update", path, object) + " succeeded.");
-        }
+        if (this.LOG) this.logTask(this.MSG_UPDATE, path, object, true);
       })
       .catch(err => {
-        console.log(this.setLogInfo("update", path, object) + " failed.");
+        this.logTask(this.MSG_UPDATE, path, object, false);
         throw(err);
       });
   }
@@ -79,26 +87,22 @@ export class DataProviderService {
   set(path: string, value: any):  Thenable<any> {
     return this.db.object(path).set(value)
       .then(() => {
-        if(this.LOG) {
-          console.log(this.setLogInfo("set", path, value) + " succeeded.");
-        }
+        if(this.LOG) this.logTask(this.MSG_SET, path, value, true);
       })
       .catch(err => {
-        if (this.LOG) {
-          console.log(this.setLogInfo("set", path, value) + " failed.");
-        }
+          this.logTask(this.MSG_SET, path, value, false);
+          throw(err);
       })
   }
 
   query(path: string, filter: any): FirebaseListObservable<any> {
     try {
       let result = this.db.list(path, {query: filter});
-      if (this.LOG) {
-        console.log(this.setLogInfo("query", path, filter) + " succeeded.");
-      }
+      if (this.LOG) this.logTask(this.MSG_QUERY, path, filter, true);
       return result;
     } catch (err) {
-      console.log(this.setLogInfo("query", path, filter) + " failed.");
+      this.logTask(this.MSG_QUERY, path, filter, false);
+      throw(err);
     }
   }
 
@@ -119,18 +123,15 @@ export class DataProviderService {
     return result;
   }
 
-  // Assert that the incoming variable
-  // a primitive javascriprt type
+  // Log the action
   //
-  private isPrimitive(unknown: any): boolean {
-    return (DataProviderService.primitiveTypes.indexOf(typeof unknown)) >= 0;
-  }
-
-  // Assemble a message to be logged.
-  //
-  private setLogInfo(method: string, path: string, value: any = null): string {
-    return "firebase." + method + " "
-      + (value == null) ? "" : JSON.stringify(value)
-      + " path: " + path;
+  // TODO: Replace this with a decorator?
+  private logTask(method: string, path: string, value: any = null, success: boolean = false) {
+    let msg = "firebase." + method + " ";
+    msg += ((value === null) ? "" : JSON.stringify(value));
+    msg += " path: " + path;
+    msg += " ";
+    msg += (success) ? this.MSG_SUCCESS : this.MSG_FAIL;
+    console.log(msg);
   }
 }

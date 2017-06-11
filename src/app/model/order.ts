@@ -1,13 +1,10 @@
 import {Item} from './item';
-import {HeaderService} from "../header.service";
 import {BehaviorSubject, Observable} from "rxjs";
-import {ChangeBasis} from "./change-basis";
-import {observable} from "rxjs/symbol/observable";
+import {DataStoreService} from "../data-store/data-store.service";
 
-export class Order {
+export class Order implements IDomainObject{
+  key: string;
   name: string;
-  taxPercent: Observable<number>;
-  tipPercent: Observable<number>;
   overShort: Observable<number>;
   subtotal: Observable<number>;
   delivery: Observable<number>;
@@ -21,50 +18,55 @@ export class Order {
   _tax: number = 0;
   _tip: number = 0;
   _delivery: number = 0;
-  items: BehaviorSubject<Item[]>;
+  items: Observable<Item[]>;
 
-  constructor(private service: HeaderService) {
-    this.items = new BehaviorSubject(this._items);
-    this.taxPercent = service.taxPercent;
-    this.tipPercent = service.tipPercent
+  constructor(private service: DataStoreService) {
+    this.items = this.service.getItems(this);
     this.subtotal = Observable.of(this._items.map(itm => itm.price * itm.quantity)
       .reduce((acc, val) => acc + val, 0));
-    this.paid = new BehaviorSubject(this._paid);
-    this.tax = Observable.combineLatest(this.subtotal, this.taxPercent, (amt, pct) => amt * pct  / 100);
-    this.tip = Observable.combineLatest(this.subtotal, this.tax, (amt, tax) => this.service.calculateTip(amt, tax));
-    this.delivery = Observable.combineLatest(this.service.subtotal, this.service.delivery, this.subtotal,
-      (total, delivery, subtotal) => {
-        if (total == 0 || delivery == 0 || subtotal == 0) {
-          return 0;
+    this.paid = new BehaviorSubject<number>(0);
+    this.tax = Observable.combineLatest(this.subtotal, this.service.TaxPercent, (amt, pct) => amt * pct  / 100);
+
+    // Tips can be based on net amount or gross amount (amount plus tax)
+    //
+    this.tip = Observable.combineLatest(this.service.TipBasis, this.service.TipPercent, this.subtotal, this.tax,
+      (tipBasis, tipPercent, subtotal, tax) => {
+        let result: number = 0;
+        if (tipBasis.description === 'Gross') {
+          result = (subtotal + tax) * tipPercent / 100;
+        } else {
+          result = subtotal * tipPercent / 100;
         }
-        return delivery * total / subtotal;
+        return result;
       });
-    this.total = Observable.combineLatest(this.subtotal, this.tax, this.tip, this.delivery,
-      (amt, tax, tip, del) => amt + tax + tip + del);
 
     // The delivery charge is allocated to individual orders
     // on the basis of relative dollar value:
-    //  delivery charge / total order value * individual order value
+    //  delivery charge * individual order value / total order value
+    //
+    this.delivery = Observable.combineLatest(this.service.Subtotal, this.service.Delivery, this.subtotal,
+      (total, delivery, subtotal) => {
+        if (total === 0 || delivery === 0 || subtotal === 0) {
+          return 0;
+        }
+        return delivery * subtotal / total;
+      });
+
+    this.total = Observable.combineLatest(this.subtotal, this.tax, this.tip, this.delivery,
+      (amt, tax, tip, del) => amt + tax + tip + del);
+
+    this.overShort = Observable.combineLatest(this.total, this.paid, (total, paid) => total - paid);
+
+
   }
 
 
-  removeItem(index: number) : Observable<Item[]> {
-    let myItems = this._items;
-    let myItem: Item = myItems.slice(index, 1)[0];
-    let delta = 0-myItem.price * myItem.quantity;
-    myItems.splice(index,1);
-    this._items = myItems;
-    this.items.next(this._items);
-    this._subtotal += delta;
-    return this.items;
-  }
 
-  addItem() : Observable<Item[]> {
-    let myItems = this._items;
-    myItems.push(new Item());
-    this._items = myItems;
-    this.items.next(this._items);
-    return this.items;
+// return subtotal * this.tipPercent.getValue() / 100;
+
+  addItem() {
+    let item: Item = new Item(this.key);
+    this.service.addItem(item);
   }
 
   changeItem(item: Item, index: number){

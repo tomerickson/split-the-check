@@ -18,7 +18,7 @@ import {Observable, Subscription} from "rxjs";
 @Injectable()
 
 export class HeaderService {
-
+/*
   private readonly settingsUrl = "./assets/data/settings.json";
   private readonly totalsUrl = "./assets/data/totals.json";
 
@@ -70,12 +70,12 @@ export class HeaderService {
   wrapup() {
     this._orders = [];
     this.orders.next(this._orders);
-    /*
+
     this.taxPercent.unsubscribe();
     this.tipPercent.unsubscribe();
     this.tipBases.unsubscribe();
     this.changeBases.unsubscribe();
-    */
+
   }
 
   get tax() {
@@ -200,13 +200,6 @@ export class HeaderService {
     return this.orders.asObservable();
   }
 
-  addOrder(): Observable<Order[]> {
-    let obs = this.saveOrder(new Order(this));
-    obs.subscribe(res => this._orders);
-    console.log("addOrder order count: " + this._orders.length);
-    return obs;
-  }
-
   saveOrder(newOrder: Order): Observable<Order[]> {
     let arr = this._orders;
     arr.push(newOrder);
@@ -269,4 +262,5 @@ export class HeaderService {
     }
     return subtotal * this.tipPercent.getValue() / 100;
   }
+  */
 }

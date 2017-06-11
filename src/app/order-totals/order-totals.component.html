@@ -7,38 +7,40 @@
     </tr>
     </thead>
     <tbody>
+    <ng-template *ngIf="service">
     <tr>
       <td>Orders:</td>
-      <td><span *ngIf="count">{{count | async}}</span></td>
+      <td><span *ngIf="count">{{service.OrderCount | async}}</span></td>
     </tr>
     <tr>
       <td>Subtotal:</td>
-      <td *ngIf="subtotal">{{subtotal | async }}</td>
+      <td *ngIf="subtotal">{{service.Subtotal | async }}</td>
     </tr>
     <tr>
       <td>Sales Tax:</td>
-      <td *ngIf="tax">{{tax | async}}</td>
+      <td *ngIf="tax">{{service.TaxAmount | async}}</td>
     </tr>
     <tr>
       <td>Tip:</td>
-      <td><span *ngIf="tip">{{tip | async}}</span></td>
+      <td><span *ngIf="tip">{{(service.TipAmount | async)?.$value | number:'1.2-2'}}</span></td>
     </tr>
     <tr>
       <td>Delivery:</td>
-      <td><span *ngIf="delivery">{{delivery | async}}</span></td>
+      <td><span *ngIf="delivery">{{(service.Delivery | async)?.$value | number:'1.2-2'}}</span></td>
     </tr>
     <tr>
       <td>Total:</td>
-      <td><span *ngIf="total">{{total | async}}</span></td>
+      <td><span *ngIf="total">{{service.Total | async}}</span></td>
     </tr>
     <tr>
       <td>Paid:</td>
-      <td><span *ngIf="paid">{{paid | async }}</span></td>
+      <td><span *ngIf="paid">{{service.Paid | async }}</span></td>
     </tr>
     <tr>
       <td>Over / Short:</td>
-      <td><span *ngIf="overShort">{{overShort | async}}</span></td>
+      <td><span *ngIf="overShort">{{service.OverShort | async}}</span></td>
     </tr>
+    </ng-template>
     </tbody>
   </table>
   <span title="Clear all orders" class="material-icons mi-remove-circle" (click)="clearOrder($event)"></span>

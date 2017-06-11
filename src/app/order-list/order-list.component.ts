@@ -1,6 +1,5 @@
 import {Component, Input, OnInit} from "@angular/core";
 import {Order} from "../model/order";
-import {HeaderService} from "../header.service";
 import {NgbAccordion} from "@ng-bootstrap/ng-bootstrap";
 import {NgbPanel} from "@ng-bootstrap/ng-bootstrap";
 import {DataStoreService} from "../data-store/data-store.service";

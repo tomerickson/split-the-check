@@ -3,9 +3,9 @@
  */
 import {Component, Input} from "@angular/core";
 import {Order} from "../model/order";
-import {HeaderService} from "../header.service";
 import {Item} from "../model/item";
 import {itemPayload} from "../item/item.component";
+import {DataStoreService} from "../data-store/data-store.service";
 
 @Component({
   selector: "item-list-outlet",
@@ -17,18 +17,18 @@ export class ItemListComponent {
 
   @Input() order: Order;
 
-  constructor(private service: HeaderService) {
+  constructor(private service: DataStoreService) {
   }
 
   addItem() {
-    this.service.addItem(this.order);
+    this.service.addItem(new Item(this.order.key));
   }
 
-  removeItem(index: number) {
-    this.service.removeItem(this.order, index);
+  removeItem(item: Item) {
+    this.service.removeItem(item);
   }
 
-  changeItem(arg: itemPayload){
-    this.service.changeItem(this.order, arg.index, arg.item);
+  changeItem(item: Item, arg: object) {
+    this.service.updateItem(item, arg);
   }
 }
