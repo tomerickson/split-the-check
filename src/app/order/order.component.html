@@ -2,8 +2,8 @@
   <div class="card-header row" role="tab">
     <div class="col"><span>{{"Order " + (index+1)}}</span></div>
     <div class="col"><label for="input-order-name">Ordered by:</label></div>
-    <div class="col"><input id="input-order-name" type="text" [ngModel]="order.name"></div>
-    <div class="col"><span>{{order.name}}</span></div>
+    <div class="col"><input id="input-order-name" type="text" [ngModel]="(order|async)?.name"></div>
+    <div class="col"><span>{{(order|async)?.name}}</span></div>
     <div class="col">
       <span class="material-icons mi-remove-circle" (click)="removeOrder()" title="Remove this order"></span>
     </div>
@@ -24,21 +24,19 @@
     <tbody>
     <tr>
       <td class="text-right">{{index+1}}</td>
-      <td class="text-right">{{order?.subtotal | async | number:'1.2-2'}}</td>
-      <td class="pull-right">{{order?.tax | async | number:'1.2-2'}}</td>
-      <td class="text-right">{{order?.delivery | async | number:'1.2-2'}}</td>
-      <td class="text-right">{{order?.tip | async | number:'1.2-2'}}</td>
-      <td class="text-right">{{order?.total | async| number:'1.2-2'}}</td>
+      <td class="text-right">{{(service.subtotal|async) | number:'1.2-2'}}</td>
+      <td class="text-right">{{(service.delivery | async) | number:'1.2-2'}}</td>
+      <td class="text-right">{{(service.tip | async) | number:'1.2-2'}}</td>
+      <td class="text-right">{{(service.total | async) | number:'1.2-2'}}</td>
       <td class="text-right">
         <input type="text" title="paid"
                                     #txtPaid
-                                    [ngModel]="paid"
-                                    (blur)="updatePaid()"
+                                    [ngModel]="service.paid"
                                     onfocus="select();"
-                                    onchange="this.value=this.value.toFixed(2);$event.preventDefault();"
+                                    (change)="updatePaid($event)"
                                     size="6">
       </td>
-      <td class="text-right">{{order?.overShort | async | number:'1.2-2'}}</td>
+      <td class="text-right">{{(service.total|async) - (service.paid | async)| number:'1.2-2'}}</td>
     </tr>
     </tbody>
   </table>

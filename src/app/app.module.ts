@@ -15,6 +15,8 @@ import {AngularFireAuthModule} from "angularfire2/auth";
 import {AngularFireDatabaseModule} from "angularfire2/database"
 import {DataStoreService} from "./data-store/data-store.service";
 import {DataProviderService} from "./data-provider/data-provider.service";
+import {OrderService} from "./order-service/order-service.service";
+import { SettingsComponent } from './settings/settings.component';
 // import { MockComponent } from './mock/mock.component';
 
 @NgModule({
@@ -25,7 +27,8 @@ import {DataProviderService} from "./data-provider/data-provider.service";
     OrderComponent,
     ItemListComponent,
     ItemComponent,
-    OrderTotalsComponent
+    OrderTotalsComponent,
+    SettingsComponent
   ],
 
   imports: [
@@ -38,7 +41,7 @@ import {DataProviderService} from "./data-provider/data-provider.service";
     AngularFireDatabaseModule],
 
 
-  providers: [DataStoreService, DataProviderService],
+  providers: [DataStoreService, DataProviderService, OrderService],
   bootstrap: [/*MockComponent,*/ AppComponent]
 })
 export class AppModule {

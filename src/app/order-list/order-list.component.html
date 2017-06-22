@@ -15,7 +15,7 @@
     </div>
   </div>
       <div id="accordion" role="tablist" aria-multiline="true">
-        <div class="card" *ngFor="let order of (service.orders) | async;let i = index">
+        <div class="card" *ngFor="let order of service.Orders|async;let i = index">
             <order-outlet
               [order]="order"
               [index]="i"

@@ -13,8 +13,8 @@
       <th></th>
     </tr>
     </thead>
-    <tbody *ngIf="order.items | async">
-    <tr item-outlet *ngFor="let item of (order.items) | async; let i = index;"
+    <tbody *ngIf="items | async">
+    <tr item-outlet *ngFor="let item of (items | async); let i = index;"
         [order]="order"
         [item]="item"
         [index]="i"

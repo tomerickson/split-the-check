@@ -4,8 +4,8 @@
 import {Component, Input} from "@angular/core";
 import {Order} from "../model/order";
 import {Item} from "../model/item";
-import {itemPayload} from "../item/item.component";
 import {DataStoreService} from "../data-store/data-store.service";
+import {Observable} from "rxjs/Observable";
 
 @Component({
   selector: "item-list-outlet",
@@ -21,7 +21,7 @@ export class ItemListComponent {
   }
 
   addItem() {
-    this.service.addItem(new Item(this.order.key));
+    this.service.addItem(this.order.key);
   }
 
   removeItem(item: Item) {
@@ -31,4 +31,8 @@ export class ItemListComponent {
   changeItem(item: Item, arg: object) {
     this.service.updateItem(item, arg);
   }
+
+  get items(): Observable<Item[]> {
+    return this.service.getItems(this.order.key);
+}
 }

@@ -14,21 +14,19 @@ import {Observable} from "rxjs/Observable";
 
 export class OrderListComponent implements OnInit{
   service: DataStoreService;
-  orders: Observable<Order[]>;
 
   constructor(svc: DataStoreService) {
     this.service = svc;
   }
 
   ngOnInit() {
-    this.orders = this.service.getOrders();
   }
 
-  addOrder(order: Order) {
-    this.service.addOrder(order);
+  addOrder() {
+        this.service.addOrder();
   }
 
   onRemove(event: Event, index: number) {
-    this.service.removeOrder(this.orders[index]);
+    this.service.removeOrder(this.service.Orders[index]);
   }
 }

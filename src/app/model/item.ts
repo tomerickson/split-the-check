@@ -7,7 +7,8 @@ export class Item implements IDomainObject {
   price: number = 0;
   value: number = 0;
 
-  constructor(orderId: string) {
-    this.order = orderId;
+  constructor(orderId?: string) {
+    if (typeof orderId !== "undefined")
+      this.key = orderId;
+    }
   }
-}

@@ -1,3 +1,19 @@
+<nav class="navbar navbar-toggleable-md navbar-light bg-faded">
+  <a class="navbar-brand" href="#">Navbar</a>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Link</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link disabled" href="#">Disabled</a>
+      </li>
+    </ul>
+  </div>
+</nav>
 <div class="container">
   <div class="row">
     <div class="col-10">
@@ -55,79 +71,11 @@
   </div>
   <div class="row">
     <div class="col-10">
-      <form #f="ngForm">
-        <div class="row">
-          <div class="col">
-            <div class="form-group">
-              <label class="col-form-label" for="input-sales-tax">Sales Tax Percent:</label>
-              <input class="form-control"
-                     name="input-sales-tax" id="input-sales-tax" [ngModel]="(service.TaxPercent|async)">
-            </div>
-          </div>
-          <div class="col">
-            <div class="form-group">
-              <label class="col-form-label text-xs-right" for="txtTip">Tip Percent:
-                <input class="form-control" id="txtTip"
-                       name="input-tip"
-                       tabindex="0"
-                       onfocus="this.select()"
-                       [ngModel]="(service.TipPercent|async)?.$value"></label>
-            </div>
-          </div>
-          <div class="col">
-            <div class="form-group">
-              <label *ngIf="service" class="col-2 col-form-label text-xs-right" for="txtDelivery">Delivery:
-              <input #txtDelivery class="col-10 form-control" id="txtDelivery" name="delivery"
-                     [ngModel]="(service.Delivery|async)?.$value"
-                     (change)="service.Delivery=$event.value"
-                     onfocus="this.select();">
-              <small>The delivery charge applies to the entire order.</small>
-            </label>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <div class="form-group">
-              <label class="col-form-label text-xs-right" for="selTipBasis">Tip Basis:</label>
-              <ng-template *ngIf="service">
-                <select #selTipBasis id="selTipBasis" class="col-10 form-control"
-                        name="select-tip"
-                        [(ngModel)]="service.TipBasis">
-                  <option *ngFor="let opt of service.TipOptions|async"
-                          [value]="opt.value"
-                          [attr.selected]="(opt.isDefault) ? true : null">
-                    {{opt.description}}
-                  </option>
-                </select>
-              </ng-template>
-              <small>Bases the tip on merchandise: <b>Net</b> or merchandise plus tax: <b>Gross</b></small>
-            </div>
-          </div>
-          <div class="col">
-            <div class="form-group">
-              <label class="col-form-label text-xs-right" for="selChange">Change Basis:</label>
-              <ng-template *ngIf="service">
-                <select #selChange class="col-10 form-control" id="selChange"
-                        name="select-change"
-                        [(ngModel)]="service.ChangeBasis">
-                  <option *ngFor="let opt of service.ChangeOptions|async"
-                          [value]="opt.value"
-                          [attr.selected]="(opt.isDefault) ? true : null">
-                    {{opt.description}}
-                  </option>
-                </select>
-              </ng-template>
-              <small>Calculates change to the denomination you select.</small>
-            </div>
-          </div>
-        </div>
-      </form>
-
-      <!-- Running totals -->
-      <div class="col-6">
-        <order-totals></order-totals>
-      </div>
+      <app-settings></app-settings>
+    </div>
+    <!-- Running totals -->
+    <div class="col-1">
+      <order-totals></order-totals>
     </div>
   </div>
   <div class="row">

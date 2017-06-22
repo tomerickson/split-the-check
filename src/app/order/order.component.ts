@@ -1,8 +1,7 @@
 import {Component, Input, Output, EventEmitter} from "@angular/core";
 import {Order} from "../model/order";
-import {Header} from "../model/header";
-import {BehaviorSubject} from "rxjs";
-import {DataStoreService} from "../data-store/data-store.service";
+import {OrderService} from "../order-service/order-service.service";
+import {Observable} from "rxjs/Observable";
 
 @Component({
   selector: 'order-outlet',
@@ -12,29 +11,28 @@ import {DataStoreService} from "../data-store/data-store.service";
 
 export class OrderComponent {
 
-  @Input() order: Order;
+  @Input() order: Observable<Order>;
+  @Input() orderId: string;
   @Input() index: number;
   @Output() onRemove = new EventEmitter<Order>();
   @Output() changeTrigger = new EventEmitter();
-  paid: number;
 
-  constructor(private service: DataStoreService) {
-    this.paid = 0;
+  service: OrderService;
+
+  constructor(service: OrderService) {
+    if (this.order) {
+      this.service.fetch(this.orderId);
+    }
+    else {
+      this.service.fetch();
+    }
   }
 
   removeOrder() {
-    this.onRemove.emit(this.order);
+    this.service.removeOrder(this.orderId);
   }
 
-  updatePaid() {
-    //this.paid = paid;
-    this.service.setPaid(this.order, this.paid);
-  }
-
-  // When an item is changed or removed
-  // recalculate the tax, tip and deliver
-  // allocated to the order
-  changeItem(changeValue: number) {
-
+  updatePaid(paid) {
+    this.service.setPaid(paid, this.orderId);
   }
 }

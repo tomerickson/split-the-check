@@ -24,39 +24,6 @@ export class OrderTotalsComponent implements OnInit, OnDestroy {
 
   }
 
-  get count() {
-    return this.service.OrderCount;
-  }
-
-  get subtotal() {
-    return this.service.Subtotal;
-  }
-
-  get tax() {
-    return this.service.TaxAmount;
-  }
-
-  get tip() {
-    return this.service.TipAmount;
-  }
-
-  get delivery() {
-    return this.service.Delivery;
-  }
-
-  get total() {
-    return this.service.Total;
-  }
-
-  get paid() {
-    return this.service.Paid;
-  }
-
-  get overShort() {
-    return Observable.combineLatest(this.total, this.paid,
-      (total, paid) => total - paid) as Observable<number>
-  }
-
   clearOrder(e: Event) {
     this.service.wrapup();
     e.preventDefault();
