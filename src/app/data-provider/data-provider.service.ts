@@ -106,7 +106,7 @@ export class DataProviderService {
       })
   }
 
-  query(path: string, filter?: any): FirebaseListObservable<any> {
+  query(path: string, filter: any, preserveSnapshot?:boolean): FirebaseListObservable<any> {
     try {
       let result = this.db.list(path, {query: filter});
       if (this.LOG) this.logTask(this.MSG_QUERY, path, filter, true);
