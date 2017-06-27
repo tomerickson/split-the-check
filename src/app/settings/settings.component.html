@@ -1,0 +1,81 @@
+<form #f="ngForm">
+  <div class="row">
+    <div class="col">
+      <div class="form-group">
+        <label *ngIf="service" class="col-form-label"
+               for="input-sales-tax">Tax Percent:
+          <input class="form-control"
+                 name="input-sales-tax"
+                 id="input-sales-tax"
+                 tabindex="1"
+                 size="5"
+                 onfocus="this.select()"
+                 [ngModel]="(service.TaxPercent|async)?.$value">
+        </label>
+      </div>
+    </div>
+    <div class="col">
+      <div class="form-group">
+        <label *ngIf="service"
+               class="col-form-label text-xs-right" for="txtTip">Tip Percent:
+          <input class="form-control" id="txtTip"
+                 name="input-tip"
+                 tabindex="2"
+                 size="5"
+                 onfocus="this.select()"
+                 [ngModel]="(service.TipPercent|async)?.$value">
+        </label>
+      </div>
+    </div>
+    <div class="col">
+      <div class="form-group">
+        <label *ngIf="service"
+               class="col-form-label text-xs-right" for="txtDelivery">Delivery:
+          <input #txtDelivery class="form-control" id="txtDelivery" name="delivery"
+                 tabindex="3"
+                 size="7"
+                 [ngModel]="(service.Delivery|async)?.$value|number:'1.2-2'"
+                 (change)="setDelivery($event);"
+                 onfocus="this.select();">
+          <small>The delivery charge applies to the entire order.</small>
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div class="form-group">
+        <label class="col-form-label text-xs-right" for="selTipBasis">Tip Basis:</label>
+        <select #selTipBasis id="selTipBasis" class="col-10 form-control"
+                name="select-tip"
+                tabindex="4"
+                [ngModel]="service.TipBasis"
+                (change)="updateTipBasis($event)">
+          <option *ngFor="let opt of (service.TipOptions|async)"
+                  [value]="opt"
+                  [attr.selected]="(opt.isDefault) ? true : null">
+            {{opt.description}}
+          </option>
+        </select>
+        <small>Base the tip on merchandise: <b>Net</b> or merchandise plus tax: <b>Gross</b></small>
+      </div>
+    </div>
+    <div class="col">
+      <div class="form-group">
+        <label class="col-form-label text-xs-right" for="selChange">Change Basis:</label>
+        <select #selChange class="col-10 form-control" id="selChange"
+                name="select-change"
+                tabindex="5"
+                [ngModel]="service.ChangeBasis"
+                (change)="updateChangeBasis($event)">
+          <option *ngFor="let opt of (service.ChangeOptions|async)"
+                  [value]="opt"
+                  [attr.selected]="(opt.isDefault) ? true : null">
+            {{opt.description}}
+          </option>
+        </select>
+        <small>Calculate change to the denomination you select.</small>
+      </div>
+    </div>
+  </div>
+</form>
