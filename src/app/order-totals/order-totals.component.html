@@ -29,15 +29,15 @@
     </tr>
     <tr>
       <td>Total:</td>
-      <td>{{(service.Total | async)?.$value}}</td>
+      <td>{{(service.Total | async)?.$value | number:'1.2-2'}}</td>
     </tr>
     <tr>
       <td>Paid:</td>
-      <td>{{(service.Paid | async)?.$value }}</td>
+      <td>{{(service.Paid | async)?.$value | number:'1.2-2'}}</td>
     </tr>
     <tr>
       <td>Over / Short:</td>
-      <td>{{(service.OverShort | async)?.$value}}</td>
+      <td>{{(service.OverShort | async)?.$value | number:'1.2-2'}}</td>
     </tr>
     </tbody>
   </table>

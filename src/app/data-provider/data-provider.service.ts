@@ -1,13 +1,11 @@
-import {Injectable} from '@angular/core';
+import {Injectable, OnDestroy} from '@angular/core';
 import {AngularFireDatabase, FirebaseListObservable, FirebaseObjectObservable} from 'angularfire2/database';
 import {TipBasis} from '../model/tip-basis';
 import {Thenable} from "firebase/app";
-import {Observable} from "rxjs/Observable";
-import {QueryReference} from "angularfire2/interfaces";
 
 @Injectable()
 
-export class DataProviderService {
+export class DataProviderService implements OnDestroy {
 
   // Constants
   //
@@ -22,6 +20,7 @@ export class DataProviderService {
   private MSG_QUERY = "query";
   private MSG_REMOVE = "remove";
   private MSG_UPDATE = "update";
+  private MSG_DISCONNECT = 'goOffline';
 
   private static primitiveTypes = ['string', 'float', 'number', 'date', 'boolean'];
   private LOG: boolean = true;
@@ -30,6 +29,16 @@ export class DataProviderService {
 
   constructor(fb: AngularFireDatabase) {
     this.db = fb;
+  }
+
+  ngOnDestroy() {
+    try {
+      this.db.app.database().goOffline();
+      if (this.LOG) this.logTask(this.MSG_DISCONNECT, '', '', true);
+    }
+    catch (e){
+      if (this.LOG) this.logTask(this.MSG_DISCONNECT, '', '', false, e);
+    }
   }
 
   getList(path: string, preserveSnapshot?: boolean, take?: any): FirebaseListObservable<any[]> {
@@ -106,7 +115,7 @@ export class DataProviderService {
       })
   }
 
-  query(path: string, filter: any, preserveSnapshot?:boolean): FirebaseListObservable<any> {
+  query(path: string, filter: any, preserveSnapshot?: boolean): FirebaseListObservable<any> {
     try {
       let result = this.db.list(path, {query: filter});
       if (this.LOG) this.logTask(this.MSG_QUERY, path, filter, true);
