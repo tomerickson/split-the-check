@@ -3,10 +3,11 @@
     <div class="col">
       <ul>
         <li>
-          Click this symbol&nbsp;<span class="material-icons mi-add-circle" (click)="addOrder()"></span> or use the spacebar to add an order or an item.
+          Click this symbol&nbsp;<i class="fa fa-plus-square" aria-hidden="true" (click)="addOrder()"></i>
+          or use the spacebar to add an order or an item.
         </li>
         <li>
-          Click on this symbol&nbsp;<span class="material-icons mi-remove-circle"></span>&nbsp;below to remove an order or item.
+          Click on this symbol&nbsp;<i class="fa fa-minus-square" aria-hidden="true"></i>&nbsp;below to remove an order or item.
         </li>
         <li>
           Use the tab key and shift-tab key to navigate forward and backward.
@@ -15,9 +16,17 @@
     </div>
   </div>
       <div id="accordion" role="tablist" aria-multiline="true">
+        <ul *ngFor="let order of service.Orders|async;let i = index">
+          <li>
+            <label>{{i+1}}</label>
+            <label>{{order.$key}}</label>
+              <label>Paid</label>
+            <label>{{order.paid | number:'1.2-2'}}</label>
+          </li>
+        </ul>
         <div class="card" *ngFor="let order of service.Orders|async;let i = index">
             <order-outlet
-              [order]="order"
+              [orderId]="order.$key"
               [index]="i"
               (onRemove)="onRemove($event, i)">
             </order-outlet>

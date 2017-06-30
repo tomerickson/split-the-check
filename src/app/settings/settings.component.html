@@ -10,7 +10,8 @@
                  tabindex="1"
                  size="5"
                  onfocus="this.select()"
-                 [ngModel]="(service.TaxPercent|async)?.$value">
+                 [ngModel]="(service.TaxPercent|async)?.$value"
+                 (change)="service.setTaxPercent($event.currentTarget['value'])">
         </label>
       </div>
     </div>
@@ -23,7 +24,8 @@
                  tabindex="2"
                  size="5"
                  onfocus="this.select()"
-                 [ngModel]="(service.TipPercent|async)?.$value">
+                 [ngModel]="(service.TipPercent|async)?.$value"
+                 (change)="service.setTipPercent($event.currentTarget['value'])">
         </label>
       </div>
     </div>
@@ -35,7 +37,7 @@
                  tabindex="3"
                  size="7"
                  [ngModel]="(service.Delivery|async)?.$value|number:'1.2-2'"
-                 (change)="setDelivery($event);"
+                 (change)="service.setDelivery($event.currentTarget['value']);"
                  onfocus="this.select();">
           <small>The delivery charge applies to the entire order.</small>
         </label>

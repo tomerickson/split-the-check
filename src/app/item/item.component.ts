@@ -22,7 +22,7 @@ export class itemPayload {
 export class ItemComponent {
   @Input() item: Item;
   @Input() index: number;
-  @Input() order: Order;
+  @Input() orderId: string;
   @Output() changeItem = new EventEmitter<itemPayload>();
   @Output() removeItem = new EventEmitter<number>()
 

@@ -15,7 +15,7 @@
     </thead>
     <tbody *ngIf="items | async">
     <tr item-outlet *ngFor="let item of (items | async); let i = index;"
-        [order]="order"
+        [orderId]="item.orderId"
         [item]="item"
         [index]="i"
         (removeItem)="removeItem($event)"

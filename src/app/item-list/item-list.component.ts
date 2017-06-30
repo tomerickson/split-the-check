@@ -1,7 +1,7 @@
 /**
  * Created by Erick on 2/6/2017.
  */
-import {Component, Input} from "@angular/core";
+import {Component, Input, OnDestroy, OnInit} from "@angular/core";
 import {Order} from "../model/order";
 import {Item} from "../model/item";
 import {DataStoreService} from "../data-store/data-store.service";
@@ -13,15 +13,22 @@ import {Observable} from "rxjs/Observable";
   styleUrls: ["item-list.component.scss"]
 })
 
-export class ItemListComponent {
+export class ItemListComponent implements OnInit, OnDestroy {
+  @Input() orderId: string;
+  items: Observable<Item[]>;
 
-  @Input() order: Order;
+  constructor(public service: DataStoreService) {
+  }
 
-  constructor(private service: DataStoreService) {
+  ngOnInit() {
+    this.items = this.service.getItems(this.orderId);
+  }
+  ngOnDestroy() {
+
   }
 
   addItem() {
-    this.service.addItem(this.order.key);
+    this.service.addItem(this.orderId);
   }
 
   removeItem(item: Item) {
@@ -31,8 +38,4 @@ export class ItemListComponent {
   changeItem(item: Item, arg: object) {
     this.service.updateItem(item, arg);
   }
-
-  get items(): Observable<Item[]> {
-    return this.service.getItems(this.order.key);
-}
 }

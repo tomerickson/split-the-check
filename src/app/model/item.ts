@@ -1,14 +1,13 @@
 export class Item implements IDomainObject {
   key: string;
-  order: string;
-  description: string;
+  orderId: string;
+  description: string = "";
   quantity: number = 0;
-  instructions: string;
+  instructions: string = "";
   price: number = 0;
   value: number = 0;
 
-  constructor(orderId?: string) {
-    if (typeof orderId !== "undefined")
-      this.key = orderId;
+  constructor(orderId: string) {
+      this.orderId = orderId;
     }
   }
