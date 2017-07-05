@@ -16,17 +16,9 @@
     </div>
   </div>
       <div id="accordion" role="tablist" aria-multiline="true">
-        <ul *ngFor="let order of service.Orders|async;let i = index">
-          <li>
-            <label>{{i+1}}</label>
-            <label>{{order.$key}}</label>
-              <label>Paid</label>
-            <label>{{order.paid | number:'1.2-2'}}</label>
-          </li>
-        </ul>
-        <div class="card" *ngFor="let order of service.Orders|async;let i = index">
+          <div class="card" *ngFor="let order of (service.AllOrders|async);let i = index">
             <order-outlet
-              [orderId]="order.$key"
+              [orderId]="order.key"
               [index]="i"
               (onRemove)="onRemove($event, i)">
             </order-outlet>

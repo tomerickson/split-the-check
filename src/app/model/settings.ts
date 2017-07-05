@@ -1,12 +1,18 @@
-import {Observable} from "rxjs";
+import {TipBasis} from "./tip-basis";
+import {ChangeBasis} from "./change-basis";
+
 /**
  * Created by Erick on 2/27/2017.
  */
 
 export class Settings {
-  public salesTaxPercent: Observable<number>;
-  public tipPercent: Observable<number>;
-  public changeBasis: Observable<number>;
-  public tipBasis: Observable<number>;
-  public delivery: Observable<number>;
+  public salesTaxPercent: number;
+  public tipPercent: number;
+  public changeBasis: ChangeBasis;
+  public tipBasis: TipBasis;
+  public delivery: number;
+  public showIntro: boolean;
+
+  constructor() {
   }
+}

@@ -1,8 +1,8 @@
 <form #f="ngForm">
   <div class="row">
     <div class="col">
-      <div class="form-group">
-        <label *ngIf="service" class="col-form-label"
+      <div class="form-group" *ngIf="settings">
+        <label class="col-form-label"
                for="input-sales-tax">Tax Percent:
           <input class="form-control"
                  name="input-sales-tax"
@@ -10,33 +10,31 @@
                  tabindex="1"
                  size="5"
                  onfocus="this.select()"
-                 [ngModel]="(service.TaxPercent|async)?.$value"
+                 [ngModel]="settings.salesTaxPercent"
                  (change)="service.setTaxPercent($event.currentTarget['value'])">
         </label>
       </div>
     </div>
     <div class="col">
       <div class="form-group">
-        <label *ngIf="service"
-               class="col-form-label text-xs-right" for="txtTip">Tip Percent:
+        <label class="col-form-label text-xs-right" for="txtTip">Tip Percent:
           <input class="form-control" id="txtTip"
                  name="input-tip"
                  tabindex="2"
                  size="5"
                  onfocus="this.select()"
-                 [ngModel]="(service.TipPercent|async)?.$value"
+                 [ngModel]="settings.tipPercent"
                  (change)="service.setTipPercent($event.currentTarget['value'])">
         </label>
       </div>
     </div>
     <div class="col">
       <div class="form-group">
-        <label *ngIf="service"
-               class="col-form-label text-xs-right" for="txtDelivery">Delivery:
+        <label class="col-form-label text-xs-right" for="txtDelivery">Delivery:
           <input #txtDelivery class="form-control" id="txtDelivery" name="delivery"
                  tabindex="3"
                  size="7"
-                 [ngModel]="(service.Delivery|async)?.$value|number:'1.2-2'"
+                 [ngModel]="settings.delivery|number:'1.2-2'"
                  (change)="service.setDelivery($event.currentTarget['value']);"
                  onfocus="this.select();">
           <small>The delivery charge applies to the entire order.</small>
@@ -51,9 +49,9 @@
         <select #selTipBasis id="selTipBasis" class="col-10 form-control"
                 name="select-tip"
                 tabindex="4"
-                [ngModel]="service.TipBasis"
+                [ngModel]="settings.tipBasis"
                 (change)="updateTipBasis($event)">
-          <option *ngFor="let opt of (service.TipOptions|async)"
+          <option *ngFor="let opt of tipOptions"
                   [value]="opt"
                   [attr.selected]="(opt.isDefault) ? true : null">
             {{opt.description}}
@@ -68,9 +66,9 @@
         <select #selChange class="col-10 form-control" id="selChange"
                 name="select-change"
                 tabindex="5"
-                [ngModel]="service.ChangeBasis"
+                [ngModel]="settings.changeBasis"
                 (change)="updateChangeBasis($event)">
-          <option *ngFor="let opt of (service.ChangeOptions|async)"
+          <option *ngFor="let opt of changeOptions"
                   [value]="opt"
                   [attr.selected]="(opt.isDefault) ? true : null">
             {{opt.description}}

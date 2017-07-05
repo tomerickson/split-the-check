@@ -6,38 +6,47 @@
       <th colspan="2">Totals</th>
     </tr>
     </thead>
-    <tbody>
+    <tbody *ngIf="session|async">
     <tr>
       <td>Orders:</td>
-      <td>{{(service.OrderCount | async)?.$value | number:'1.0-0'}}</td>
+      <td><span>{{(session|async)?.orders.length}}</span></td>
     </tr>
     <tr>
       <td>Subtotal:</td>
-      <td>{{(service.Subtotal | async)?.$value+0 | number:'1.2-2'}}</td>
+      <td>
+        <span *ngIf="session">{{session.subtotal | number:'1.2-2'}}</span>
+      </td>
     </tr>
     <tr>
       <td>Sales Tax:</td>
-      <td>{{(service.TaxAmount | async)?.$value | number:'1.2-2'}}</td>
+      <td>
+        <span *ngIf="session.settings">{{session.tax | number:'1.2-2'}}</span>
+      </td>
     </tr>
     <tr>
       <td>Tip:</td>
-      <td>{{(service.TipAmount | async)?.$value | number:'1.2-2'}}</td>
+      <td>
+        <span *ngIf="session.settings">{{session.tip | number:'1.2-2'}}</span>
+      </td>
     </tr>
     <tr>
       <td>Delivery:</td>
-      <td>{{(service.Delivery | async)?.$value | number:'1.2-2'}}</td>
+      <td>
+        <span>{{session.delivery | number:'1.2-2'}}</span>
+      </td>
     </tr>
     <tr>
       <td>Total:</td>
-      <td>{{(service.Total | async)?.$value | number:'1.2-2'}}</td>
+      <td>{{session.total | number:'1.2-2'}}</td>
     </tr>
     <tr>
       <td>Paid:</td>
-      <td>{{(service.Paid | async)?.$value | number:'1.2-2'}}</td>
+      <td><span>{{session.paid | number:'1.2-2'}}</span>
+      </td>
     </tr>
     <tr>
       <td>Over / Short:</td>
-      <td>{{(service.OverShort | async)?.$value | number:'1.2-2'}}</td>
+      <td>{{session.overShort | number:'1.2-2'}}</td>
     </tr>
     </tbody>
   </table>

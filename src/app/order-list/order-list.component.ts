@@ -27,6 +27,6 @@ export class OrderListComponent implements OnInit{
   }
 
   onRemove(event: Event, index: number) {
-    this.service.removeOrder(this.service.Orders[index]);
+    this.service.removeOrder(this.service.Orders[index].key);
   }
 }

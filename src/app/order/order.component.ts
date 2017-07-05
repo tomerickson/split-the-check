@@ -1,8 +1,8 @@
 import {Component, Input, Output, EventEmitter, OnInit, OnDestroy} from "@angular/core";
 import {Order} from "../model/order";
-import {OrderService} from "../order-service/order-service.service";
+import {DataStoreService} from "../data-store/data-store.service";
+import {Settings} from "../model/settings";
 import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
 
 @Component({
   selector: 'order-outlet',
@@ -17,32 +17,30 @@ export class OrderComponent implements OnInit, OnDestroy {
   @Output() onRemove = new EventEmitter<Order>();
   @Output() changeTrigger = new EventEmitter();
 
-  order: Order;
-  paid: number;
-  orderSubscription: Subscription;
+  order: Observable<Order>;
+  ord: Order;
+  settings: Settings;
 
-
-  constructor(public service: OrderService) {
+  constructor(public service: DataStoreService) {
+    this.ord = new Order(this.orderId);
+    this.order = service.orderLink(this.ord);
   }
 
   ngOnInit() {
-    this.service.initialize(this.orderId);
-    this.orderSubscription = this.service.Order.subscribe((order) => this.order = order);
-  }
+    }
 
   ngOnDestroy() {
-    this.orderSubscription.unsubscribe();
   }
 
   removeOrder() {
-    this.service.removeOrder();
+    this.service.removeOrder(this.orderId);
   }
 
   updateName(name: string) {
-    this.service.setName(name);
+    this.service.updateOrder(this.orderId, {name: name})
   }
 
   updatePaid(paid) {
-    this.service.setPaid(paid);
+    this.service.updateOrder(this.orderId, {paid: paid})
   }
 }

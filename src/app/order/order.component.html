@@ -2,8 +2,8 @@
   <div class="card-header row" role="tab">
     <div class="col"><span>{{"Order " + (index+1)}}</span></div>
     <div class="col"><label for="input-order-name">Ordered by:</label></div>
-    <div class="col"><input id="input-order-name" type="text" [ngModel]="order.name"></div>
-    <div class="col"><span>{{order.name}}</span></div>
+    <div class="col"><input id="input-order-name" type="text" [ngModel]="(order|async)?.name"></div>
+    <div class="col"><span>{{(order|async)?.name}}</span></div>
     <div class="col">
       <span class="fa fa-minus-square" (click)="removeOrder()" title="Remove this order"></span>
     </div>
@@ -24,19 +24,19 @@
     <tbody>
     <tr>
       <td class="text-right">{{index+1}}</td>
-      <td class="text-right">{{(service|async)?.Subtotal | number:'1.2-2'}}</td>
-      <td class="text-right">{{(service|async)?.Delivery | number:'1.2-2'}}</td>
-      <td class="text-right">{{(service|async)?.Tip | number:'1.2-2'}}</td>
-      <td class="text-right">{{(service|async)?.Total | number:'1.2-2'}}</td>
+      <td class="text-right">{{(order|async)?.subtotal | number:'1.2-2'}}</td>
+      <td class="text-right">{{(order|async)?.delivery | number:'1.2-2'}}</td>
+      <td class="text-right">{{(order|async)?.tip | number:'1.2-2'}}</td>
+      <td class="text-right">{{(order|async)?.total | number:'1.2-2'}}</td>
       <td class="text-right">
         <input type="text" title="paid"
                                     #txtPaid
-                                    [ngModel]="paid"
+                                    [ngModel]="(order|async)?.paid"
                                     onfocus="select();"
                                     (change)="updatePaid($event)"
                                     size="6">
       </td>
-      <td class="text-right">{{(service|async)?.OverShort | number:'1.2-2'}}</td>
+      <td class="text-right">{{(order|async)?.overShort | number:'1.2-2'}}</td>
     </tr>
     </tbody>
   </table>
