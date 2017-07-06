@@ -28,12 +28,7 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnInit() {
     this.subSettings = this.service.settings.subscribe(obj => {
-      this.settings.salesTaxPercent = obj.taxPercent;
-      this.settings.tipPercent = obj.tipPercent;
-      this.settings.changeBasis = obj.changeOption;
-      this.settings.tipBasis = obj.tipOption;
-      this.settings.delivery = obj.delivery;
-      this.settings.showIntro = obj.showIntro;
+      this.settings = obj;
     });
     this.subChanges = this.service.getChangeOptions().subscribe(obj => {
       this.changeOptions = obj.valueOf();

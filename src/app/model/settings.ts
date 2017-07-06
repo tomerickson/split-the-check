@@ -6,10 +6,10 @@ import {ChangeBasis} from "./change-basis";
  */
 
 export class Settings {
-  public salesTaxPercent: number;
+  public taxPercent: number;
   public tipPercent: number;
-  public changeBasis: ChangeBasis;
-  public tipBasis: TipBasis;
+  public changeOption: ChangeBasis;
+  public tipOption: TipBasis;
   public delivery: number;
   public showIntro: boolean;
 

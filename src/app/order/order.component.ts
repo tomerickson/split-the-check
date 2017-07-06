@@ -1,8 +1,7 @@
 import {Component, Input, Output, EventEmitter, OnInit, OnDestroy} from "@angular/core";
 import {Order} from "../model/order";
 import {DataStoreService} from "../data-store/data-store.service";
-import {Settings} from "../model/settings";
-import {Observable} from "rxjs/Observable";
+import {Session} from "../model/session";
 
 @Component({
   selector: 'order-outlet',
@@ -12,18 +11,16 @@ import {Observable} from "rxjs/Observable";
 
 export class OrderComponent implements OnInit, OnDestroy {
 
+  @Input() order: Order;
   @Input() orderId: string;
   @Input() index: number;
   @Output() onRemove = new EventEmitter<Order>();
   @Output() changeTrigger = new EventEmitter();
 
-  order: Observable<Order>;
-  ord: Order;
-  settings: Settings;
+  session: Session;
 
   constructor(public service: DataStoreService) {
-    this.ord = new Order(this.orderId);
-    this.order = service.orderLink(this.ord);
+    this.session = new Session(service);
   }
 
   ngOnInit() {
@@ -36,11 +33,12 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.service.removeOrder(this.orderId);
   }
 
-  updateName(name: string) {
-    this.service.updateOrder(this.orderId, {name: name})
+  updateName(event) {
+    this.service.updateOrder(this.orderId, {name: (<HTMLInputElement>event.target).value})
   }
 
-  updatePaid(paid) {
+  updatePaid(event) {
+    const paid: number = +(<HTMLInputElement>event.target).value;
     this.service.updateOrder(this.orderId, {paid: paid})
   }
 }

@@ -1,9 +1,12 @@
-import {Component, Input, OnInit} from "@angular/core";
+import {Component, Input, OnDestroy, OnInit} from "@angular/core";
 import {Order} from "../model/order";
 import {NgbAccordion} from "@ng-bootstrap/ng-bootstrap";
 import {NgbPanel} from "@ng-bootstrap/ng-bootstrap";
 import {DataStoreService} from "../data-store/data-store.service";
 import {Observable} from "rxjs/Observable";
+import {Subscription} from "rxjs/Subscription";
+import {Settings} from "../model/settings";
+import {Session} from "../model/session";
 
 @Component({
   selector: 'order-list-outlet',
@@ -12,18 +15,34 @@ import {Observable} from "rxjs/Observable";
   templateUrl: 'order-list.component.html'
 })
 
-export class OrderListComponent implements OnInit{
+export class OrderListComponent implements OnInit, OnDestroy {
   service: DataStoreService;
+  orderSub: Subscription;
+  settingsSub: Subscription;
+  orders: Order[];
+  settings: Settings;
+  session: Session;
 
   constructor(svc: DataStoreService) {
     this.service = svc;
   }
 
   ngOnInit() {
+    this.settingsSub = this.service.settings.subscribe(obj => this.settings = obj);
+
+    this.orderSub = this.service.getOrders().subscribe(obs => {
+      this.orders = [];
+      obs.map(order =>
+        this.orders.push(order))
+    });
+  }
+
+  ngOnDestroy() {
+    this.orderSub.unsubscribe();
   }
 
   addOrder() {
-        this.service.addOrder();
+    this.service.addOrder();
   }
 
   onRemove(event: Event, index: number) {

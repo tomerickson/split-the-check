@@ -22,6 +22,7 @@ import {Settings} from "../model/settings";
 const PATH_ORDERS = '/orders/';
 const PATH_ITEMS = '/items/';
 const PATH_SETTINGS = '/settings';
+const PATH_SESSION = '/orderSummary';
 const PATH_TIP_OPTIONS_ENUM = '/enumerations/tipOptions';
 const PATH_CHANGE_OPTIONS_ENUM = '/enumerations/changeOptions';
 const PATH_DEFAULT_TAX_PERCENT = '/defaults/taxPercent';
@@ -60,22 +61,6 @@ export class DataStoreService implements OnDestroy {
     }
   }
 
-  sessionLink(session: Session) {
-    return Observable.zip(this.AllOrders,
-      this.AllItems,
-      this.settings)
-      .map(([orders, items, settings]) => {
-        session.orders = orders;
-        session.items = items;
-        session.settings.salesTaxPercent = settings.taxPercent;
-        session.settings.tipPercent = settings.tipPercent;
-        session.settings.changeBasis = settings.changeOption;
-        session.settings.tipBasis = settings.tipOption;
-        session.settings.delivery = settings.delivery;
-        session.settings.showIntro = settings.showIntro;
-      }).toPromise();
-  }
-
   orderLink(order: Order): Observable<Order> {
     let result: Observable<Order> = null;
     new Promise<Observable<Order>>(() =>
@@ -84,10 +69,10 @@ export class DataStoreService implements OnDestroy {
         this.settings)
         .map(([ord, items, settings]) => {
           order.items = items;
-          order.settings.salesTaxPercent = settings.taxPercent;
+          order.settings.taxPercent = settings.taxPercent;
           order.settings.tipPercent = settings.tipPercent;
-          order.settings.changeBasis = settings.changeOption;
-          order.settings.tipBasis = settings.tipOption;
+          order.settings.changeOption = settings.changeOption;
+          order.settings.tipOption = settings.tipOption;
           order.settings.delivery = settings.delivery;
           order.settings.showIntro = settings.showIntro;
         }))
@@ -96,6 +81,10 @@ export class DataStoreService implements OnDestroy {
       })
       .catch((e) => console.error(e));
     return result;
+  }
+
+  get session(): FirebaseObjectObservable<any> {
+    return this.service.getItem(PATH_SESSION);
   }
 
   get settings(): FirebaseObjectObservable<any> {
@@ -187,6 +176,17 @@ export class DataStoreService implements OnDestroy {
   wrapup() {
     this.service.remove(PATH_ORDERS);
     this.service.remove(PATH_ITEMS);
+  }
+
+  // Order-list
+  //
+  getOrders(): Observable<Order[]> {
+    return this.service.getList(PATH_ORDERS)
+      .map(orders => orders.map(order => {
+        let newOrder: Order = Object.assign({}, order);
+        newOrder.key = order.$key;
+        return newOrder;
+      }));
   }
 
   createOrder(): Thenable<Order> {

@@ -3,19 +3,32 @@ import {Item} from "./item";
 import {TipBasis} from "./tip-basis";
 import {Settings} from "./settings";
 import {DataStoreService} from "../data-store/data-store.service";
+import {Subscription} from "rxjs/Subscription";
+import {OnDestroy} from "@angular/core";
 
-export class Session {
+export class Session implements OnDestroy {
   public title: string = "Split the Check";
   public delivery: number = 0;
   public orders: Order[];
   public items: Item[];
   public settings: Settings;
 
+  private settingsSubscription: Subscription;
+  private ordersSubscription: Subscription;
+  private itemsSubscription: Subscription;
+
   constructor(public service: DataStoreService) {
     this.orders = [];
     this.items = [];
-    this.settings = new Settings();
-    service.sessionLink(this).then(null);
+    this.ordersSubscription = this.service.AllOrders.subscribe(orders => this.orders = orders);
+    this.itemsSubscription = this.service.AllItems.subscribe(items => this.items = items);
+    this.settingsSubscription = this.service.settings.subscribe(settings => this.settings = settings);
+  }
+
+  ngOnDestroy() {
+    this.settingsSubscription.unsubscribe();
+    this.ordersSubscription.unsubscribe();
+    this.itemsSubscription.unsubscribe();
   }
 
   get subtotal(): number {
@@ -32,16 +45,16 @@ export class Session {
   }
 
   get tax(): number {
-    return this.subtotal * this.settings.salesTaxPercent / 100;
+    return this.subtotal * this.settings.taxPercent / 100;
   }
 
 
   get tip(): number {
-    return this.calculateTip(this.subtotal, this.settings.tipBasis, this.tax, this.settings.tipPercent);
+    return this.calculateTip(this.subtotal, this.settings.tipOption, this.tax, this.settings.tipPercent);
   }
 
   get total(): number {
-    return this.subtotal + this.tax + this.tip + this.settings.delivery;
+    return this.defaultToZero(this.subtotal + this.tax + this.tip + this.settings.delivery);
   }
 
   get paid(): number {
@@ -62,7 +75,10 @@ export class Session {
   }
 
   get overShort(): number {
-    return this.subtotal + this.tax + this.tip + this.settings.delivery - this.paid;
+    return this.total - this.paid;
   }
 
+  defaultToZero(expression) {
+    return (!expression) ? 0 : expression;
+  }
 }

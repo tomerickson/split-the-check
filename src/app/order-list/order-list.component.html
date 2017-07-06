@@ -16,9 +16,10 @@
     </div>
   </div>
       <div id="accordion" role="tablist" aria-multiline="true">
-          <div class="card" *ngFor="let order of (service.AllOrders|async);let i = index">
+          <div class="card" *ngFor="let order of (orders);let i = index">
             <order-outlet
               [orderId]="order.key"
+              [order]="order"
               [index]="i"
               (onRemove)="onRemove($event, i)">
             </order-outlet>

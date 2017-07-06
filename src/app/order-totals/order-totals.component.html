@@ -6,15 +6,15 @@
       <th colspan="2">Totals</th>
     </tr>
     </thead>
-    <tbody *ngIf="session|async">
+    <tbody>
     <tr>
       <td>Orders:</td>
-      <td><span>{{(session|async)?.orders.length}}</span></td>
+      <td><span *ngIf="session">{{session.orders.length}}</span></td>
     </tr>
     <tr>
       <td>Subtotal:</td>
       <td>
-        <span *ngIf="session">{{session.subtotal | number:'1.2-2'}}</span>
+        <span *ngIf="session.settings">{{session.subtotal | number:'1.2-2'}}</span>
       </td>
     </tr>
     <tr>
@@ -32,12 +32,12 @@
     <tr>
       <td>Delivery:</td>
       <td>
-        <span>{{session.delivery | number:'1.2-2'}}</span>
+        <span *ngIf="session.settings">{{session.settings.delivery | number:'1.2-2'}}</span>
       </td>
     </tr>
     <tr>
       <td>Total:</td>
-      <td>{{session.total | number:'1.2-2'}}</td>
+      <td><span *ngIf="session.settings">{{session.total | number:'1.2-2'}}</span></td>
     </tr>
     <tr>
       <td>Paid:</td>
@@ -46,7 +46,7 @@
     </tr>
     <tr>
       <td>Over / Short:</td>
-      <td>{{session.overShort | number:'1.2-2'}}</td>
+      <td><span *ngIf="session.settings">{{session.overShort | number:'1.2-2'}}</span></td>
     </tr>
     </tbody>
   </table>

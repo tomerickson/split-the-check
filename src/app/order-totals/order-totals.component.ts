@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import {Component, OnInit, OnDestroy, Input} from '@angular/core';
 import {Session} from "../model/session";
 import {Settings} from "../model/settings";
 import {Order} from "../model/order";
@@ -6,9 +6,9 @@ import {Item} from "../model/item";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/count";
 import "rxjs/add/observable/of"
-import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/zip"
 import {DataStoreService} from "../data-store/data-store.service";
+import {Subject} from "rxjs/Subject";
 
 @Component({
   selector: 'order-totals',
@@ -16,22 +16,16 @@ import {DataStoreService} from "../data-store/data-store.service";
   styleUrls: ['./order-totals.component.scss']
 })
 
-export class OrderTotalsComponent implements OnInit, OnDestroy {
+export class OrderTotalsComponent {
 
-  orders: Order[];
-  items: Item[];
-  session: Observable<Session>;
-  settings: Settings;
+  session: Session;
   service: DataStoreService;
 
-  constructor(service: DataStoreService) {
-    this.session = Observable.of(new Session(service));
-  }
-
-  ngOnInit() {
-  }
-
-  ngOnDestroy() {
+  constructor(svc: DataStoreService) {
+    this.service = svc;
+    // this.settings = new Subject<Settings>();
+    // this.service.settings.subscribe(this.settings);
+    this.session = new Session(this.service);
   }
 
   clearOrder(e: Event) {
