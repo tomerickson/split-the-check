@@ -1,7 +1,8 @@
-import {Component, Input, Output, EventEmitter, OnInit, OnDestroy} from "@angular/core";
-import {Order} from "../model/order";
-import {DataStoreService} from "../data-store/data-store.service";
-import {Session} from "../model/session";
+import {Component, Input, Output, EventEmitter, OnInit, OnDestroy} from '@angular/core';
+import {Order} from '../model/order';
+import {DataStoreService} from '../data-store/data-store.service';
+import {Session} from '../model/session';
+import {Subscription} from 'rxjs/Subscription';
 
 @Component({
   selector: 'order-outlet',
@@ -24,7 +25,7 @@ export class OrderComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    }
+  }
 
   ngOnDestroy() {
   }

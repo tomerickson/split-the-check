@@ -64,7 +64,7 @@ export class DataProviderService implements OnDestroy {
     let result: FirebaseObjectObservable<any>;
     try {
       result = this.db.object(path);
-      if (this.LOG) this.logTask(this.MSG_OBJECT, path, null, true);
+      if (this.LOG) {this.logTask(this.MSG_OBJECT, path, null, true);}
     } catch (err) {
       this.logTask(this.MSG_OBJECT, path, null, false);
       throw err;

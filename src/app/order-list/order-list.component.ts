@@ -1,17 +1,16 @@
-import {Component, Input, OnDestroy, OnInit} from "@angular/core";
-import {Order} from "../model/order";
-import {NgbAccordion} from "@ng-bootstrap/ng-bootstrap";
-import {NgbPanel} from "@ng-bootstrap/ng-bootstrap";
-import {DataStoreService} from "../data-store/data-store.service";
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
-import {Settings} from "../model/settings";
-import {Session} from "../model/session";
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Order} from '../model/order';
+import {NgbAccordion} from '@ng-bootstrap/ng-bootstrap';
+import {NgbPanel} from '@ng-bootstrap/ng-bootstrap';
+import {DataStoreService} from '../data-store/data-store.service';
+import {Observable} from 'rxjs/Observable';
+import {Subscription} from 'rxjs/Subscription';
+import {Settings} from '../model/settings';
+import {Session} from '../model/session';
 
 @Component({
-  selector: 'order-list-outlet',
-  styles: ['table {border: 1px solid black;border-collapse: separate}'],
-  styleUrls: ["order-list.component.scss"],
+  selector: 'app-order-list-outlet',
+  styleUrls: ['order-list.component.scss'],
   templateUrl: 'order-list.component.html'
 })
 
@@ -19,9 +18,8 @@ export class OrderListComponent implements OnInit, OnDestroy {
   service: DataStoreService;
   orderSub: Subscription;
   settingsSub: Subscription;
-  orders: Order[];
+  orders: Order[] = [];
   settings: Settings;
-  session: Session;
 
   constructor(svc: DataStoreService) {
     this.service = svc;
@@ -29,11 +27,18 @@ export class OrderListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.settingsSub = this.service.settings.subscribe(obj => this.settings = obj);
-
-    this.orderSub = this.service.getOrders().subscribe(obs => {
-      this.orders = [];
-      obs.map(order =>
-        this.orders.push(order))
+    const obs = this.service.getOrders();
+    this.orderSub = obs.subscribe(outer => {
+      console.log('loading orders: ' + JSON.stringify(outer));
+      outer.map(inner => {
+        const newOrder = Object.assign({}, inner);
+        newOrder.key = inner.$key;
+        console.log('loading inner: ' + JSON.stringify(newOrder));
+        newOrder.name = inner.name;
+        newOrder.paid = inner.paid;
+        this.orders.push(newOrder);
+        console.log('orders.length=' + this.orders.length);
+      })
     });
   }
 

@@ -1,55 +1,47 @@
 <div class="card">
-  <div class="card-header row" role="tab">
-    <div class="col"><span>{{"Order " + (index+1)}}</span></div>
-    <div class="col"><label for="input-order-name">Ordered by:</label></div>
-    <div class="col"><input id="input-order-name"
-                            [ngModel]="order.name"
-                            (change)="updateName($event)"></div>
-    <div class="col"><span>{{orderId}}</span></div>
-    <div class="col">
-      <span class="fa fa-minus-square" (click)="removeOrder()" title="Remove this order"></span>
+  <div class="card-block">
+    <div class="row">
+      <div class="col-sm-2"><label>{{"Order " + (index+1)}}</label></div>
+      <div class="col-sm-4"><label for="input-order-name">Ordered by:
+        <input id="input-order-name"
+               [ngModel]="order.name"
+               (change)="updateName($event)">
+      </label>
+      </div>
+      <div class="col-sm-3">
+        <label for="input-paid">Payment:
+          <input id="input-paid" [ngModel]="order.paid"
+                 onfocus="select()"
+                 (change)="updatePaid($event)">
+        </label>
+      </div>
+      <div class="col-sm-3 text-right"><label>Remove this order:</label>
+        <span class="fa fa-minus-square" (click)="removeOrder()" title="Remove this order"></span>
+      </div>
     </div>
   </div>
-  <table class="table">
-    <thead>
-    <tr>
-      <th>#</th>
-      <th>Subtotal</th>
-      <th>Tax</th>
-      <th>Tip</th>
-      <th>Delivery</th>
-      <th>Total</th>
-      <th class="text-right">Paid</th>
-      <th class="text-right">Change</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-      <td class="text-right">{{index+1}}</td>
-      <td class="text-right">{{order.subtotal | number:'1.2-2'}}</td>
-      <td class="text-right">{{order.tax | number:'1.2-2'}}</td>
-      <td class="text-right">{{order.delivery | number:'1.2-2'}}</td>
-      <td class="text-right">{{order.tip | number:'1.2-2'}}</td>
-      <td class="text-right">{{order.total | number:'1.2-2'}}</td>
-      <td class="text-right">
-        <input type="text" title="paid"
-               align="right"
-               #txtPaid
-               [ngModel]="order.paid"
-               onfocus="select();"
-               (change)="updatePaid($event)"
-               size="6">
-      </td>
-      <td class="text-right">{{order.overShort | number:'1.2-2'}}</td>
-    </tr>
-    </tbody>
-  </table>
   <div class="row">
-    <div class="col-1"></div>
-    <div class="col">
-      <item-list-outlet [orderId]="orderId"></item-list-outlet>
-    </div>
-    <div class="col-1"></div>
+    <div class="col-sm-1 text-right">#</div>
+    <div class="col-sm-1 text-right">Subtotal</div>
+    <div class="col-sm-1 text-right">Tax</div>
+    <div class="col-sm-1 text-right">Tip</div>
+    <div class="col-sm-1 text-right">Delivery</div>
+    <div class="col-sm-1 text-right">Total</div>
+    <div class="col-sm-1 text-right">Paid</div>
+    <div class="col-sm-1 text-right">Change</div>
   </div>
+  <div class="row">
+    <div class="col-sm-1 text-right">{{index+1}}</div>
+    <div class="col-sm-1 text-right">{{order.subtotal | number:'1.2-2'}}</div>
+    <div class="col-sm-1 text-right">{{order.tax | number:'1.2-2'}}</div>
+    <div class="col-sm-1 text-right">{{order.delivery | number:'1.2-2'}}</div>
+    <div class="col-sm-1 text-right">{{order.tip | number:'1.2-2'}}</div>
+    <div class="col-sm-1 text-right">{{order.tax | number:'1.2-2'}}</div>
+    <div class="col-sm-1 text-right">{{order.paid | number:'1.2-2'}}</div>
+    <div class="col-sm-1 text-right">{{order.overShort | number:'1.2-2'}}</div>
+  </div>
+  <div class="row">
+    <app-item-list-outlet [orderId]="orderId"></app-item-list-outlet>
+  </div>
+  <div class="card-footer"></div>
 </div>
-

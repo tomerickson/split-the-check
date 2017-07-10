@@ -1,6 +1,6 @@
 import {BrowserModule} from "@angular/platform-browser";
 import {NgModule} from "@angular/core";
-import {FormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from "@angular/http";
 import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
 import {AppComponent} from "./app.component";
@@ -16,6 +16,7 @@ import {AngularFireDatabaseModule} from "angularfire2/database"
 import {DataStoreService} from "./data-store/data-store.service";
 import {DataProviderService} from "./data-provider/data-provider.service";
 import { SettingsComponent } from './settings/settings.component';
+import {ControlMessagesComponent} from './control-messages/control-messages.component';
 
 @NgModule({
 
@@ -26,12 +27,14 @@ import { SettingsComponent } from './settings/settings.component';
     ItemListComponent,
     ItemComponent,
     OrderTotalsComponent,
-    SettingsComponent
+    SettingsComponent,
+    ControlMessagesComponent
   ],
 
   imports: [
     BrowserModule,
     FormsModule,
+    ReactiveFormsModule,
     HttpModule,
     NgbModule.forRoot(),
     AngularFireModule.initializeApp(environment.firebase),

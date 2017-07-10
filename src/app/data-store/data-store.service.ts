@@ -13,11 +13,9 @@ import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/toPromise';
 import {ChangeBasis} from '../model/change-basis';
 import {Order} from '../model/order';
-import {Thenable} from "firebase/app";
-import {Item} from "../model/item";
-import {FirebaseListObservable, FirebaseObjectObservable} from "angularfire2/database";
-import {Session} from "../model/session";
-import {Settings} from "../model/settings";
+import {Thenable} from 'firebase/app';
+import {Item} from '../model/item';
+import {FirebaseListObservable, FirebaseObjectObservable} from 'angularfire2/database';
 
 const PATH_ORDERS = '/orders/';
 const PATH_ITEMS = '/items/';
@@ -43,44 +41,19 @@ const FILTER_DEFAULT_OPTION = {orderByChild: 'isDefault', equalTo: true, limitTo
 export class DataStoreService implements OnDestroy {
 
   private service: DataProviderService;
-  private firstTime: boolean = true;
+  private firstTime = true;
 
   Orders: Order[] = [];
-  Items: Item[] = [];
 
   AllItems: FirebaseListObservable<any>;
   AllOrders: FirebaseListObservable<any>;
 
   constructor(private svc: DataProviderService) {
     this.service = svc;
-    // TODO: Initialize TipBasis and ChangeBasis from defaults
-    //
     if (this.firstTime) {
       this.service.db.app.database().goOnline();
       this.setDefaults();
     }
-  }
-
-  orderLink(order: Order): Observable<Order> {
-    let result: Observable<Order> = null;
-    new Promise<Observable<Order>>(() =>
-      Observable.zip(this.getOrder(order.key),
-        this.getItems(order.key),
-        this.settings)
-        .map(([ord, items, settings]) => {
-          order.items = items;
-          order.settings.taxPercent = settings.taxPercent;
-          order.settings.tipPercent = settings.tipPercent;
-          order.settings.changeOption = settings.changeOption;
-          order.settings.tipOption = settings.tipOption;
-          order.settings.delivery = settings.delivery;
-          order.settings.showIntro = settings.showIntro;
-        }))
-      .then((observed) => {
-        result = observed
-      })
-      .catch((e) => console.error(e));
-    return result;
   }
 
   get session(): FirebaseObjectObservable<any> {
@@ -94,9 +67,15 @@ export class DataStoreService implements OnDestroy {
   setDefaults() {
     let result: boolean;
     result = this.service.copyNode(PATH_DEFAULT_TAX_PERCENT, PATH_SETTINGS_TAX_PERCENT);
-    if (result) this.service.copyNode(PATH_DEFAULT_TIP_PERCENT, PATH_SETTINGS_TIP_PERCENT);
-    if (result) this.service.copyNode(PATH_DEFAULT_DELIVERY, PATH_SETTINGS_DELIVERY);
-    if (result) this.service.copyNode(PATH_DEFAULT_SHOW_INTRO, PATH_SETTINGS_SHOW_INTRO);
+    if (result) {
+      this.service.copyNode(PATH_DEFAULT_TIP_PERCENT, PATH_SETTINGS_TIP_PERCENT);
+    }
+    if (result) {
+      this.service.copyNode(PATH_DEFAULT_DELIVERY, PATH_SETTINGS_DELIVERY);
+    }
+    if (result) {
+      this.service.copyNode(PATH_DEFAULT_SHOW_INTRO, PATH_SETTINGS_SHOW_INTRO);
+    }
 
     if (result) {
       this.getDefaultTipOption().then(data => {
@@ -106,7 +85,7 @@ export class DataStoreService implements OnDestroy {
     if (result) {
       this.getDefaultChangeOption().then(data => {
         this.service.updatePath(PATH_SETTINGS_CHANGE_OPTION, data);
-      })
+      });
       this.AllItems = this.service.getList(PATH_ITEMS);
       this.AllOrders = this.service.getList(PATH_ORDERS);
     }
@@ -159,18 +138,22 @@ export class DataStoreService implements OnDestroy {
 
   setChangeBasis(index: number) {
     let changeBasis: ChangeBasis;
-    let obs = this.service.getList(PATH_ENUM_CHANGE_OPTIONS);
-    let sub = obs.subscribe(opt => changeBasis = opt[index]);
+    const obs = this.service.getList(PATH_ENUM_CHANGE_OPTIONS);
+    const sub = obs.subscribe(opt => changeBasis = opt[index]);
     sub.unsubscribe();
-    this.service.updatePath(PATH_SETTINGS_CHANGE_OPTION, changeBasis);
+    if (changeBasis) {
+      this.service.updatePath(PATH_SETTINGS_CHANGE_OPTION, changeBasis);
+    }
   }
 
   setTipBasis(index: number) {
     let tipBasis: TipBasis;
-    let obs = this.service.getList(PATH_ENUM_TIP_OPTIONS);
-    let sub = obs.subscribe(tip => tipBasis = tip[index]);
+    const obs = this.service.getList(PATH_ENUM_TIP_OPTIONS);
+    const sub = obs.subscribe(tip => tipBasis = tip[index]);
     sub.unsubscribe();
-    this.service.updatePath(PATH_SETTINGS_TIP_OPTION, tipBasis);
+    if (tipBasis) {
+      this.service.updatePath(PATH_SETTINGS_TIP_OPTION, tipBasis);
+    }
   }
 
   wrapup() {
@@ -180,33 +163,22 @@ export class DataStoreService implements OnDestroy {
 
   // Order-list
   //
-  getOrders(): Observable<Order[]> {
-    return this.service.getList(PATH_ORDERS)
-      .map(orders => orders.map(order => {
-        let newOrder: Order = Object.assign({}, order);
-        newOrder.key = order.$key;
-        return newOrder;
-      }));
-  }
-
-  createOrder(): Thenable<Order> {
-    let order: Observable<Order>;
-    return this.addOrder()
+  getOrders(): FirebaseListObservable<any> {
+    return this.service.getList(PATH_ORDERS);
   }
 
   // Order level queries
   //
-  addOrder(): Thenable<Order> {
-    let order: Order = new Order();
-    return this.service.push<Order>(PATH_ORDERS, order);
+  addOrder(): Thenable<IOrder> {
+    return this.service.push<IOrder>(PATH_ORDERS, {key: null, name: null, paid: 0});
   }
 
   removeOrder(key: string) {
-    let fbo = this.service.getItem(PATH_ORDERS + key) as FirebaseObjectObservable<Order>;
+    const fbo = this.service.getItem(PATH_ORDERS + key) as FirebaseObjectObservable<any>;
     return fbo.remove();
   }
 
-  getOrder(key: any): FirebaseObjectObservable<Order> {
+  getOrder(key: any): FirebaseObjectObservable<any> {
     return this.service.getItem(PATH_ORDERS + key);
   }
 
@@ -214,38 +186,44 @@ export class DataStoreService implements OnDestroy {
     return this.service.getItem(PATH_ORDERS + key + '/paid');
   }
 
-  getItems(orderId: string) {
-    return this.service.getList(PATH_ITEMS + orderId);
+  // Return items attached to an order,
+  // update item.key with the firebase key
+  //
+  getItems(orderId: string): Observable<IItem[]> {
+    const filter = {orderByChild: 'orderId', equalTo: orderId};
+    return this.service.query(PATH_ITEMS, filter)
+      .map(items => items.map(item => {
+        const newItem: IItem = Object.assign({}, item);
+        newItem.key = item.$key;
+        return newItem;
+      }));
   }
 
   updateOrder(key: string, updates: object): Thenable<any> {
-    let foo = this.service.getItem(PATH_ORDERS + key) as FirebaseObjectObservable<Order>;
+    const foo = this.service.getItem(PATH_ORDERS + key) as FirebaseObjectObservable<Order>;
     return foo.update(updates);
   }
 
-  setPaid(order: Order, paid: number) {
-
-  }
-
-
   // Item-level queries
   //
-  addItem(orderKey: string): Thenable<Item> {
-    const item = new Item(orderKey);
-    return this.service.push<Item>(PATH_ITEMS, item)
+  addItem(orderId: string): Thenable<any> {
+    return this.service.push<IItem>(PATH_ITEMS, {
+      orderId: orderId,
+      description: null, quantity: 0, price: 0, instructions: null, key: null
+    })
   }
 
   removeItem(item: Item) {
-    let fbo = this.service.getItem(PATH_ITEMS + item.key) as FirebaseObjectObservable<Item>;
+    const fbo = this.service.getItem(PATH_ITEMS + item.key) as FirebaseObjectObservable<Item>;
     return fbo.remove();
   }
 
-  getItem(key: string) {
+  getItem(key: string): FirebaseObjectObservable<any> {
     return this.service.getItem(PATH_ITEMS + key);
   }
 
   updateItem(item: Item, updates: object): Thenable<any> {
-    let foo = this.service.getItem(PATH_ITEMS + item.key) as FirebaseObjectObservable<Item>;
+    const foo = this.service.getItem(PATH_ITEMS + item.key) as FirebaseObjectObservable<Item>;
     return foo.update(updates);
   }
 

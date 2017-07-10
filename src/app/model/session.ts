@@ -1,14 +1,14 @@
 import {Order} from './order';
-import {Item} from "./item";
-import {TipBasis} from "./tip-basis";
-import {Settings} from "./settings";
-import {DataStoreService} from "../data-store/data-store.service";
-import {Subscription} from "rxjs/Subscription";
-import {OnDestroy} from "@angular/core";
+import {Item} from './item';
+import {Settings} from './settings';
+import {DataStoreService} from '../data-store/data-store.service';
+import {Subscription} from 'rxjs/Subscription';
+import {OnDestroy} from '@angular/core';
+import {Helpers} from './helpers';
 
 export class Session implements OnDestroy {
-  public title: string = "Split the Check";
-  public delivery: number = 0;
+  public title = 'Split the Check';
+  public delivery = 0;
   public orders: Order[];
   public items: Item[];
   public settings: Settings;
@@ -25,40 +25,24 @@ export class Session implements OnDestroy {
     this.settingsSubscription = this.service.settings.subscribe(settings => this.settings = settings);
   }
 
-  ngOnDestroy() {
-    this.settingsSubscription.unsubscribe();
-    this.ordersSubscription.unsubscribe();
-    this.itemsSubscription.unsubscribe();
-  }
-
   get subtotal(): number {
-    let amt: number = 0;
-    try {
-      this.items.forEach(item => {
-        amt += item.price * item.quantity;
-      });
-    }
-    catch (err) {
-      console.log(err);
-    }
-    return amt;
+    return Helpers.tallyPurchaseValue(this.items);
   }
 
   get tax(): number {
     return this.subtotal * this.settings.taxPercent / 100;
   }
 
-
   get tip(): number {
-    return this.calculateTip(this.subtotal, this.settings.tipOption, this.tax, this.settings.tipPercent);
+    return Helpers.calculateTip(this.subtotal, this.settings.tipOption, this.tax, this.settings.tipPercent);
   }
 
   get total(): number {
-    return this.defaultToZero(this.subtotal + this.tax + this.tip + this.settings.delivery);
+    return Helpers.defaultToZero(this.subtotal + this.tax + this.tip + this.settings.delivery);
   }
 
   get paid(): number {
-    let paid: number = 0;
+    let paid = 0;
     this.orders.forEach(order => {
         paid += order.paid;
       }
@@ -66,19 +50,13 @@ export class Session implements OnDestroy {
     return paid;
   }
 
-  calculateTip(subtotal: number, basis: TipBasis, tax: number, pct: number): number {
-    let amt = subtotal;
-    if (basis.description === 'Gross') {
-      amt += tax;
-    }
-    return amt * pct / 100;
-  }
-
   get overShort(): number {
     return this.total - this.paid;
   }
 
-  defaultToZero(expression) {
-    return (!expression) ? 0 : expression;
+  ngOnDestroy() {
+    this.settingsSubscription.unsubscribe();
+    this.ordersSubscription.unsubscribe();
+    this.itemsSubscription.unsubscribe();
   }
 }

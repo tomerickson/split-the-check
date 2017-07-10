@@ -1,28 +1,27 @@
-<div class="container-fluid">
-  <div class="row">
-    <div class="col">
-      <ul>
-        <li>
-          Click this symbol&nbsp;<i class="fa fa-plus-square" aria-hidden="true" (click)="addOrder()"></i>
-          or use the spacebar to add an order or an item.
-        </li>
-        <li>
-          Click on this symbol&nbsp;<i class="fa fa-minus-square" aria-hidden="true"></i>&nbsp;below to remove an order or item.
-        </li>
-        <li>
-          Use the tab key and shift-tab key to navigate forward and backward.
-        </li>
-      </ul>
-    </div>
+<div class="row">
+  <div class="col">
+    <ul>
+      <li>
+        Click this symbol&nbsp;<i class="fa fa-plus-square" aria-hidden="true" (click)="addOrder()"></i>
+        or use the spacebar to add an order or an item.
+      </li>
+      <li>
+        Click on this symbol&nbsp;<i class="fa fa-minus-square" aria-hidden="true"></i>&nbsp;below to remove an order
+        or item.
+      </li>
+      <li>
+        Use the tab key and shift-tab key to navigate forward and backward.
+      </li>
+    </ul>
   </div>
-      <div id="accordion" role="tablist" aria-multiline="true">
-          <div class="card" *ngFor="let order of (orders);let i = index">
-            <order-outlet
-              [orderId]="order.key"
-              [order]="order"
-              [index]="i"
-              (onRemove)="onRemove($event, i)">
-            </order-outlet>
-          </div>
-      </div>
+</div>
+<div class="row">
+  <div class="col">
+    <order-outlet *ngFor="let order of orders;let i = index"
+                  [orderId]="order.key"
+                  [order]="order"
+                  [index]="i"
+                  (onRemove)="onRemove($event, i)">
+    </order-outlet>
+  </div>
 </div>
