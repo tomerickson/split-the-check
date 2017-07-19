@@ -209,12 +209,12 @@ export class DataStoreService implements OnDestroy {
   addItem(orderId: string): Thenable<any> {
     return this.service.push<IItem>(PATH_ITEMS, {
       orderId: orderId,
-      description: null, quantity: 0, price: 0, instructions: null, key: null
+      description: null, quantity: null, price: null, instructions: null, key: null
     })
   }
 
-  removeItem(item: Item) {
-    const fbo = this.service.getItem(PATH_ITEMS + item.key) as FirebaseObjectObservable<Item>;
+  removeItem(itemId: string) {
+    const fbo = this.service.getItem(PATH_ITEMS + itemId) as FirebaseObjectObservable<Item>;
     return fbo.remove();
   }
 

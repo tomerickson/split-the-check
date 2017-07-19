@@ -5,7 +5,7 @@ import {Session} from '../model/session';
 import {Subscription} from 'rxjs/Subscription';
 
 @Component({
-  selector: 'order-outlet',
+  selector: 'app-order-outlet',
   templateUrl: './order.component.html',
   styleUrls: ['order.component.scss']
 })
@@ -41,5 +41,9 @@ export class OrderComponent implements OnInit, OnDestroy {
   updatePaid(event) {
     const paid: number = +(<HTMLInputElement>event.target).value;
     this.service.updateOrder(this.orderId, {paid: paid})
+  }
+
+  addItem() {
+    this.service.addItem(this.orderId);
   }
 }

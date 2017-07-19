@@ -9,3 +9,7 @@
     color: rgba(0, 192, 0, 1);
   }
 }
+
+div[class*="col"] {
+  justify-content: space-around;
+}

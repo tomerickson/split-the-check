@@ -1,31 +1,12 @@
-<div class="card w-75">
-  <div class="row">
-    <div class="col-sm-1">
-      <span class="fa fa-plus-square" (click)="addItem()"></span>
-    </div>
-    <div class="col-sm-1">
-      <label>#</label>
-    </div>
-    <div class="col-sm-3">
-      <label>Item</label>
-    </div>
-    <div class="col-sm-1">
-      <label>Price</label>
-    </div>
-    <div class="col-sm-2">
-      <label>Qty.</label>
-    </div>
-    <div class="col-sm-3">
-      <label>Instructions</label>
-    </div>
-  </div>
+<div class="card" *ngIf="items.length > 0">
+  <div class="row">&nbsp;</div>
   <div class="row">
     <app-item-outlet *ngFor="let item of items; let i = index;"
                      [orderId]="item.orderId"
                      [itemId]="item.key"
                      [index]="i"
                      (removeItem)="removeItem($event)"
-                     (changeItem)="changeItem($event)"></app-item-outlet>
-
+                     (changeItem)="changeItem($event)">
+    </app-item-outlet>
   </div>
 </div>

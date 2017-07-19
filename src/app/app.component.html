@@ -16,7 +16,7 @@
 </nav>
 <div class="container">
   <div class="row">
-    <div class="col-10">
+    <div class="col">
       <section id="intro">
         <div id="prairiedog">
           <img [hidden]="!showIntro"
@@ -67,10 +67,9 @@
         </ul>
       </section>
     </div>
-    <div class="col-2 col-bottom"><p>&nbsp;</p></div>
   </div>
   <div class="row">
-    <div class="col-10">
+    <div class="col-11">
       <app-settings></app-settings>
     </div>
     <!-- Running totals -->
@@ -78,8 +77,8 @@
       <order-totals></order-totals>
     </div>
   </div>
-  <div class="row">
-    <div class="col-10"><app-order-list-outlet></app-order-list-outlet>
+  <div class="row justify-content-center">
+    <div class="col"><app-order-list-outlet></app-order-list-outlet>
     </div>
   </div>
 </div>

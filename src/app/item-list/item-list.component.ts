@@ -39,10 +39,6 @@ export class ItemListComponent implements OnInit, OnDestroy {
     this.service.addItem(this.orderId);
   }
 
-  removeItem(item: Item) {
-    this.service.removeItem(item);
-  }
-
   changeItem(item: Item, arg: object) {
     this.service.updateItem(item, arg);
   }

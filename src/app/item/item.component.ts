@@ -5,6 +5,7 @@ import {Subscription} from 'rxjs/Subscription';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import 'rxjs/add/operator/map';
 import {FirebaseObjectObservable} from 'angularfire2/database';
+import {ValidationService} from '../validation.service';
 
 @Component({
   selector: 'app-item-outlet',
@@ -16,15 +17,8 @@ export class ItemComponent implements OnInit, OnDestroy {
   @Input() itemId: string;
   @Input() index: number;
   @Input() orderId: string;
-  @Output() removeItem = new EventEmitter<number>()
 
   public item: Item;
-  /*
-  public quantity: number;
-  public description: string;
-  public price: number;
-  public instructions: string;
-  */
   public amount: number;
   public itemForm: FormGroup;
   public quantityPattern = '^[0-9]+$';
@@ -39,9 +33,9 @@ export class ItemComponent implements OnInit, OnDestroy {
   ngOnInit() {
 
     this.itemSubscription = this.service.getItem(this.itemId).subscribe(fbo => {
-        this.item = fbo;
-        this.item.key = fbo.$key;
-      });
+      this.item = fbo;
+      this.item.key = fbo.$key;
+    });
     this.createForm();
   }
 
@@ -51,16 +45,40 @@ export class ItemComponent implements OnInit, OnDestroy {
 
   createForm() {
     this.itemForm = this.formBuilder.group({
-      index: [this.index + 1],
       description: [this.item.description, [Validators.required]],
       quantity: [this.item.quantity, [Validators.required, Validators.pattern(this.quantityPattern)]],
       price: [this.item.price, [Validators.required, Validators.pattern(this.pricePattern)]],
-      instructions: this.item.instructions,
-      amount: [this.amount]
+      instructions: this.item.instructions
     });
+    /*this.itemForm.valueChanges
+      .subscribe(data => this.onValueChanged(data))*/
   }
 
+  /*
+  onValueChanged(data?: any) {
+    if (!this.itemForm) { return; }
+    const form = this.itemForm;
+
+    for (const field in this.formErrors) {
+      if (this.formErrors.hasOwnProperty(field)) {
+        // clear previous error message (if any)
+        this.formErrors[field] = '';
+        const control = form.get(field);
+
+        if (control && control.dirty && !control.valid) {
+          debugger;
+          const messages = this.validationMessages[field];
+          for (const key in control.errors) {
+            if (control.errors.hasOwnProperty(key)) {
+              this.formErrors[field] += messages[key] + ' ';
+            }
+          }
+        }
+      }
+    }
+  }*/
+
   onRemove() {
-    this.removeItem.emit(this.index);
+    this.service.removeItem(this.item.key);
   }
-  }
+}

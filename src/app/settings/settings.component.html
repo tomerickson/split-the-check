@@ -1,7 +1,8 @@
-<form #f="ngForm">
-  <div class="row">
-    <div class="col">
-      <div class="form-group" *ngIf="settings">
+<div class="card-responsive">
+  <form #f="ngForm">
+    <div class="row">
+      <div class="col-sm-1"></div>
+      <div class="col form-group" *ngIf="settings">
         <label class="col-form-label"
                for="input-sales-tax">Tax Percent:
           <input class="form-control"
@@ -14,9 +15,7 @@
                  (change)="service.setTaxPercent($event.currentTarget['value'])">
         </label>
       </div>
-    </div>
-    <div class="col">
-      <div class="form-group">
+      <div class="col form-group">
         <label class="col-form-label text-xs-right" for="txtTip">Tip Percent:
           <input class="form-control" id="txtTip"
                  name="input-tip"
@@ -27,9 +26,7 @@
                  (change)="service.setTipPercent($event.currentTarget['value'])">
         </label>
       </div>
-    </div>
-    <div class="col">
-      <div class="form-group">
+      <div class="col form-group">
         <label class="col-form-label text-xs-right" for="txtDelivery">Delivery:
           <input #txtDelivery class="form-control" id="txtDelivery" name="delivery"
                  tabindex="3"
@@ -40,11 +37,11 @@
           <small>The delivery charge applies to the entire order.</small>
         </label>
       </div>
+      <div class="col-sm-1"></div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col">
-      <div class="form-group">
+    <div class="row">
+      <div class="col-sm-1"></div>
+      <div class="col form-group">
         <label class="col-form-label text-xs-right" for="selTipBasis">Tip Basis:</label>
         <select #selTipBasis id="selTipBasis" class="col-10 form-control"
                 name="select-tip"
@@ -59,9 +56,7 @@
         </select>
         <small>Base the tip on merchandise: <b>Net</b> or merchandise plus tax: <b>Gross</b></small>
       </div>
-    </div>
-    <div class="col">
-      <div class="form-group">
+      <div class="col form-group">
         <label class="col-form-label text-xs-right" for="selChange">Change Basis:</label>
         <select #selChange class="col-10 form-control" id="selChange"
                 name="select-change"
@@ -76,6 +71,7 @@
         </select>
         <small>Calculate change to the denomination you select.</small>
       </div>
+      <div class="col-sm-1"></div>
     </div>
-  </div>
-</form>
+  </form>
+</div>

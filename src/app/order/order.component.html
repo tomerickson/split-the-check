@@ -19,29 +19,35 @@
         <span class="fa fa-minus-square" (click)="removeOrder()" title="Remove this order"></span>
       </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col-sm-1 text-right">#</div>
-    <div class="col-sm-1 text-right">Subtotal</div>
-    <div class="col-sm-1 text-right">Tax</div>
-    <div class="col-sm-1 text-right">Tip</div>
-    <div class="col-sm-1 text-right">Delivery</div>
-    <div class="col-sm-1 text-right">Total</div>
-    <div class="col-sm-1 text-right">Paid</div>
-    <div class="col-sm-1 text-right">Change</div>
-  </div>
-  <div class="row">
-    <div class="col-sm-1 text-right">{{index+1}}</div>
-    <div class="col-sm-1 text-right">{{order.subtotal | number:'1.2-2'}}</div>
-    <div class="col-sm-1 text-right">{{order.tax | number:'1.2-2'}}</div>
-    <div class="col-sm-1 text-right">{{order.delivery | number:'1.2-2'}}</div>
-    <div class="col-sm-1 text-right">{{order.tip | number:'1.2-2'}}</div>
-    <div class="col-sm-1 text-right">{{order.tax | number:'1.2-2'}}</div>
-    <div class="col-sm-1 text-right">{{order.paid | number:'1.2-2'}}</div>
-    <div class="col-sm-1 text-right">{{order.overShort | number:'1.2-2'}}</div>
-  </div>
-  <div class="row">
+    <table class="table">
+      <thead>
+      <tr>
+        <td class="text-center">
+            Add an item:&nbsp;<span class="fa fa-plus-square" (click)="addItem()" title="Add"></span>
+        </td>
+        <td class="text-right">Subtotal</td>
+        <td class="text-right">Tax</td>
+        <td class="text-right">Tip</td>
+        <td class="text-right">Delivery</td>
+        <td class="text-right">Total</td>
+        <td class="text-right">Paid</td>
+        <td class="text-right">Change</td>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td class="text-right"></td>
+        <td class="text-right">{{order.subtotal | number:'1.2-2'}}</td>
+        <td class="text-right">{{order.tax | number:'1.2-2'}}</td>
+        <td class="text-right">{{order.delivery | number:'1.2-2'}}</td>
+        <td class="text-right">{{order.tip | number:'1.2-2'}}</td>
+        <td class="text-right">{{order.tax | number:'1.2-2'}}</td>
+        <td class="text-right">{{order.paid | number:'1.2-2'}}</td>
+        <td class="text-right">{{order.overShort | number:'1.2-2'}}</td>
+      </tr>
+      </tbody>
+    </table>
     <app-item-list-outlet [orderId]="orderId"></app-item-list-outlet>
+    <!--<div class="card-footer"></div>-->
   </div>
-  <div class="card-footer"></div>
 </div>

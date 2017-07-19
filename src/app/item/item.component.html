@@ -1,61 +1,44 @@
-<div class="card">
-
-  <div class="row">
-
-    <form [formGroup]="itemForm" class="form-inline">
-
-      <div class="form-group col-sm-1">
+  <form [formGroup]="itemForm">
+    <div class="row my-sm-0 py-sm-0 justify-content-around">
+      <!--<div class="col-sm-1">&nbsp;</div>-->
+      <div class="col-sm-1">
         <label>{{index+1}}</label>
       </div>
-
-      <div class="form-group col-sm-3">
-        <input type="text"
-               name="description" formControlName="description"
-               placeholder="Description">
-        <div class="error"
-             *ngIf="itemForm.controls['description'].touched && itemForm.controls['description'].hasError('required')">
-          <span>Description is required</span>
-        </div>
+      <div class="col-sm-3">
+          <input id="description"
+                 class="form-control text-line"
+                 name="description"
+                 formControlName="description"
+                    placeholder="Description">
+        <app-control-messages [control]="itemForm.controls.description" [expando]="'description'"></app-control-messages>
       </div>
-
-      <div class="form-group col-sm-2">
-        <input title="Price"
-               onfocus="select();"
-               formControlName="price">
-        <div class="error"
-             *ngIf="itemForm.controls['price'].touched && itemForm.controls['price'].hasError('required')">
-          <span>Price is required</span>
-        </div>
-        <div class="error"
-             *ngIf="itemForm.controls['price'].touched && itemForm.controls['price'].hasError('pattern')">
-          <span>Price must be numeric</span>
-        </div>
-        <app-control-messages [control]="itemForm.controls['price']"></app-control-messages>
+      <div class="col-sm-2">
+          <input id="price"
+                 class="form-control"
+                 name="price"
+                 onfocus="select();"
+                 formControlName="price"
+          placeholder="Price">
+        <app-control-messages [control]="itemForm.controls.price" [expando]="'price'"></app-control-messages>
       </div>
-
-      <div class="form-group col-sm-2 input-group-sm">
-        <input name="quantity" title="Quantity" formControlName="quantity">
-        <div class="error"
-             *ngIf="itemForm.controls['quantity'].touched && itemForm.controls['price'].hasError('required')">
-          <span>Quantity is required</span>
-        </div>
-        <div class="error"
-             *ngIf="itemForm.controls['quantity'].touched && itemForm.controls['quantity'].hasError('pattern')">
-          <span>Quantity must be numeric</span>
-        </div>
-        <app-control-messages [control]="itemForm.controls['quantity']">
+      <div class="col-sm-2">
+          <input class="form-control"
+                 id="quantity"
+                 name="quantity"
+                 placeholder="Quantity" formControlName="quantity">
+        <app-control-messages [control]="itemForm.controls.quantity" [expando]="'quantity'">
         </app-control-messages>
       </div>
-
-      <div class="form-group col-sm-3">
-        <input formControlName="instructions"
-               title="Instructions"
-               placeholder="Instructions">
+      <div class="col-sm-auto">
+          <input class="form-control"
+                 id="instructions"
+                 name="instructions"
+                 formControlName="instructions"
+                 placeholder="Instructions">
       </div>
-
       <div class="col-sm-1">
-        <span class="fa fa-minus-square" (click)="onRemove()"></span>
+        <span id="remove"
+              class="fa fa-minus-square" (click)="onRemove()" title="Remove"></span>
       </div>
-    </form>
-  </div>
-</div>
+    </div>
+  </form>
