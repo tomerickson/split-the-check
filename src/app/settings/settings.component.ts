@@ -1,11 +1,11 @@
 import {Component, OnInit, OnDestroy, AfterViewInit} from '@angular/core';
 import {DataStoreService} from '../data-store/data-store.service';
 import 'rxjs/add/operator/map';
-import {Settings} from "../model/settings";
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
-import {ChangeBasis} from "../model/change-basis";
-import {TipBasis} from "../model/tip-basis";
+import {Settings} from '../model/settings';
+import {Observable} from 'rxjs/Observable';
+import {Subscription} from 'rxjs/Subscription';
+import {ChangeBasis} from '../model/change-basis';
+import {TipBasis} from '../model/tip-basis';
 
 @Component({
   selector: 'app-settings',

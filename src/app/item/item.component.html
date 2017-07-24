@@ -1,44 +1,69 @@
-  <form [formGroup]="itemForm">
-    <div class="row my-sm-0 py-sm-0 justify-content-around">
-      <!--<div class="col-sm-1">&nbsp;</div>-->
-      <div class="col-sm-1">
-        <label>{{index+1}}</label>
-      </div>
-      <div class="col-sm-3">
-          <input id="description"
-                 class="form-control text-line"
-                 name="description"
-                 formControlName="description"
-                    placeholder="Description">
-        <app-control-messages [control]="itemForm.controls.description" [expando]="'description'"></app-control-messages>
-      </div>
-      <div class="col-sm-2">
-          <input id="price"
-                 class="form-control"
-                 name="price"
-                 onfocus="select();"
-                 formControlName="price"
-          placeholder="Price">
-        <app-control-messages [control]="itemForm.controls.price" [expando]="'price'"></app-control-messages>
-      </div>
-      <div class="col-sm-2">
-          <input class="form-control"
-                 id="quantity"
-                 name="quantity"
-                 placeholder="Quantity" formControlName="quantity">
-        <app-control-messages [control]="itemForm.controls.quantity" [expando]="'quantity'">
-        </app-control-messages>
-      </div>
-      <div class="col-sm-auto">
-          <input class="form-control"
-                 id="instructions"
-                 name="instructions"
-                 formControlName="instructions"
-                 placeholder="Instructions">
-      </div>
-      <div class="col-sm-1">
+<form [formGroup]="itemForm" (change)="onChange($event)">
+  <div class="row my-0 py-0 justify-content-around">
+    <div class="col-1">
         <span id="remove"
-              class="fa fa-minus-square" (click)="onRemove()" title="Remove"></span>
-      </div>
+              class="fa fa-times" (click)="onRemove()" title="Remove" tabindex="-1">
+        </span>
     </div>
-  </form>
+    <div class="col-3">
+      <input id="description"
+             class="form-control text-line"
+             name="description"
+             formControlName="description"
+             placeholder="Description"
+             onfocus="select();"
+             value="item!async?.description"
+             tabindex="0">
+      <app-control-messages [control]="itemForm.controls.description" [expando]="'description'"></app-control-messages>
+    </div>
+    <div class="col-2">
+      <input id="price"
+             class="form-control"
+             name="price"
+             onfocus="select();"
+             formControlName="price"
+             placeholder="Price"
+             tabindex="0">
+      <app-control-messages [control]="itemForm.controls.price" [expando]="'price'"></app-control-messages>
+    </div>
+    <div class="col-1">
+      <input class="form-control"
+             id="quantity"
+             name="quantity"
+             onfocus="select();"
+             placeholder="Qty." formControlName="quantity"
+             tabindex="0">
+      <app-control-messages [control]="itemForm.controls.quantity" [expando]="'quantity'">
+      </app-control-messages>
+    </div>
+    <div class="col-auto">
+      <input class="form-control"
+             id="instructions"
+             name="instructions"
+             onfocus="select();"
+             formControlName="instructions"
+             placeholder="Instructions"
+             tabindex="0">
+    </div>
+    <div class="col-1 buttons">
+      <span id="ok" class="fa fa-check-square"
+            title="Save"
+            (click)="onSave()"
+            tabindex=0></span>
+      <span>&nbsp;</span>
+      <span id="undo" class="fa fa-undo"
+            title="Undo"
+            (click)="onUndo()">
+          </span>
+    </div>
+    <div class="col-1 buttons">
+      <span id="add"
+            class="fa fa-plus-square"
+            (click)="onAdd()"
+            (keydown.Space)="onAdd()"
+            title="Add"
+            tabIndex=0>
+      </span>
+    </div>
+  </div>
+</form>

@@ -3,6 +3,8 @@ import {Order} from '../model/order';
 import {DataStoreService} from '../data-store/data-store.service';
 import {Session} from '../model/session';
 import {Subscription} from 'rxjs/Subscription';
+import {Settings} from '../model/settings';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
   selector: 'app-order-outlet',
@@ -12,22 +14,32 @@ import {Subscription} from 'rxjs/Subscription';
 
 export class OrderComponent implements OnInit, OnDestroy {
 
-  @Input() order: Order;
+ // @Input() order: Order;
   @Input() orderId: string;
   @Input() index: number;
   @Output() onRemove = new EventEmitter<Order>();
   @Output() changeTrigger = new EventEmitter();
 
-  session: Session;
+  session: Observable<Session>;
+  settings: Observable<Settings>;
+  order: Observable<Order>;
+  delivery: Observable<number>;
+  sessionSubscription: Subscription;
+  settingsSubscription: Subscription;
 
   constructor(public service: DataStoreService) {
-    this.session = new Session(service);
+    this.order = null;
   }
 
   ngOnInit() {
+    this.session = this.service.session.map(obs => this.session = obs.$value);
+    this.settings = this.service.settings.map(obs => this.settings = obs.$value);
+    this.order = Observable.of(new Order(this.orderId, this.service, this.settings, this.session));
   }
 
   ngOnDestroy() {
+    this.sessionSubscription.unsubscribe();
+    this.settingsSubscription.unsubscribe();
   }
 
   removeOrder() {

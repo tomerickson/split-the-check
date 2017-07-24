@@ -43,7 +43,7 @@ import {ControlMessagesComponent} from './control-messages/control-messages.comp
     AngularFireDatabaseModule],
 
 
-  providers: [DataStoreService, DataProviderService,ValidationService],
+  providers: [DataStoreService, DataProviderService, ValidationService],
   bootstrap: [/*MockComponent,*/ AppComponent]
 })
 export class AppModule {

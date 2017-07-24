@@ -19,10 +19,9 @@
     <div class="col-xs-1"></div>
   </div>
   <div class="row">
-    <div class="col">
+    <div class="col" *ngIf="orders">
       <app-order-outlet *ngFor="let order of orders;let i = index"
                         [orderId]="order.key"
-                        [order]="order"
                         [index]="i"
                         (onRemove)="onRemove($event, i)">
       </app-order-outlet>

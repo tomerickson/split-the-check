@@ -5,6 +5,7 @@ import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Item} from '../model/item';
 import {DataStoreService} from '../data-store/data-store.service';
 import {Subscription} from 'rxjs/Subscription';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
   selector: 'app-item-list-outlet',
@@ -14,7 +15,7 @@ import {Subscription} from 'rxjs/Subscription';
 
 export class ItemListComponent implements OnInit, OnDestroy {
   @Input() orderId: string;
-  items: Item[];
+  items: Item[] = [];
   itemSubscription: Subscription;
 
   constructor(public service: DataStoreService) {
@@ -22,24 +23,17 @@ export class ItemListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.itemSubscription = this.service.getItems(this.orderId).subscribe(items => {
-      this.items = [];
-      items.map(obs => {
-        this.items.push(obs);
-
-      })
-    });
+    this.itemSubscription = this.service.getItems(this.orderId)
+      .subscribe(outer => {
+        this.items = [];
+        outer.map(inner => {
+          const itm = Object.assign({}, inner);
+        itm.key = inner.$key;
+        this.items.push(itm);
+      })});
   }
 
   ngOnDestroy() {
     this.itemSubscription.unsubscribe();
-  }
-
-  addItem() {
-    this.service.addItem(this.orderId);
-  }
-
-  changeItem(item: Item, arg: object) {
-    this.service.updateItem(item, arg);
   }
 }

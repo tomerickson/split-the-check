@@ -8,7 +8,6 @@ import {Helpers} from './helpers';
 
 export class Session implements OnDestroy {
   public title = 'Split the Check';
-  public delivery = 0;
   public orders: Order[];
   public items: Item[];
   public settings: Settings;
@@ -37,8 +36,11 @@ export class Session implements OnDestroy {
     return Helpers.calculateTip(this.subtotal, this.settings.tipOption, this.tax, this.settings.tipPercent);
   }
 
+  get delivery(): number {
+    return this.settings.delivery;
+  }
   get total(): number {
-    return Helpers.defaultToZero(this.subtotal + this.tax + this.tip + this.settings.delivery);
+    return Helpers.defaultToZero(this.subtotal + this.tax + this.tip + this.delivery);
   }
 
   get paid(): number {

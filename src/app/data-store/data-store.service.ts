@@ -16,6 +16,8 @@ import {Order} from '../model/order';
 import {Thenable} from 'firebase/app';
 import {Item} from '../model/item';
 import {FirebaseListObservable, FirebaseObjectObservable} from 'angularfire2/database';
+import {Settings} from '../model/settings';
+import {Subscription} from 'rxjs/Subscription';
 
 const PATH_ORDERS = '/orders/';
 const PATH_ITEMS = '/items/';
@@ -35,6 +37,7 @@ const PATH_SETTINGS_TIP_OPTION = '/settings/tipOption';
 const PATH_SETTINGS_CHANGE_OPTION = '/settings/changeOption';
 const PATH_ENUM_CHANGE_OPTIONS = '/enumerations/changeOptions';
 const PATH_ENUM_TIP_OPTIONS = '/enumerations/tipOptions';
+const PATH_ITEM = '/items/[key]/[value]';
 const FILTER_DEFAULT_OPTION = {orderByChild: 'isDefault', equalTo: true, limitToFirst: 1};
 
 @Injectable()
@@ -132,8 +135,19 @@ export class DataStoreService implements OnDestroy {
     this.service.set(PATH_SETTINGS_TIP_PERCENT, +value);
   }
 
+  getDelivery() {
+    return this.service.getItem(PATH_SETTINGS_DELIVERY);
+  }
+
   setDelivery(value: number) {
-    this.service.set(PATH_SETTINGS_DELIVERY, +value);
+    let obj: Settings;
+    let sub: Subscription;
+    sub = this.service.getItem(PATH_SETTINGS).subscribe(settings => {
+      obj = Object.assign({}, settings.valueOf());
+      obj.delivery = +value;
+      this.service.set(PATH_SETTINGS, obj);
+    });
+    sub.unsubscribe();
   }
 
   setChangeBasis(index: number) {
@@ -161,14 +175,14 @@ export class DataStoreService implements OnDestroy {
     this.service.remove(PATH_ITEMS);
   }
 
-  // Order-list
-  //
+// Order-list
+//
   getOrders(): FirebaseListObservable<any> {
     return this.service.getList(PATH_ORDERS);
   }
 
-  // Order level queries
-  //
+// Order level queries
+//
   addOrder(): Thenable<IOrder> {
     return this.service.push<IOrder>(PATH_ORDERS, {key: null, name: null, paid: 0});
   }
@@ -179,24 +193,25 @@ export class DataStoreService implements OnDestroy {
   }
 
   getOrder(key: any): FirebaseObjectObservable<any> {
-    return this.service.getItem(PATH_ORDERS + key);
+    return this.service.getItem(PATH_ORDERS + key)
   }
 
   getPaid(key: string): Observable<number> {
     return this.service.getItem(PATH_ORDERS + key + '/paid');
   }
 
-  // Return items attached to an order,
-  // update item.key with the firebase key
-  //
-  getItems(orderId: string): Observable<IItem[]> {
+// Return items attached to an order,
+// update item.key with the firebase key
+//
+  getItems(orderId: string): FirebaseListObservable<any> {
     const filter = {orderByChild: 'orderId', equalTo: orderId};
-    return this.service.query(PATH_ITEMS, filter)
-      .map(items => items.map(item => {
-        const newItem: IItem = Object.assign({}, item);
+    return this.service.query(PATH_ITEMS, filter);
+      // .map(items => items.map(item => item.key = item.$key));
+      /*.map(items => items.map(item => {
+        const newItem: Item = Object.assign({}, item);
         newItem.key = item.$key;
         return newItem;
-      }));
+      }*/
   }
 
   updateOrder(key: string, updates: object): Thenable<any> {
@@ -204,8 +219,8 @@ export class DataStoreService implements OnDestroy {
     return foo.update(updates);
   }
 
-  // Item-level queries
-  //
+// Item-level queries
+//
   addItem(orderId: string): Thenable<any> {
     return this.service.push<IItem>(PATH_ITEMS, {
       orderId: orderId,
@@ -222,13 +237,21 @@ export class DataStoreService implements OnDestroy {
     return this.service.getItem(PATH_ITEMS + key);
   }
 
-  updateItem(item: Item, updates: object): Thenable<any> {
-    const foo = this.service.getItem(PATH_ITEMS + item.key) as FirebaseObjectObservable<Item>;
-    return foo.update(updates);
+  getItemField(key: string, field: string): FirebaseObjectObservable<any> {
+    let path = PATH_ITEM.replace('\[key\]', key);
+    path = path.replace('\[value\]', field);
+    const result = this.service.getItem(path);
+    console.log(result.$ref.toJSON());
+    return this.service.getItem(path);
   }
 
-  // App-level queries
-  //
+  updateItem(item: Item): Thenable<any> {
+    const foo = this.service.getItem(PATH_ITEMS + item.key) as FirebaseObjectObservable<Item>;
+    return foo.update(item);
+  }
+
+// App-level queries
+//
   mockQuery(): Observable<TipBasis[]> {
     return this.service.mockQuery();
   }

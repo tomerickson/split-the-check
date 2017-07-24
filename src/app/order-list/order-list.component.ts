@@ -18,7 +18,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
   service: DataStoreService;
   orderSub: Subscription;
   settingsSub: Subscription;
-  orders: Order[] = [];
+  orders: Order[];
   settings: Settings;
 
   constructor(svc: DataStoreService) {
@@ -29,15 +29,14 @@ export class OrderListComponent implements OnInit, OnDestroy {
     this.settingsSub = this.service.settings.subscribe(obj => this.settings = obj);
     const obs = this.service.getOrders();
     this.orderSub = obs.subscribe(outer => {
-      console.log('loading orders: ' + JSON.stringify(outer));
+     // console.log('loading orders: ' + JSON.stringify(outer));
+      this.orders = [];
       outer.map(inner => {
         const newOrder = Object.assign({}, inner);
         newOrder.key = inner.$key;
-        console.log('loading inner: ' + JSON.stringify(newOrder));
         newOrder.name = inner.name;
         newOrder.paid = inner.paid;
         this.orders.push(newOrder);
-        console.log('orders.length=' + this.orders.length);
       })
     });
   }

@@ -1,4 +1,4 @@
-interface IOrder extends IDomainObject {
+interface IOrder {
   name: string; // Name of person who placed order
   paid: number; // Amount paid
 }
