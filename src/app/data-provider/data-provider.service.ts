@@ -3,6 +3,8 @@ import {AngularFireDatabase, FirebaseListObservable, FirebaseObjectObservable} f
 import {TipBasis} from '../model/tip-basis';
 import {Thenable} from 'firebase/app';
 import 'rxjs/add/operator/take';
+import {Settings} from '../model/settings';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 
@@ -23,7 +25,7 @@ export class DataProviderService implements OnDestroy {
   private MSG_UPDATE = 'update';
   private MSG_DISCONNECT = 'goOffline';
 
-  private LOG = true;
+  private LOG = true || false;
 
   db: AngularFireDatabase;
 
@@ -34,9 +36,13 @@ export class DataProviderService implements OnDestroy {
   ngOnDestroy() {
     try {
       this.db.app.database().goOffline();
-      if (this.LOG) {this.logTask(this.MSG_DISCONNECT, '', '', true); }
+      if (this.LOG) {
+        this.logTask(this.MSG_DISCONNECT, '', '', true);
+      }
     } catch (e) {
-      if (this.LOG) {this.logTask(this.MSG_DISCONNECT, '', '', false, e); }
+      if (this.LOG) {
+        this.logTask(this.MSG_DISCONNECT, '', '', false, e);
+      }
     }
   }
 
@@ -51,7 +57,9 @@ export class DataProviderService implements OnDestroy {
       if (typeof take !== 'undefined') {
         result = result.take(take) as FirebaseListObservable<any[]>;
       }
-      if (this.LOG) {this.logTask(this.MSG_LIST, path, null, true); }
+      if (this.LOG) {
+        this.logTask(this.MSG_LIST, path, null, true);
+      }
     } catch (err) {
       this.logTask(this.MSG_LIST, path, null, false);
       throw err;
@@ -63,7 +71,9 @@ export class DataProviderService implements OnDestroy {
     let result: FirebaseObjectObservable<any>;
     try {
       result = this.db.object(path);
-      if (this.LOG) {this.logTask(this.MSG_OBJECT, path, null, true); }
+      if (this.LOG) {
+        this.logTask(this.MSG_OBJECT, path, null, true);
+      }
     } catch (err) {
       this.logTask(this.MSG_OBJECT, path, null, false);
       throw err;
@@ -74,7 +84,9 @@ export class DataProviderService implements OnDestroy {
   push<T>(path: string, value: T): Thenable<T> {
     return this.db.list(path).push(value)
       .then(() => {
-        if (this.LOG) {this.logTask(this.MSG_PUSH, path, value, true); }
+        if (this.LOG) {
+          this.logTask(this.MSG_PUSH, path, value, true);
+        }
       })
       .catch(err => {
         this.logTask(this.MSG_PUSH, path, value, false);
@@ -85,7 +97,9 @@ export class DataProviderService implements OnDestroy {
   updatePath(path: string, newObject: object): Thenable<any> {
     return this.db.object(path).update(newObject)
       .then(() => {
-        if (this.LOG) {this.logTask(this.MSG_UPDATE, path, newObject, true); }
+        if (this.LOG) {
+          this.logTask(this.MSG_UPDATE, path, newObject, true);
+        }
       })
       .catch(err => {
         this.logTask(this.MSG_UPDATE, path, newObject, false);
@@ -94,7 +108,7 @@ export class DataProviderService implements OnDestroy {
   }
 
   /**
-  updateObject(observable: FirebaseObjectObservable<any>, newObject: object): Thenable<any> {
+   updateObject(observable: FirebaseObjectObservable<any>, newObject: object): Thenable<any> {
     return observable.update(newObject)
       .then(() => {
         if (this.LOG) {this.logTask(this.MSG_UPDATE, observable.$ref.key, newObject, true); }
@@ -104,10 +118,26 @@ export class DataProviderService implements OnDestroy {
       })
   }*/
 
-  set(path: string, value: any): Thenable<any> {
-    return this.db.object(path).set(value)
+  // Update the object to reflect the content
+  // of the 'changes' object.
+  //
+  updateObject(path: string, changes: object) {
+    try {
+      const obj = this.db.object(path);
+      Object.assign(obj.$ref, changes);
+      // obj.update(changes);
+      return this.set(path, obj);
+     } catch(err) {
+      Observable.throw(err);
+    }
+  }
+
+  set (path: string, value: any): Thenable<any> {
+    return this.db.object(path).update(value)
       .then(() => {
-        if (this.LOG) {this.logTask(this.MSG_SET, path, value, true); }
+        if (this.LOG) {
+          this.logTask(this.MSG_SET, path, value, true);
+        }
       })
       .catch(err => {
         this.logTask(this.MSG_SET, path, value, false);
@@ -118,7 +148,9 @@ export class DataProviderService implements OnDestroy {
   query(path: string, filter: any, preserveSnapshot?: boolean): FirebaseListObservable<any> {
     try {
       const result = this.db.list(path, {query: filter});
-      if (this.LOG) {this.logTask(this.MSG_QUERY, path, filter, true); }
+      if (this.LOG) {
+        this.logTask(this.MSG_QUERY, path, filter, true);
+      }
       return result;
     } catch (err) {
       this.logTask(this.MSG_QUERY, path, filter, false);
@@ -129,7 +161,9 @@ export class DataProviderService implements OnDestroy {
   remove(path: string): Thenable<any> {
     return this.db.object(path).remove()
       .then(() => {
-        if (this.LOG) {this.logTask(this.MSG_REMOVE, path, null, true); }
+        if (this.LOG) {
+          this.logTask(this.MSG_REMOVE, path, null, true);
+        }
       })
       .catch(err => {
         this.logTask(this.MSG_REMOVE, path, null, false);
@@ -146,9 +180,13 @@ export class DataProviderService implements OnDestroy {
         success = true;
         if (error) {
           success = false;
-          this.logTask(this.MSG_COPY, oldPath, newPath, false, error);
+          if (this.LOG) {
+            this.logTask(this.MSG_COPY, oldPath, newPath, false, error);
+          }
         } else {
-          this.logTask(this.MSG_COPY, oldPath, newPath, true);
+          if (this.LOG) {
+            this.logTask(this.MSG_COPY, oldPath, newPath, true);
+          }
         }
       }));
     });
@@ -165,7 +203,9 @@ export class DataProviderService implements OnDestroy {
             success = true;
             oldRef.remove();
           } else {
-            this.logTask(this.MSG_MOVE, oldPath, newPath, false, error);
+            if (this.LOG) {
+              this.logTask(this.MSG_MOVE, oldPath, newPath, false, error);
+            }
           }
         }
       )

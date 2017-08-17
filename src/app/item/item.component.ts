@@ -45,7 +45,7 @@ export class ItemComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.itemSubscription.unsubscribe();
+    // this.itemSubscription.unsubscribe();
   }
 
   createForm() {
@@ -61,6 +61,14 @@ export class ItemComponent implements OnInit, OnDestroy {
     console.log('item=' + JSON.stringify(this.item));
     this.itemForm.valueChanges
       .subscribe(data => this.onValueChanged(data))
+  }
+
+  onSave() {
+
+  }
+
+  onUndo() {
+
   }
 
   onAdd() {

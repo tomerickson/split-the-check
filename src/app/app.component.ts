@@ -1,13 +1,14 @@
 import {Component, OnDestroy, OnInit, Output} from '@angular/core';
-import {DataStoreService} from "./data-store/data-store.service";
-import {Settings} from "./model/settings";
-import {BehaviorSubject} from "rxjs/BehaviorSubject";
-import {Subject} from "rxjs/Subject";
+import {DataStoreService} from './data-store/data-store.service';
+import {Settings} from './model/settings';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Subject} from 'rxjs/Subject';
+import { Routes } from '@angular/router';
+import { TestComponent } from './test.component';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['app.component.scss']
+  templateUrl: './app.component.html'
 })
 
 export class AppComponent implements OnInit, OnDestroy {
@@ -33,5 +34,4 @@ export class AppComponent implements OnInit, OnDestroy {
     this.service.toggleShowIntro(this.showIntro);
   }
 }
-
 

@@ -49,6 +49,14 @@
       <td><span *ngIf="session.settings">{{session.overShort | number:'1.2-2'}}</span></td>
     </tr>
     </tbody>
+    <tfoot>
+    <tr>
+      <td colspan="2">
+        <div class="fa fa-remove"
+             title="Clear all Orders."
+             (click)="clearOrder($event)"></div>
+      </td>
+    </tr>
+    </tfoot>
   </table>
-  <span title="Clear all orders" class="material-icons mi-remove-circle" (click)="clearOrder($event)"></span>
 </div>

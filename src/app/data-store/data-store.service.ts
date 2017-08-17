@@ -1,7 +1,7 @@
-import {Injectable, OnDestroy} from '@angular/core';
-import {DataProviderService} from '../data-provider/data-provider.service';
-import {TipBasis} from '../model/tip-basis';
-import {Observable} from 'rxjs/Observable';
+import { Injectable, OnDestroy } from '@angular/core';
+import { DataProviderService } from '../data-provider/data-provider.service';
+import { TipBasis } from '../model/tip-basis';
+import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/observable/fromPromise';
 import 'rxjs/add/operator/defaultIfEmpty';
@@ -11,13 +11,13 @@ import 'rxjs/add/operator/publish';
 import 'rxjs/add/operator/reduce';
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/toPromise';
-import {ChangeBasis} from '../model/change-basis';
-import {Order} from '../model/order';
-import {Thenable} from 'firebase/app';
-import {Item} from '../model/item';
-import {FirebaseListObservable, FirebaseObjectObservable} from 'angularfire2/database';
-import {Settings} from '../model/settings';
-import {Subscription} from 'rxjs/Subscription';
+import { ChangeBasis } from '../model/change-basis';
+import { Order } from '../model/order';
+import { Thenable } from 'firebase/app';
+import { Item } from '../model/item';
+import { FirebaseListObservable, FirebaseObjectObservable } from 'angularfire2/database';
+import { ObjectFactory } from '../model/ObjectFactory';
+import { Change } from '@angular/cli/lib/ast-tools';
 
 const PATH_ORDERS = '/orders/';
 const PATH_ITEMS = '/items/';
@@ -43,13 +43,29 @@ const FILTER_DEFAULT_OPTION = {orderByChild: 'isDefault', equalTo: true, limitTo
 @Injectable()
 export class DataStoreService implements OnDestroy {
 
+  public Orders: Order[] = [];
+  public AllItems: FirebaseListObservable<any>;
+  public AllOrders: FirebaseListObservable<any>;
+  getTaxPercent = (): FirebaseObjectObservable<any> => {
+    return this.service.getItem(PATH_SETTINGS_TAX_PERCENT);
+  }
+  getTipPercent = (): FirebaseObjectObservable<any> => {
+    return this.service.getItem(PATH_SETTINGS_TIP_PERCENT);
+  }
+  getDelivery = () => {
+    return this.service.getItem(PATH_SETTINGS_DELIVERY);
+  }
+  getChangeOption = () => {
+    return this.service.getItem(PATH_SETTINGS_CHANGE_OPTION);
+  }
+  getTipOption = () => {
+    return this.service.getItem(PATH_SETTINGS_TIP_OPTION);
+  }
   private service: DataProviderService;
   private firstTime = true;
 
-  Orders: Order[] = [];
 
-  AllItems: FirebaseListObservable<any>;
-  AllOrders: FirebaseListObservable<any>;
+  // Settings
 
   constructor(private svc: DataProviderService) {
     this.service = svc;
@@ -65,6 +81,10 @@ export class DataStoreService implements OnDestroy {
 
   get settings(): FirebaseObjectObservable<any> {
     return this.service.getItem(PATH_SETTINGS);
+  }
+
+  get changeBasis(): FirebaseObjectObservable<any> {
+    return this.service.getItem(PATH_SETTINGS_CHANGE_OPTION);
   }
 
   setDefaults() {
@@ -99,78 +119,55 @@ export class DataStoreService implements OnDestroy {
     this.service.db.app.database().goOffline();
   }
 
-  // Settings
   //
   getDefaultTipOption(): Promise<TipBasis> {
     return this.service.query(PATH_TIP_OPTIONS_ENUM, FILTER_DEFAULT_OPTION)
-      .first()
-      .map(options => options[0])
+      .first(opt => opt.isDefault)
       .toPromise()
   }
 
   getDefaultChangeOption(): Promise<ChangeBasis> {
     return this.service.query(PATH_CHANGE_OPTIONS_ENUM, FILTER_DEFAULT_OPTION)
-      .first()
-      .map(options => options[0])
+      .first(opt => opt.isDefault)
       .toPromise();
   }
 
-  getTipOptions() {
-    return this.service.query(PATH_ENUM_TIP_OPTIONS, {});
+  getTipOptions(): Observable<TipBasis[]> {
+    return this.service.getList(PATH_ENUM_TIP_OPTIONS)
+      .map(array => array.map(item => ObjectFactory.CreateTipBasisFromJSON(item)));
   }
 
-  getChangeOptions() {
-    return this.service.query(PATH_ENUM_CHANGE_OPTIONS, {});
+  getChangeOptions(): Observable<ChangeBasis[]> {
+    return this.service.getList(PATH_ENUM_CHANGE_OPTIONS)
+      .map(array => array.map(item => ObjectFactory.CreateChangeBasisFromJSON(item)))
   }
 
   toggleShowIntro(choice: boolean) {
-    this.service.set(PATH_SETTINGS_SHOW_INTRO, choice);
+    this.service.set(PATH_SETTINGS, {showIntro: choice});
   }
 
   setTaxPercent(value: number) {
-    this.service.set(PATH_SETTINGS_TAX_PERCENT, +value);
+    this.service.set(PATH_SETTINGS, {taxPercent: value});
   }
 
   setTipPercent(value: number) {
-    this.service.set(PATH_SETTINGS_TIP_PERCENT, +value);
-  }
-
-  getDelivery() {
-    return this.service.getItem(PATH_SETTINGS_DELIVERY);
+    this.service.set(PATH_SETTINGS, {tipPercent: value});
   }
 
   setDelivery(value: number) {
-    let obj: Settings;
-    let sub: Subscription;
-    sub = this.service.getItem(PATH_SETTINGS).subscribe(settings => {
-      obj = Object.assign({}, settings.valueOf());
-      obj.delivery = +value;
-      this.service.set(PATH_SETTINGS, obj);
-    });
-    sub.unsubscribe();
+    this.service.set(PATH_SETTINGS, {delivery: value});
   }
 
-  setChangeBasis(index: number) {
-    let changeBasis: ChangeBasis;
-    const obs = this.service.getList(PATH_ENUM_CHANGE_OPTIONS);
-    const sub = obs.subscribe(opt => changeBasis = opt[index]);
-    sub.unsubscribe();
-    if (changeBasis) {
-      this.service.updatePath(PATH_SETTINGS_CHANGE_OPTION, changeBasis);
-    }
+  setChangeBasis(changeBasis) {
+    debugger;
+    this.service.set(PATH_SETTINGS_CHANGE_OPTION, changeBasis);
   }
 
-  setTipBasis(index: number) {
-    let tipBasis: TipBasis;
-    const obs = this.service.getList(PATH_ENUM_TIP_OPTIONS);
-    const sub = obs.subscribe(tip => tipBasis = tip[index]);
-    sub.unsubscribe();
-    if (tipBasis) {
-      this.service.updatePath(PATH_SETTINGS_TIP_OPTION, tipBasis);
-    }
+  setTipBasis(tipBasis: TipBasis) {
+    this.service.set(PATH_SETTINGS_TIP_OPTION, tipBasis);
   }
 
-  wrapup() {
+  wrapUp() {
     this.service.remove(PATH_ORDERS);
     this.service.remove(PATH_ITEMS);
   }
@@ -203,23 +200,22 @@ export class DataStoreService implements OnDestroy {
 // Return items attached to an order,
 // update item.key with the firebase key
 //
-  getItems(orderId: string): FirebaseListObservable<any> {
+  getItems(orderId: string): Observable<any> {
     const filter = {orderByChild: 'orderId', equalTo: orderId};
     return this.service.query(PATH_ITEMS, filter);
-      // .map(items => items.map(item => item.key = item.$key));
-      /*.map(items => items.map(item => {
-        const newItem: Item = Object.assign({}, item);
-        newItem.key = item.$key;
-        return newItem;
-      }*/
+    /*.map(element => {
+      return element;
+    });*/
   }
+
+  // Return the $value property of the incoming key/value pair
+  // patched with the $key property.
 
   updateOrder(key: string, updates: object): Thenable<any> {
     const foo = this.service.getItem(PATH_ORDERS + key) as FirebaseObjectObservable<Order>;
     return foo.update(updates);
   }
 
-// Item-level queries
 //
   addItem(orderId: string): Thenable<any> {
     return this.service.push<IItem>(PATH_ITEMS, {
@@ -227,6 +223,8 @@ export class DataStoreService implements OnDestroy {
       description: null, quantity: null, price: null, instructions: null, key: null
     })
   }
+
+// Item-level queries
 
   removeItem(itemId: string) {
     const fbo = this.service.getItem(PATH_ITEMS + itemId) as FirebaseObjectObservable<Item>;
@@ -250,9 +248,17 @@ export class DataStoreService implements OnDestroy {
     return foo.update(item);
   }
 
-// App-level queries
 //
   mockQuery(): Observable<TipBasis[]> {
     return this.service.mockQuery();
+  }
+
+// App-level queries
+
+  //
+  private patchKey(kvp: { $key, $value }) {
+    const result = kvp.$value;
+    result['key'] = kvp.$key;
+    return result;
   }
 }

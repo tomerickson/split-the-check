@@ -29,7 +29,7 @@ export class OrderTotalsComponent {
   }
 
   clearOrder(e: Event) {
-    this.service.wrapup();
+    this.service.wrapUp();
     e.preventDefault();
   }
 }

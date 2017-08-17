@@ -1,8 +1,8 @@
-<div class="card-responsive">
+<div class="card">
   <form #f="ngForm">
     <div class="row">
       <div class="col-sm-1"></div>
-      <div class="col form-group" *ngIf="settings">
+      <div class="col form-group">
         <label class="col-form-label"
                for="input-sales-tax">Tax Percent:
           <input class="form-control"
@@ -11,8 +11,9 @@
                  tabindex="1"
                  size="5"
                  onfocus="this.select()"
-                 [ngModel]="settings.taxPercent"
-                 (change)="service.setTaxPercent($event.currentTarget['value'])">
+                 [ngModel]="taxPercent"
+                 (change)="setTaxPercent($event)"
+          >
         </label>
       </div>
       <div class="col form-group">
@@ -22,18 +23,20 @@
                  tabindex="2"
                  size="5"
                  onfocus="this.select()"
-                 [ngModel]="settings.tipPercent"
-                 (change)="service.setTipPercent($event.currentTarget['value'])">
+                 [ngModel]="tipPercent"
+                 (change)="setTipPercent($event)">
         </label>
       </div>
       <div class="col form-group">
         <label class="col-form-label text-xs-right" for="txtDelivery">Delivery:
-          <input #txtDelivery class="form-control" id="txtDelivery" name="delivery"
+          <input #txtDelivery class="form-control" id="txtDelivery"
+                 name="delivery"
                  tabindex="3"
                  size="7"
-                 [ngModel]="settings.delivery|number:'1.2-2'"
-                 (change)="service.setDelivery($event.currentTarget['value']);"
-                 onfocus="this.select();">
+                 [ngModel]="delivery|number:'1.2-2'"
+                 (change)="setDelivery($event)"
+                 onfocus="this.select()"
+          >
           <small>The delivery charge applies to the entire order.</small>
         </label>
       </div>
@@ -42,34 +45,39 @@
     <div class="row">
       <div class="col-sm-1"></div>
       <div class="col form-group">
-        <label class="col-form-label text-xs-right" for="selTipBasis">Tip Basis:</label>
-        <select #selTipBasis id="selTipBasis" class="col-10 form-control"
-                name="select-tip"
-                tabindex="4"
-                [ngModel]="settings.tipOption"
-                (change)="updateTipBasis($event)">
-          <option *ngFor="let opt of tipOptions"
-                  [value]="opt"
-                  [attr.selected]="(opt.isDefault) ? true : null">
+        <label class="col-form-label" for="selTipBasis">Tip Basis:</label>
+        <select
+          #selTipBasis id="selTipBasis" class="form-control"
+          name="select-tip"
+          tabindex="4"
+          [ngModel]="tipBasis"
+          (change)="setTipBasis($event)">
+          <option *ngFor="let opt of tipOptions|async"
+                  [ngValue]="opt">
             {{opt.description}}
           </option>
         </select>
         <small>Base the tip on merchandise: <b>Net</b> or merchandise plus tax: <b>Gross</b></small>
       </div>
       <div class="col form-group">
-        <label class="col-form-label text-xs-right" for="selChange">Change Basis:</label>
-        <select #selChange class="col-10 form-control" id="selChange"
+        <form [formGroup]="changeForm">
+          <label class="col-form-label text-xs-right" for="selChange">Change Basis:</label>
+        <select formControlName="changeBasis"
+                #selChange
+                class="form-control"
+                id="selChange"
                 name="select-change"
                 tabindex="5"
-                [ngModel]="settings.changeOption"
-                (change)="updateChangeBasis($event)">
-          <option *ngFor="let opt of changeOptions"
-                  [value]="opt"
-                  [attr.selected]="(opt.isDefault) ? true : null">
+                [ngModel]="changeBasis | async"
+                >
+          <option
+            name="optChanges" *ngFor="let opt of changeOptions|async"
+                  >
             {{opt.description}}
           </option>
         </select>
         <small>Calculate change to the denomination you select.</small>
+        </form>
       </div>
       <div class="col-sm-1"></div>
     </div>

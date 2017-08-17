@@ -4,19 +4,23 @@ import {Session} from './session';
 import {DataStoreService} from '../data-store/data-store.service';
 import {OnDestroy} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
+import {Subscription} from 'rxjs/Subscription';
 
 export class Order implements IOrder, OnDestroy {
   key: string;
   name: string;
   paid: number;
   delivery: Observable<number>;
+  items: Observable<Item[]>;
   subtotal: Observable<number>;
   tax: Observable<number>;
   tip: Observable<number>;
   total: Observable<number>;
   overShort: Observable<number>;
   taxPercent: Observable<number>;
-  items: Observable<Item[]>;
+  itemsScript: Subscription;
+
+  // items: Observable<Item[]>;
 
   constructor(orderId: string, private service: DataStoreService,
               public settings: Observable<Settings>, public session: Observable<Session>) {
@@ -24,18 +28,24 @@ export class Order implements IOrder, OnDestroy {
       this.key = obs.$key;
       this.name = obs.name;
       this.paid = obs.paid;
-      this.service.getItems(this.key).map((array) => this.items = array
-        .map((element) => element.key = element.$key));
+      this.itemsScript = this.service.getItems(orderId).subscribe(source => {
+          this.items = source;
+          this.subtotal = this.items.map(array => array.map(item => item.quantity * item.price)
+            .reduce((sum, value) => sum + value, 0));
+          // Sales tax
+          //
+          this.tax = Observable.combineLatest(this.subtotal,
+            this.settings.map(args => args.taxPercent),
+            (amt, pct) => amt * pct / 100);
+        }
+      );
+      /* this.service.getItems(this.key).map((array) => {
+        this.items = array.map((element) => element.key = element.$key)
+      });*/
       // subtotal
       //
-      this.subtotal = this.items.map(array => array.map(item => item.quantity * item.price)
-        .reduce((sum, value) => sum + value, 0));
-
-      // Sales tax
-      //
-      this.tax = Observable.combineLatest(this.subtotal,
-        this.settings.map(item => item.taxPercent),
-        (amt, pct) => amt * pct / 100);
+      /* this.subtotal = this.items.map(array => array.map(item => item.quantity * item.price)
+        .reduce((sum, value) => sum + value, 0));*/
 
       // Tip
       //
@@ -77,9 +87,11 @@ export class Order implements IOrder, OnDestroy {
       this.overShort = this.total.map(total => {
         return total - this.paid;
       });
-  });
-}
+    });
+  }
 
   ngOnDestroy() {
+    this.itemsScript.unsubscribe();
   }
+
 }
