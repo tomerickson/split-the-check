@@ -1,42 +1,39 @@
 <div class="card">
-  <form #f="ngForm">
+  <form [formGroup]="changeForm" novalidate>
     <div class="row">
       <div class="col-sm-1"></div>
-      <div class="col form-group">
+      <div class="col form-group" [formGroup]="changeForm">
         <label class="col-form-label"
                for="input-sales-tax">Tax Percent:
-          <input class="form-control"
-                 name="input-sales-tax"
+          <input type="text"
+                 formControlName="taxPercent"
+                 class="form-control"
                  id="input-sales-tax"
                  tabindex="1"
                  size="5"
-                 onfocus="this.select()"
-                 [ngModel]="taxPercent"
-                 (change)="setTaxPercent($event)"
-          >
+                 onfocus="this.select()">
         </label>
       </div>
-      <div class="col form-group">
+      <div class="col form-group" [formGroup]="changeForm">
         <label class="col-form-label text-xs-right" for="txtTip">Tip Percent:
-          <input class="form-control" id="txtTip"
-                 name="input-tip"
+          <input type="text"
+                 formControlName="tipPercent"
+                 class="form-control" id="txtTip"
                  tabindex="2"
                  size="5"
-                 onfocus="this.select()"
-                 [ngModel]="tipPercent"
-                 (change)="setTipPercent($event)">
+                 onfocus="this.select()">
         </label>
       </div>
-      <div class="col form-group">
+      <div class="col form-group" [formGroup]="changeForm">
         <label class="col-form-label text-xs-right" for="txtDelivery">Delivery:
-          <input #txtDelivery class="form-control" id="txtDelivery"
-                 name="delivery"
+          <input type="text"
+                 formControlName="delivery"
+                 class="form-control"
+                 id="txtDelivery"
                  tabindex="3"
                  size="7"
-                 [ngModel]="delivery|number:'1.2-2'"
                  (change)="setDelivery($event)"
-                 onfocus="this.select()"
-          >
+                 onfocus="this.select()">
           <small>The delivery charge applies to the entire order.</small>
         </label>
       </div>
@@ -44,40 +41,35 @@
     </div>
     <div class="row">
       <div class="col-sm-1"></div>
-      <div class="col form-group">
+      <div class="col form-group" [formGroup]="changeForm">
         <label class="col-form-label" for="selTipBasis">Tip Basis:</label>
-        <select
-          #selTipBasis id="selTipBasis" class="form-control"
-          name="select-tip"
-          tabindex="4"
-          [ngModel]="tipBasis"
-          (change)="setTipBasis($event)">
-          <option *ngFor="let opt of tipOptions|async"
+        <select formControlName="tipBasis"
+                id="selTipBasis"
+                class="form-control"
+                tabindex="4"
+                [compareWith]="selectedOption">
+          <option name="optTips"
+                  *ngFor="let opt of tipOptions"
                   [ngValue]="opt">
             {{opt.description}}
           </option>
         </select>
         <small>Base the tip on merchandise: <b>Net</b> or merchandise plus tax: <b>Gross</b></small>
       </div>
-      <div class="col form-group">
-        <form [formGroup]="changeForm">
-          <label class="col-form-label text-xs-right" for="selChange">Change Basis:</label>
+      <div class="col form-group" [formGroup]="changeForm">
+        <label class="col-form-label text-xs-right" for="selChange">Change Basis:</label>
         <select formControlName="changeBasis"
-                #selChange
                 class="form-control"
                 id="selChange"
-                name="select-change"
                 tabindex="5"
-                [ngModel]="changeBasis | async"
-                >
-          <option
-            name="optChanges" *ngFor="let opt of changeOptions|async"
-                  >
+                [compareWith]="selectedOption">
+          <option name="optChanges"
+                  *ngFor="let opt of changeOptions"
+                  [ngValue]="opt">
             {{opt.description}}
           </option>
         </select>
         <small>Calculate change to the denomination you select.</small>
-        </form>
       </div>
       <div class="col-sm-1"></div>
     </div>

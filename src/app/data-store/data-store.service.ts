@@ -11,13 +11,12 @@ import 'rxjs/add/operator/publish';
 import 'rxjs/add/operator/reduce';
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/toPromise';
-import { ChangeBasis } from '../model/change-basis';
 import { Order } from '../model/order';
 import { Thenable } from 'firebase/app';
 import { Item } from '../model/item';
 import { FirebaseListObservable, FirebaseObjectObservable } from 'angularfire2/database';
-import { ObjectFactory } from '../model/ObjectFactory';
-import { Change } from '@angular/cli/lib/ast-tools';
+import { Settings } from '../model/settings';
+import { ChangeBasis } from '../model/change-basis';
 
 const PATH_ORDERS = '/orders/';
 const PATH_ITEMS = '/items/';
@@ -39,6 +38,7 @@ const PATH_ENUM_CHANGE_OPTIONS = '/enumerations/changeOptions';
 const PATH_ENUM_TIP_OPTIONS = '/enumerations/tipOptions';
 const PATH_ITEM = '/items/[key]/[value]';
 const FILTER_DEFAULT_OPTION = {orderByChild: 'isDefault', equalTo: true, limitToFirst: 1};
+const CHANGE_OPTIONS_SORT = {orderByChild: 'value'};
 
 @Injectable()
 export class DataStoreService implements OnDestroy {
@@ -61,9 +61,9 @@ export class DataStoreService implements OnDestroy {
   getTipOption = () => {
     return this.service.getItem(PATH_SETTINGS_TIP_OPTION);
   }
+
   private service: DataProviderService;
   private firstTime = true;
-
 
   // Settings
 
@@ -79,7 +79,7 @@ export class DataStoreService implements OnDestroy {
     return this.service.getItem(PATH_SESSION);
   }
 
-  get settings(): FirebaseObjectObservable<any> {
+  get settings(): FirebaseObjectObservable<Settings> {
     return this.service.getItem(PATH_SETTINGS);
   }
 
@@ -88,27 +88,20 @@ export class DataStoreService implements OnDestroy {
   }
 
   setDefaults() {
+    console.log('data-store.service.setDefaults');
     let result: boolean;
     result = this.service.copyNode(PATH_DEFAULT_TAX_PERCENT, PATH_SETTINGS_TAX_PERCENT);
     if (result) {
-      this.service.copyNode(PATH_DEFAULT_TIP_PERCENT, PATH_SETTINGS_TIP_PERCENT);
+      result = this.service.copyNode(PATH_DEFAULT_TIP_PERCENT, PATH_SETTINGS_TIP_PERCENT);
     }
     if (result) {
-      this.service.copyNode(PATH_DEFAULT_DELIVERY, PATH_SETTINGS_DELIVERY);
+      result = this.service.copyNode(PATH_DEFAULT_DELIVERY, PATH_SETTINGS_DELIVERY);
     }
     if (result) {
-      this.service.copyNode(PATH_DEFAULT_SHOW_INTRO, PATH_SETTINGS_SHOW_INTRO);
+      result = this.service.copyNode(PATH_DEFAULT_SHOW_INTRO, PATH_SETTINGS_SHOW_INTRO);
     }
 
     if (result) {
-      this.getDefaultTipOption().then(data => {
-        this.service.updatePath(PATH_SETTINGS_TIP_OPTION, data);
-      })
-    }
-    if (result) {
-      this.getDefaultChangeOption().then(data => {
-        this.service.updatePath(PATH_SETTINGS_CHANGE_OPTION, data);
-      });
       this.AllItems = this.service.getList(PATH_ITEMS);
       this.AllOrders = this.service.getList(PATH_ORDERS);
     }
@@ -119,27 +112,51 @@ export class DataStoreService implements OnDestroy {
     this.service.db.app.database().goOffline();
   }
 
-  //
-  getDefaultTipOption(): Promise<TipBasis> {
-    return this.service.query(PATH_TIP_OPTIONS_ENUM, FILTER_DEFAULT_OPTION)
-      .first(opt => opt.isDefault)
-      .toPromise()
+  setDefaultTipOption(option: TipBasis): boolean {
+    try {
+      this.service.set(PATH_SETTINGS_TIP_OPTION, option);
+      return true;
+    } catch (e)  {
+      return false;
+    }
   }
 
-  getDefaultChangeOption(): Promise<ChangeBasis> {
-    return this.service.query(PATH_CHANGE_OPTIONS_ENUM, FILTER_DEFAULT_OPTION)
-      .first(opt => opt.isDefault)
-      .toPromise();
+  setDefaultChangeOption(option: ChangeBasis): boolean {
+   try {
+     this.service.set(PATH_SETTINGS_CHANGE_OPTION, option);
+     return true;
+   } catch (e) {
+     return false;
+   }
   }
 
-  getTipOptions(): Observable<TipBasis[]> {
-    return this.service.getList(PATH_ENUM_TIP_OPTIONS)
-      .map(array => array.map(item => ObjectFactory.CreateTipBasisFromJSON(item)));
+  mapOption = (source, destination) => {
+    destination = source.$value;
+    return destination;
   }
 
-  getChangeOptions(): Observable<ChangeBasis[]> {
-    return this.service.getList(PATH_ENUM_CHANGE_OPTIONS)
-      .map(array => array.map(item => ObjectFactory.CreateChangeBasisFromJSON(item)))
+  getDefaultTipOption() {
+    let tipBasis: TipBasis;
+    const obj = this.service.query(PATH_TIP_OPTIONS_ENUM, FILTER_DEFAULT_OPTION)
+      .map(project => tipBasis = project[0]);
+    return tipBasis;
+  }
+
+  getDefaultChangeOption(): ChangeBasis {
+    let changeBasis: ChangeBasis;
+    const obj = this.service.query(PATH_CHANGE_OPTIONS_ENUM, FILTER_DEFAULT_OPTION)
+      .map(project => changeBasis = project[0]);
+    return changeBasis;
+  }
+
+  getTipOptions(): FirebaseListObservable<any> {
+    // return this.service.getList(PATH_ENUM_TIP_OPTIONS);
+    return this.service.query(PATH_ENUM_TIP_OPTIONS, CHANGE_OPTIONS_SORT);
+  }
+
+  getChangeOptions(): FirebaseListObservable<any> {
+    // return this.service.getList(PATH_ENUM_CHANGE_OPTIONS);
+    return this.service.query(PATH_ENUM_CHANGE_OPTIONS, CHANGE_OPTIONS_SORT);
   }
 
   toggleShowIntro(choice: boolean) {
@@ -159,7 +176,7 @@ export class DataStoreService implements OnDestroy {
   }
 
   setChangeBasis(changeBasis) {
-    debugger;
+//    debugger;
     this.service.set(PATH_SETTINGS_CHANGE_OPTION, changeBasis);
   }
 
