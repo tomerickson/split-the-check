@@ -124,11 +124,9 @@ export class DataProviderService implements OnDestroy {
   updateObject(path: string, changes: object) {
     try {
       const obj = this.db.object(path);
-      Object.assign(obj.$ref, changes);
-      // obj.update(changes);
-      return this.set(path, obj);
-     } catch(err) {
-      Observable.throw(err);
+      return obj.update(changes);
+    } catch (err) {
+      throw(err);
     }
   }
 

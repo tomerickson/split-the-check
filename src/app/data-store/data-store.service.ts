@@ -43,6 +43,9 @@ const CHANGE_OPTIONS_SORT = {orderByChild: 'value'};
 @Injectable()
 export class DataStoreService implements OnDestroy {
 
+  private service: DataProviderService;
+  private firstTime = true;
+
   public Orders: Order[] = [];
   public AllItems: FirebaseListObservable<any>;
   public AllOrders: FirebaseListObservable<any>;
@@ -62,10 +65,10 @@ export class DataStoreService implements OnDestroy {
     return this.service.getItem(PATH_SETTINGS_TIP_OPTION);
   }
 
-  private service: DataProviderService;
-  private firstTime = true;
-
-  // Settings
+  mapOption = (source, destination) => {
+    destination = source.$value;
+    return destination;
+  }
 
   constructor(private svc: DataProviderService) {
     this.service = svc;
@@ -83,9 +86,22 @@ export class DataStoreService implements OnDestroy {
     return this.service.getItem(PATH_SETTINGS);
   }
 
+  setSettings(settings: Settings) {
+    this.service.set(PATH_SETTINGS, settings);
+  }
+
   get changeBasis(): FirebaseObjectObservable<any> {
     return this.service.getItem(PATH_SETTINGS_CHANGE_OPTION);
   }
+
+  get showIntro(): Observable<boolean> {
+    return this.service.getItem(PATH_SETTINGS_SHOW_INTRO);
+  }
+
+  set showIntro(value){
+    this.service.updateObject(PATH_SETTINGS, {showIntro: value})
+  }
+
 
   setDefaults() {
     console.log('data-store.service.setDefaults');
@@ -116,23 +132,18 @@ export class DataStoreService implements OnDestroy {
     try {
       this.service.set(PATH_SETTINGS_TIP_OPTION, option);
       return true;
-    } catch (e)  {
+    } catch (e) {
       return false;
     }
   }
 
   setDefaultChangeOption(option: ChangeBasis): boolean {
-   try {
-     this.service.set(PATH_SETTINGS_CHANGE_OPTION, option);
-     return true;
-   } catch (e) {
-     return false;
-   }
-  }
-
-  mapOption = (source, destination) => {
-    destination = source.$value;
-    return destination;
+    try {
+      this.service.set(PATH_SETTINGS_CHANGE_OPTION, option);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   getDefaultTipOption() {
