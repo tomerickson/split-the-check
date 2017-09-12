@@ -1,5 +1,14 @@
-.fa-plus-square {
+.add {
   &:hover {
     color: rgba(0, 192, 0, 1);
   }
+}
+.remove {
+  &:hover {
+    color: rgba(192, 0, 0, 1);
+  }
+}
+md-card {
+  margin-left: auto;
+  margin-right: auto;
 }

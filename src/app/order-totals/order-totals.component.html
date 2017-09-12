@@ -1,5 +1,5 @@
 <!-- Running totals -->
-<div class="row">
+<div>
   <table>
     <thead>
     <tr>
@@ -52,9 +52,10 @@
     <tfoot>
     <tr>
       <td colspan="2">
-        <div class="fa fa-remove"
-             title="Clear all Orders."
-             (click)="clearOrder($event)"></div>
+        <span>Remove orders</span>
+        <md-icon id="remove-orders"
+                 title="Clear all Orders."
+                 (click)="clearOrder($event)">remove_circle</md-icon>
       </td>
     </tr>
     </tfoot>

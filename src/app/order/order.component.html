@@ -1,53 +1,92 @@
-<div class="card">
-  <div class="card-block">
-    <div class="row">
-      <div class="col-xs-2"><label>{{"Order " + (index+1)}}</label></div>
-      <div class="col-xs-4"><label for="input-order-name">Ordered by:
-        <input id="input-order-name"
-               [ngModel]="order.name"
-               (change)="updateName($event)">
-      </label>
-      </div>
-      <div class="col-xs-3">
-        <label for="input-paid">Payment:
-          <input id="input-paid" [ngModel]="(order.paid.toFixed(2))"
-                 (focus)="selectPaid($event)"
-                 (change)="updatePaid($event)">
-        </label>
-      </div>
-      <div class="col-xs-3 text-right"><label>Remove this order:</label>
-        <span class="fa fa-minus-square" (click)="removeOrder()" title="Remove this order"></span>
-      </div>
-    </div>
-    <table class="table">
-      <thead>
-      <tr>
-        <td class="text-center">
-          Add an item:&nbsp;<span class="fa fa-plus-square" (click)="addItem()" title="Add"></span>
-        </td>
-        <td class="text-right">Subtotal</td>
-        <td class="text-right">Tax</td>
-        <td class="text-right">Tip</td>
-        <td class="text-right">Delivery</td>
-        <td class="text-right">Total</td>
-        <td class="text-right">Paid</td>
-        <td class="text-right">Change</td>
-      </tr>
-      </thead>
-      <tbody>
-      <tr>
-        <td class="text-right"></td>
-        <td class="text-right">{{subtotal | number:'1.2-2'}}</td>
-        <td class="text-right">{{tax | number:'1.2-2'}}</td>
-        <td class="text-right">{{tip | number:'1.2-2'}}</td>
-        <td class="text-right">{{delivery| number:'1.2-2'}}</td>
-        <td class="text-right">{{total | number:'1.2-2'}}</td>
-        <td class="text-right">{{order.paid | number:'1.2-2'}}</td>
-        <td class="text-right">{{overShort | number:'1.2-2'}}</td>
-      </tr>
-      </tbody>
-    </table>
-    <app-item-list-outlet [orderId]="orderId"></app-item-list-outlet>
-    <!--<div class="card-footer"></div>-->
-  </div>
-</div>
+<md-list-item>
+
+  <md-card>
+    <md-card-header>
+      <label>{{"Order " + (index+1)}}</label>
+    </md-card-header>
+    <md-card-content>
+      <form name="order-form">
+        <md-grid-list cols="2" rowHeight="3:1">
+          <md-grid-tile>
+            <md-form-field>
+              <md-placeholder>Ordered by:</md-placeholder>
+              <input mdInput
+                     type="text"
+                     name="name"
+                     id="input-order-name"
+                     [ngModel]="order.name"
+                     (change)="updateName($event)">
+            </md-form-field>
+          </md-grid-tile>
+          <md-grid-tile>
+            <md-form-field>
+              <md-placeholder>Payment:</md-placeholder>
+              <input mdInput
+                     id="input-paid"
+                     type="text"
+                     name="paid"
+                     [ngModel]="(order.paid.toFixed(2))"
+                     (focus)="selectPaid($event)"
+                     (change)="updatePaid($event)">
+            </md-form-field>
+          </md-grid-tile>
+        </md-grid-list>
+      </form>
+      <md-grid-list cols="7" rowHeight="3:1">
+        <md-grid-tile>
+          Subtotal
+        </md-grid-tile>
+        <md-grid-tile>
+          Tax
+        </md-grid-tile>
+        <md-grid-tile>
+          Tip
+        </md-grid-tile>
+        <md-grid-tile>
+          Delivery
+        </md-grid-tile>
+        <md-grid-tile>
+          Total
+        </md-grid-tile>
+        <md-grid-tile>
+          Paid
+        </md-grid-tile>
+        <md-grid-tile>
+          Change
+        </md-grid-tile>
+        <md-grid-tile>
+          {{subtotal | number:'1.2-2'}}
+        </md-grid-tile>
+        <md-grid-tile>
+          {{tax | number:'1.2-2'}}
+        </md-grid-tile>
+        <md-grid-tile>
+          {{tip | number:'1.2-2'}}
+        </md-grid-tile>
+        <md-grid-tile>
+          {{delivery | number:'1.2-2'}}
+        </md-grid-tile>
+        <md-grid-tile>
+          {{total | number:'1.2-2'}}
+        </md-grid-tile>
+        <md-grid-tile>
+          {{order.paid | number:'1.2-2'}}
+        </md-grid-tile>
+        <md-grid-tile>
+          {{overShort | number:'1.2-2'}}
+        </md-grid-tile>
+      </md-grid-list>
+       <md-icon
+        class="remove"
+        (click)="removeOrder()"
+        title="Remove this order.">remove_circle
+      </md-icon>
+
+      <app-item-list-outlet [orderId]="orderId"></app-item-list-outlet>
+      <!--<div class="card-footer"></div>-->
+    </md-card-content>
+    <md-card-footer>
+
+    </md-card-footer>
+  </md-card>
+</md-list-item>

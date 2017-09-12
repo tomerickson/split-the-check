@@ -4,7 +4,7 @@ import 'rxjs/add/operator/map';
 import { Settings } from '../model/settings';
 import { ChangeBasis } from '../model/change-basis';
 import { TipBasis } from '../model/tip-basis';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { IDefault } from '../model/IDefault';
 
 @Component({
@@ -24,12 +24,10 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
   changeBasis: ChangeBasis;
   tipBasis: TipBasis;
 
-  setTaxPercent = (event) => {
-    this.taxPercent = event.currentTarget.value;
-  }
-  setTipPercent = (event) => {
-    this.tipPercent = event.currentTarget.value;
-  }
+  _taxPercent = -1;
+  _tipPercent = -1;
+  _delivery = -1;
+
   setDelivery = (event) => {
     this.delivery = event.currentTarget.value;
   }
@@ -39,13 +37,26 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
     this.buildForm();
   }
 
-  set taxPercent(value) {
+  get taxPercent(): number {
+    return this._taxPercent;
+  }
+  set taxPercent(value: number) {
+    if (this._taxPercent > -1) this.service.setTaxPercent(value);
+    this._taxPercent = value;
   }
 
-  set tipPercent(value) {
+  get tipPercent(): number {
+    return this.tipPercent;
   }
 
-  set delivery(value) {
+  set tipPercent(value: number) {
+    if (this._tipPercent > -1) this.service.setTipPercent(value);
+    this._tipPercent = value;
+  }
+
+  set delivery(value: number) {
+    if (this._delivery > -1) this.service.setDelivery(value);
+    this._delivery = value;
   }
 
   updateSettings() {
@@ -103,18 +114,28 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
   setChangeBasis() {
     if (this.settings && this.changeOptions) {
       this.changeBasis = this.changeOptions
-        .filter(opt => opt.value === this.settings.changeOption.value)[0];
+        .filter(opt => opt.value === this.settings.changeOption.value)
+        .reduce((nothing, result) => result, null);
     }
   }
 
   setTipBasis() {
     if (this.settings && this.tipOptions) {
       this.tipBasis = this.tipOptions
-        .filter(opt => opt.value === this.settings.tipOption.value)[0];
+        .filter(opt => opt.value === this.settings.tipOption.value)
+        .reduce((nothing, result) => result, null);
     }
   }
 
-  selectedOption(a: IDefault, b: IDefault) {
-    return a.value === b.value;
+  selectedTipOption(opt: TipBasis) {
+    return JSON.stringify(opt) === JSON.stringify(this.tipBasis);
+  }
+
+  selectedChangeOption(opt: ChangeBasis) {
+    return JSON.stringify(opt) === JSON.stringify(this.changeBasis);
+  }
+
+  clicking(value: any) {
+    console.log('clicking');
   }
 }

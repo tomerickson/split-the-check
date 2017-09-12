@@ -1,3 +1,15 @@
 md-card {
-  margin: 3em;
+  margin-left: auto;
+  margin-right: auto;
+}
+#tipBasisTile {
+  md-placeholder, md-radio-button {
+    margin-right:1em;
+  }
+}
+
+#changeBasisTile {
+  md-placeholder, md-radio-button {
+    margin-right:1em;
+  }
 }

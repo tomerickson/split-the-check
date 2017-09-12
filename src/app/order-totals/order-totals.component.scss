@@ -1,4 +1,4 @@
-.fa-remove {
+#remove-orders {
   margin-left: auto;
   margin-right: auto;
   &:hover {
@@ -6,17 +6,21 @@
   }
 }
 
-div.row {
-  position: fixed;
+#footer {
+  margin: 0 auto;
+}
+
+div {
   width: 10em;
-  top: 5em;
   right: 0;
   margin-right: 5px;
+  margin-top: 1ex;
   padding: 0;
   border-style: none;
   box-shadow: 5px 5px 3px #cccccc;
   background-color: white;
   table {
+    font-family: "Segoe UI", Helvetica, "Sans Serif";
     font-size: 10pt;
     width: 100%;
     thead {

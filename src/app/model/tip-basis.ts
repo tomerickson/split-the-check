@@ -4,4 +4,5 @@ export class TipBasis implements IDefault {
   value: number;
   description: string;
   isDefault: boolean;
+  explanation: string;
 }

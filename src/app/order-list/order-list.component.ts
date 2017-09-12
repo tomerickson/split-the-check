@@ -1,7 +1,5 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Order} from '../model/order';
-import {NgbAccordion} from '@ng-bootstrap/ng-bootstrap';
-import {NgbPanel} from '@ng-bootstrap/ng-bootstrap';
 import {DataStoreService} from '../data-store/data-store.service';
 import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';

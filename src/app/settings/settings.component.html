@@ -1,79 +1,78 @@
 <md-card>
+  <md-card-title>Settings</md-card-title>
+  <md-card-subtitle>These settings apply to all orders.</md-card-subtitle>
   <md-card-content>
-  <form [formGroup]="changeForm">
-    <div class="row">
-      <div class="col-sm-1"></div>
-      <div class="col form-group" [formGroup]="changeForm">
-        <label class="col-form-label"
-               for="input-sales-tax">Tax Percent:
-          <input type="text"
-                 formControlName="taxPercent"
-                 class="form-control"
-                 id="input-sales-tax"
-                 tabindex="1"
-                 size="5"
-                 onfocus="this.select()">
-        </label>
-      </div>
-      <div class="col form-group" [formGroup]="changeForm">
-        <label class="col-form-label text-xs-right" for="txtTip">Tip Percent:
-          <input type="text"
-                 formControlName="tipPercent"
-                 class="form-control" id="txtTip"
-                 tabindex="2"
-                 size="5"
-                 onfocus="this.select()">
-        </label>
-      </div>
-      <div class="col form-group" [formGroup]="changeForm">
-        <label class="col-form-label text-xs-right" for="txtDelivery">Delivery:
-          <input type="text"
-                 formControlName="delivery"
-                 class="form-control"
-                 id="txtDelivery"
-                 tabindex="3"
-                 size="7"
-                 (change)="setDelivery($event)"
-                 onfocus="this.select()">
-          <small>The delivery charge applies to the entire order.</small>
-        </label>
-      </div>
-      <div class="col-sm-1"></div>
-    </div>
-    <div class="row">
-      <div class="col-sm-1"></div>
-      <div class="col form-group" [formGroup]="changeForm">
-        <label class="col-form-label" for="selTipBasis">Tip Basis:</label>
-        <select formControlName="tipBasis"
-                id="selTipBasis"
-                class="form-control"
-                tabindex="4"
-                [compareWith]="selectedOption">
-          <option name="optTips"
-                  *ngFor="let opt of tipOptions"
-                  [ngValue]="opt">
-            {{opt.description}}
-          </option>
-        </select>
-        <small>Base the tip on merchandise: <b>Net</b> or merchandise plus tax: <b>Gross</b></small>
-      </div>
-      <div class="col form-group" [formGroup]="changeForm">
-        <label class="col-form-label text-xs-right" for="selChange">Change Basis:</label>
-        <select formControlName="changeBasis"
-                class="form-control"
-                id="selChange"
-                tabindex="5"
-                [compareWith]="selectedOption">
-          <option name="optChanges"
-                  *ngFor="let opt of changeOptions"
-                  [ngValue]="opt">
-            {{opt.description}}
-          </option>
-        </select>
-        <small>Calculate change to the denomination you select.</small>
-      </div>
-      <div class="col-sm-1"></div>
-    </div>
-  </form>
+
+    <form [formGroup]="changeForm" *ngIf="settings">
+      <md-grid-list cols="6" rowHeight="1:1">
+        <md-grid-tile colspan="2">
+          <md-form-field>
+            <md-placeholder>Tax Percent:</md-placeholder>
+            <input mdInput type="text" formControlName="taxPercent" class="form-control" id="input-sales-tax"
+                   tabindex="1"
+                   size="5" onfocus="this.select()">
+          </md-form-field>
+        </md-grid-tile>
+        <md-grid-tile colspan="2">
+          <md-form-field>
+            <md-placeholder>Tip Percent:</md-placeholder>
+            <input mdInput type="text"
+                   formControlName="tipPercent"
+                   class="form-control"
+                   id="txtTip"
+                   tabindex="2"
+                   title="Tip Percent"
+                   size="5"
+                   onfocus="this.select()">
+          </md-form-field>
+        </md-grid-tile>
+        <md-grid-tile colspan="2">
+          <md-form-field>
+            <md-placeholder>Delivery Charge:</md-placeholder>
+            <input mdInput type="text" formControlName="delivery" class="form-control" id="txtDelivery" tabindex="3"
+                   size="7" (change)="setDelivery($event)" onfocus="this.select()"
+                   title="The delivery charge applies to the entire order.">
+          </md-form-field>
+        </md-grid-tile>
+        <md-grid-tile colspan="3" id="tipBasisTile">
+          <md-placeholder>Tip Basis:</md-placeholder>
+          <md-radio-group
+            id="tipBasis"
+            name="tipBasis"
+            formControlName="tipBasis"
+            required
+            (change)="clicking($event)">
+            <md-radio-button
+              *ngFor="let opt of tipOptions"
+              [checked]="selectedTipOption(opt)"
+              [value]="opt"
+              (select)="clicking($event)">
+              {{opt.description}}
+            </md-radio-button>
+          </md-radio-group>
+        </md-grid-tile>
+        <md-grid-tile colspan="3" id="changeBasisTile">
+          <md-placeholder>Change Basis:</md-placeholder>
+          <md-radio-group
+            id="changeBasis"
+            name="changeBasis"
+            formControlName="changeBasis"
+            required
+            [value]="changeBasis"
+            (change)="clicking($event)">
+            <md-radio-button
+              *ngFor="let opt of changeOptions"
+              [value]="opt"
+              [checked]="selectedChangeOption(opt)"
+                            (select)="clicking($event)">
+              {{opt.description}}
+            </md-radio-button>
+          </md-radio-group>
+          <!--<md-grid-tile-footer>
+            <small>Calculate change to the denomination you select.</small>
+          </md-grid-tile-footer>-->
+        </md-grid-tile>
+      </md-grid-list>
+    </form>
   </md-card-content>
 </md-card>

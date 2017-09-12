@@ -5,7 +5,7 @@ import {CommonModule} from '@angular/common'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { HttpModule } from '@angular/http';
-import { MdButtonModule, MdCardModule, MdMenuModule, MdToolbarModule, MdIconModule } from '@angular/material';
+import { MaterialDesignModule} from './material-design.module';
 import { AppComponent } from './app.component';
 import { OrderListComponent } from './order-list/order-list.component';
 import { OrderComponent } from './order/order.component';
@@ -66,11 +66,7 @@ export const appRoutes: Routes = [
     HttpModule,
     BrowserAnimationsModule,
     RouterModule.forRoot(appRoutes, {enableTracing: true}),
-    MdButtonModule,
-    MdCardModule,
-    MdIconModule,
-    MdMenuModule,
-    MdToolbarModule,
+    MaterialDesignModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireAuthModule,
     AngularFireDatabaseModule],
