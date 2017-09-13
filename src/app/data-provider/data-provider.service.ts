@@ -131,7 +131,7 @@ export class DataProviderService implements OnDestroy {
   }
 
   set (path: string, value: any): Thenable<any> {
-    return this.db.object(path).update(value)
+    return this.db.object(path).set(value)
       .then(() => {
         if (this.LOG) {
           this.logTask(this.MSG_SET, path, value, true);

@@ -11,6 +11,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 })
 
 export class AppComponent implements OnInit, OnDestroy {
+
   showIntro: boolean;
   service: DataStoreService;
   @Output() settings: BehaviorSubject<Settings>;
@@ -18,11 +19,11 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(svc: DataStoreService) {
     this.service = svc;
     this.settings = new BehaviorSubject<Settings>(null);
+    this.service.showIntro.subscribe(obs => this.showIntro);
     this.service.settings.subscribe(obs => {
       this.settings.next(obs);
       this.showIntro = this.settings.getValue().showIntro;
     });
-    this.settings.map(settings => settings.showIntro);
   }
 
   ngOnInit() {
@@ -30,11 +31,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.settings.unsubscribe();
-  }
-
-  toggleIntro() {
-    this.showIntro = !this.showIntro;
-    this.service.toggleShowIntro(this.showIntro);
   }
 }
 

@@ -21,12 +21,12 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
 
   fb: FormBuilder;
   changeForm: FormGroup;
-  changeBasis: ChangeBasis;
-  tipBasis: TipBasis;
 
   _taxPercent = -1;
   _tipPercent = -1;
   _delivery = -1;
+  _tipBasis: TipBasis = null;
+  _changeBasis: ChangeBasis = null;
 
   setDelivery = (event) => {
     this.delivery = event.currentTarget.value;
@@ -41,29 +41,53 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
     return this._taxPercent;
   }
   set taxPercent(value: number) {
-    if (this._taxPercent > -1) this.service.setTaxPercent(value);
+    if (this._taxPercent > -1) {this.service.setTaxPercent(value); }
     this._taxPercent = value;
   }
 
   get tipPercent(): number {
-    return this.tipPercent;
+    return this._tipPercent;
   }
 
   set tipPercent(value: number) {
-    if (this._tipPercent > -1) this.service.setTipPercent(value);
+    if (this._tipPercent > -1) {this.service.setTipPercent(value); }
     this._tipPercent = value;
   }
 
+  get delivery(): number {
+    return this._delivery;
+  }
+
   set delivery(value: number) {
-    if (this._delivery > -1) this.service.setDelivery(value);
+    if (this._delivery > -1) {this.service.setDelivery(value); }
     this._delivery = value;
+  }
+
+  get tipBasis(): TipBasis {
+    return this._tipBasis;
+  }
+
+  set tipBasis(value: TipBasis) {
+    if (this._tipBasis !== null) {
+      this.service.setTipBasis(value);
+    }
+    this._tipBasis = value;
+  }
+
+  get changeBasis(): ChangeBasis {
+    return this._changeBasis;
+  }
+
+  set changeBasis(value: ChangeBasis) {
+    if (this._changeBasis !== null) {
+      this.service.setChangeBasis(value);
+    }
+    this._changeBasis = value;
   }
 
   updateSettings() {
     this.service.setSettings(this.settings);
   }
-
-//#endregion
 
   ngOnInit() {
   }

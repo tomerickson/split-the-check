@@ -34,8 +34,8 @@
                    title="The delivery charge applies to the entire order.">
           </md-form-field>
         </md-grid-tile>
-        <md-grid-tile colspan="3" id="tipBasisTile">
-          <md-placeholder>Tip Basis:</md-placeholder>
+        <md-grid-tile colspan="2" id="tipBasisTile">
+          <md-grid-tile-header>Tip Basis:</md-grid-tile-header>
           <md-radio-group
             id="tipBasis"
             name="tipBasis"
@@ -50,12 +50,14 @@
               {{opt.description}}
             </md-radio-button>
           </md-radio-group>
+          <md-grid-tile-footer><small>Net: Tip based on purchase only<br>Gross: Tip based on purchase + tax.</small></md-grid-tile-footer>
         </md-grid-tile>
-        <md-grid-tile colspan="3" id="changeBasisTile">
-          <md-placeholder>Change Basis:</md-placeholder>
+        <md-grid-tile colspan="4" id="changeBasisTile">
+          <md-grid-tile-header>Change Basis:</md-grid-tile-header>
           <md-radio-group
             id="changeBasis"
             name="changeBasis"
+            title="Calculate change to the denomination you select."
             formControlName="changeBasis"
             required
             [value]="changeBasis"
@@ -68,9 +70,9 @@
               {{opt.description}}
             </md-radio-button>
           </md-radio-group>
-          <!--<md-grid-tile-footer>
+          <md-grid-tile-footer>
             <small>Calculate change to the denomination you select.</small>
-          </md-grid-tile-footer>-->
+          </md-grid-tile-footer>
         </md-grid-tile>
       </md-grid-list>
     </form>

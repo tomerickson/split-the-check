@@ -98,8 +98,8 @@ export class DataStoreService implements OnDestroy {
     return this.service.getItem(PATH_SETTINGS_SHOW_INTRO);
   }
 
-  set showIntro(value){
-    this.service.updateObject(PATH_SETTINGS, {showIntro: value})
+  set showIntro(value) {
+    this.service.set(PATH_SETTINGS_SHOW_INTRO, value);
   }
 
 
@@ -113,9 +113,9 @@ export class DataStoreService implements OnDestroy {
     if (result) {
       result = this.service.copyNode(PATH_DEFAULT_DELIVERY, PATH_SETTINGS_DELIVERY);
     }
-    if (result) {
+    /* if (result) {
       result = this.service.copyNode(PATH_DEFAULT_SHOW_INTRO, PATH_SETTINGS_SHOW_INTRO);
-    }
+    }*/
 
     if (result) {
       this.AllItems = this.service.getList(PATH_ITEMS);
