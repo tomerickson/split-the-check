@@ -1,12 +1,14 @@
 <md-list-item>
-
-  <md-card>
-    <md-card-header>
-      <label>{{"Order " + (index+1)}}</label>
-    </md-card-header>
-    <md-card-content>
+  <md-expansion-panel [hideToggle]="false" expanded="true">
+    <md-expansion-panel-header>
+      <mat-panel-title>
+        <label>{{"Order " + (index+1)}}</label>
+      </mat-panel-title>
+      <mat-panel-description></mat-panel-description>
+    </md-expansion-panel-header>
+    <md-card class="mat-elevation-z0">
       <form name="order-form">
-        <md-grid-list cols="2" rowHeight="3:1">
+        <md-grid-list cols="2" rowHeight="5:1">
           <md-grid-tile>
             <md-form-field>
               <md-placeholder>Ordered by:</md-placeholder>
@@ -32,7 +34,15 @@
           </md-grid-tile>
         </md-grid-list>
       </form>
-      <md-grid-list cols="7" rowHeight="3:1">
+      <md-grid-list cols="8" rowHeight="3:1">
+        <md-grid-tile rowspan="2">
+          <md-icon
+            class="remove"
+            (click)="removeOrder()"
+            title="Remove this order.">remove_circle
+          </md-icon>
+        </md-grid-tile>
+
         <md-grid-tile>
           Subtotal
         </md-grid-tile>
@@ -72,21 +82,11 @@
         <md-grid-tile>
           {{order.paid | number:'1.2-2'}}
         </md-grid-tile>
-        <md-grid-tile>
+        <md-grid-tile [class.short]="overShort > 0">
           {{overShort | number:'1.2-2'}}
         </md-grid-tile>
       </md-grid-list>
-       <md-icon
-        class="remove"
-        (click)="removeOrder()"
-        title="Remove this order.">remove_circle
-      </md-icon>
-
       <app-item-list-outlet [orderId]="orderId"></app-item-list-outlet>
-      <!--<div class="card-footer"></div>-->
-    </md-card-content>
-    <md-card-footer>
-
-    </md-card-footer>
-  </md-card>
+    </md-card>
+  </md-expansion-panel>
 </md-list-item>

@@ -1,5 +1,14 @@
 <!-- Running totals -->
-<div>
+<div *ngIf="session" id="totals">
+  <md-grid-list cols="2" rowHeight="4:1">
+    <md-grid-tile colspan="2">
+      Totals
+    </md-grid-tile>
+    <md-grid-tile>Orders:</md-grid-tile>
+    <md-grid-tile>{{session.orders.length}}</md-grid-tile>
+    <md-grid-tile>Subtotal:</md-grid-tile>
+    <md-grid-tile>{{session.subtotal | number:'1.2-2'}}</md-grid-tile>
+  </md-grid-list>
   <table>
     <thead>
     <tr>
@@ -46,7 +55,8 @@
     </tr>
     <tr>
       <td>Over / Short:</td>
-      <td><span *ngIf="session.settings">{{session.overShort | number:'1.2-2'}}</span></td>
+      <td><span [class.short]="session.overShort > 0"
+                *ngIf="session.settings">{{session.overShort | number:'1.2-2'}}</span></td>
     </tr>
     </tbody>
     <tfoot>

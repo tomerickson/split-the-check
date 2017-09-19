@@ -1,80 +1,76 @@
-<md-card>
-  <md-card-title>Settings</md-card-title>
-  <md-card-subtitle>These settings apply to all orders.</md-card-subtitle>
-  <md-card-content>
+<md-expansion-panel expanded="true">
+  <md-expansion-panel-header>
+    <md-panel-title>Settings</md-panel-title>
+    <md-panel-description>These settings apply to all orders.</md-panel-description>
+  </md-expansion-panel-header>
+  <form [formGroup]="changeForm" *ngIf="settings">
+    <md-grid-list cols="6">
+      <md-grid-tile colspan="2">
+        <md-form-field>
+          <md-placeholder>Tax Percent:</md-placeholder>
+          <input mdInput type="text" formControlName="taxPercent" class="form-control" id="input-sales-tax"
+                 tabindex="1"
+                 size="5" onfocus="this.select()">
+        </md-form-field>
+      </md-grid-tile>
+      <md-grid-tile colspan="2">
+        <md-form-field>
+          <md-placeholder>Tip Percent:</md-placeholder>
+          <input mdInput type="text"
+                 formControlName="tipPercent"
+                 class="form-control"
+                 id="txtTip"
+                 tabindex="2"
+                 title="Tip Percent"
+                 size="5"
+                 onfocus="this.select()">
+        </md-form-field>
+      </md-grid-tile>
+      <md-grid-tile colspan="2">
+        <md-form-field>
+          <md-placeholder>Delivery Charge:</md-placeholder>
+          <input mdInput type="text" formControlName="delivery" class="form-control" id="txtDelivery" tabindex="3"
+                 size="7" (change)="setDelivery($event)" onfocus="this.select()"
+                 title="The delivery charge applies to the entire order.">
+        </md-form-field>
+      </md-grid-tile>
+      <md-grid-tile colspan="2" id="tipBasisTile">
+        <md-grid-tile-header>Tip Basis:</md-grid-tile-header>
+        <md-radio-group
+          id="tipBasis"
+          name="tipBasis"
+          formControlName="tipBasis"
+          required
+          (change)="handleTipBasisClick($event)">
+          <md-radio-button
+            *ngFor="let opt of tipOptions"
+            [checked]="selectedTipOption(opt)"
+            [value]="opt"
+            (select)="clicking($event)">
+            {{opt.description}}
+          </md-radio-button>
+        </md-radio-group>
+      </md-grid-tile>
+      <md-grid-tile colspan="4" id="changeBasisTile">
+        <md-grid-tile-header>Change Basis:</md-grid-tile-header>
+        <md-radio-group
+          id="changeBasis"
+          name="changeBasis"
+          title="Calculate change to the denomination you select."
+          formControlName="changeBasis"
+          required
+          [value]="changeBasis"
+          (change)="handleChangeBasisClick($event)">
+          <md-radio-button
+            *ngFor="let opt of changeOptions"
+            [value]="opt"
+            [checked]="selectedChangeOption(opt)"
+            (select)="clicking($event)">
+            {{opt.description}}
+          </md-radio-button>
+        </md-radio-group>
+      </md-grid-tile>
+    </md-grid-list>
+  </form>
+</md-expansion-panel>
 
-    <form [formGroup]="changeForm" *ngIf="settings">
-      <md-grid-list cols="6" rowHeight="1:1">
-        <md-grid-tile colspan="2">
-          <md-form-field>
-            <md-placeholder>Tax Percent:</md-placeholder>
-            <input mdInput type="text" formControlName="taxPercent" class="form-control" id="input-sales-tax"
-                   tabindex="1"
-                   size="5" onfocus="this.select()">
-          </md-form-field>
-        </md-grid-tile>
-        <md-grid-tile colspan="2">
-          <md-form-field>
-            <md-placeholder>Tip Percent:</md-placeholder>
-            <input mdInput type="text"
-                   formControlName="tipPercent"
-                   class="form-control"
-                   id="txtTip"
-                   tabindex="2"
-                   title="Tip Percent"
-                   size="5"
-                   onfocus="this.select()">
-          </md-form-field>
-        </md-grid-tile>
-        <md-grid-tile colspan="2">
-          <md-form-field>
-            <md-placeholder>Delivery Charge:</md-placeholder>
-            <input mdInput type="text" formControlName="delivery" class="form-control" id="txtDelivery" tabindex="3"
-                   size="7" (change)="setDelivery($event)" onfocus="this.select()"
-                   title="The delivery charge applies to the entire order.">
-          </md-form-field>
-        </md-grid-tile>
-        <md-grid-tile colspan="2" id="tipBasisTile">
-          <md-grid-tile-header>Tip Basis:</md-grid-tile-header>
-          <md-radio-group
-            id="tipBasis"
-            name="tipBasis"
-            formControlName="tipBasis"
-            required
-            (change)="clicking($event)">
-            <md-radio-button
-              *ngFor="let opt of tipOptions"
-              [checked]="selectedTipOption(opt)"
-              [value]="opt"
-              (select)="clicking($event)">
-              {{opt.description}}
-            </md-radio-button>
-          </md-radio-group>
-          <md-grid-tile-footer><small>Net: Tip based on purchase only<br>Gross: Tip based on purchase + tax.</small></md-grid-tile-footer>
-        </md-grid-tile>
-        <md-grid-tile colspan="4" id="changeBasisTile">
-          <md-grid-tile-header>Change Basis:</md-grid-tile-header>
-          <md-radio-group
-            id="changeBasis"
-            name="changeBasis"
-            title="Calculate change to the denomination you select."
-            formControlName="changeBasis"
-            required
-            [value]="changeBasis"
-            (change)="clicking($event)">
-            <md-radio-button
-              *ngFor="let opt of changeOptions"
-              [value]="opt"
-              [checked]="selectedChangeOption(opt)"
-                            (select)="clicking($event)">
-              {{opt.description}}
-            </md-radio-button>
-          </md-radio-group>
-          <md-grid-tile-footer>
-            <small>Calculate change to the denomination you select.</small>
-          </md-grid-tile-footer>
-        </md-grid-tile>
-      </md-grid-list>
-    </form>
-  </md-card-content>
-</md-card>

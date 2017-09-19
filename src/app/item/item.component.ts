@@ -1,15 +1,9 @@
-import {Component, Input, Output, EventEmitter, OnDestroy, OnInit} from '@angular/core';
-import {Item} from '../model/item';
-import {DataStoreService} from '../data-store/data-store.service';
-import {Subscription} from 'rxjs/Subscription';
-import {AsyncValidator, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Item } from '../model/item';
+import { DataStoreService } from '../data-store/data-store.service';
+import { Subscription } from 'rxjs/Subscription';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import 'rxjs/add/operator/map';
-import {FirebaseObjectObservable} from 'angularfire2/database';
-import {ValidationService} from '../validation.service';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {async} from 'rxjs/scheduler/async';
-import {getValueInRange} from '@ng-bootstrap/ng-bootstrap/util/util';
 
 @Component({
   selector: 'app-item-outlet',
@@ -37,30 +31,25 @@ export class ItemComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     console.log('item.key=' + this.item.key);
-    /*this.itemSubscription = this.service.getItem(this.itemId).subscribe(fbo => {
-      this.item = fbo.$value;
-      this.item.key = fbo.$key;
-    });*/
     this.createForm();
   }
 
   ngOnDestroy() {
-    // this.itemSubscription.unsubscribe();
   }
 
   createForm() {
-   //  const ctlDescription = new FormControl('', Validators.required);
-   //  ctlDescription.patchValue(this.item.description);
+    //  const ctlDescription = new FormControl('', Validators.required);
+    //  ctlDescription.patchValue(this.item.description);
     this.itemForm = this.formBuilder.group({
       description: [null, Validators.required],
-      quantity: [null,  [Validators.required, Validators.pattern(this.quantityPattern)]],
-      price: [null,  [Validators.required, Validators.pattern(this.pricePattern)]],
+      quantity: [null, [Validators.required, Validators.pattern(this.quantityPattern)]],
+      price: [null, [Validators.required, Validators.pattern(this.pricePattern)]],
       instructions: null
     });
     this.itemForm.patchValue(this.item);
     console.log('item=' + JSON.stringify(this.item));
     this.itemForm.valueChanges
-      .subscribe(data => this.onValueChanged(data))
+      .subscribe(data => this.onChange(data))
   }
 
   onSave() {
@@ -77,14 +66,16 @@ export class ItemComponent implements OnInit, OnDestroy {
 
   onChange(data: any) {
     if (this.itemForm.valid && this.itemForm.dirty) {
-      let changed = false;
+      Object.assign(this.item, this.itemForm.value);
+      this.service.updateItem(this.item);
+      /*let changed = false;
       changed = changed || this.detectChange('description');
       changed = changed || this.detectChange('price');
       changed = changed || this.detectChange('quantity');
       changed = changed || this.detectChange('instructions');
       if (changed) {
-        this.service.updateItem(this.item);
-      }
+        // this.service.updateItem(this.item);
+      }*/
       console.log(JSON.stringify(this.item));
     }
   }

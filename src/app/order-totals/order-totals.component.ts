@@ -11,7 +11,7 @@ import {DataStoreService} from "../data-store/data-store.service";
 import {Subject} from "rxjs/Subject";
 
 @Component({
-  selector: 'order-totals',
+  selector: 'app-order-totals',
   templateUrl: 'order-totals.component.html',
   styleUrls: ['./order-totals.component.scss']
 })
@@ -23,8 +23,6 @@ export class OrderTotalsComponent {
 
   constructor(svc: DataStoreService) {
     this.service = svc;
-    // this.settings = new Subject<Settings>();
-    // this.service.settings.subscribe(this.settings);
     this.session = new Session(this.service);
   }
 
