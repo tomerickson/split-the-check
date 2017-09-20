@@ -1,10 +1,20 @@
-<md-list-item>
+<md-list-item id="order">
   <md-expansion-panel [hideToggle]="false" expanded="true">
     <md-expansion-panel-header>
-      <mat-panel-title>
+      <md-panel-title>
         <label>{{"Order " + (index+1)}}</label>
-      </mat-panel-title>
-      <mat-panel-description></mat-panel-description>
+      </md-panel-title>
+      <md-panel-description>
+        <md-table>
+          <md-row>
+            <md-cell>Ordered by: {{order.name}}</md-cell>
+            <md-cell>Items: {{count}}</md-cell>
+            <md-cell>Total: {{total | number:'1.2-2'}}</md-cell>
+            <md-cell>Paid: {{order.paid | number:'1.2-2'}}</md-cell>
+            <md-cell><span>Over / Short: </span><span  [class.short]="overShort > 0">{{overShort | number:'1.2-2'}}</span></md-cell>
+          </md-row>
+        </md-table>
+      </md-panel-description>
     </md-expansion-panel-header>
     <md-card class="mat-elevation-z0">
       <form name="order-form">
@@ -34,15 +44,7 @@
           </md-grid-tile>
         </md-grid-list>
       </form>
-      <md-grid-list cols="8" rowHeight="3:1">
-        <md-grid-tile rowspan="2">
-          <md-icon
-            class="remove"
-            (click)="removeOrder()"
-            title="Remove this order.">remove_circle
-          </md-icon>
-        </md-grid-tile>
-
+      <md-grid-list cols="7" rowHeight="3:1">
         <md-grid-tile>
           Subtotal
         </md-grid-tile>
@@ -62,7 +64,7 @@
           Paid
         </md-grid-tile>
         <md-grid-tile>
-          Change
+          Over / Short
         </md-grid-tile>
         <md-grid-tile>
           {{subtotal | number:'1.2-2'}}
@@ -88,5 +90,14 @@
       </md-grid-list>
       <app-item-list-outlet [orderId]="orderId"></app-item-list-outlet>
     </md-card>
+    <md-action-row>
+      <button md-icon-button>
+      <md-icon
+      class="remove"
+        (click)="removeOrder()"
+        title="Remove this order.">remove_circle</md-icon>
+      </button>
+    </md-action-row>
   </md-expansion-panel>
 </md-list-item>
+<md-divider></md-divider>

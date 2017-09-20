@@ -48,34 +48,26 @@ export class ItemComponent implements OnInit, OnDestroy {
     });
     this.itemForm.patchValue(this.item);
     console.log('item=' + JSON.stringify(this.item));
-    this.itemForm.valueChanges
-      .subscribe(data => this.onChange(data))
   }
 
-  onSave() {
-
-  }
-
-  onUndo() {
-
+   onUndo() {
+    if (this.itemForm.dirty) {
+      if (this.item.price === 0 && this.item.description === '' && this.item.quantity === 0 && this.item.instructions === '') {
+        this.service.removeItem(this.item.key);
+      } else {
+        this.itemForm.reset();
+      }
+    }
   }
 
   onAdd() {
     this.service.addItem(this.orderId);
   }
 
-  onChange(data: any) {
+  onSave(data: any) {
     if (this.itemForm.valid && this.itemForm.dirty) {
       Object.assign(this.item, this.itemForm.value);
       this.service.updateItem(this.item);
-      /*let changed = false;
-      changed = changed || this.detectChange('description');
-      changed = changed || this.detectChange('price');
-      changed = changed || this.detectChange('quantity');
-      changed = changed || this.detectChange('instructions');
-      if (changed) {
-        // this.service.updateItem(this.item);
-      }*/
       console.log(JSON.stringify(this.item));
     }
   }

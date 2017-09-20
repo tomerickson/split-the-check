@@ -1,12 +1,12 @@
-import {Component, Input, Output, EventEmitter, OnInit, OnDestroy, OnChanges, SimpleChanges} from '@angular/core';
-import {Order} from '../model/order';
-import {DataStoreService} from '../data-store/data-store.service';
-import {Session} from '../model/session';
-import {Subscription} from 'rxjs/Subscription';
-import {Settings} from '../model/settings';
-import {Observable} from 'rxjs/Observable';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Order } from '../model/order';
+import { DataStoreService } from '../data-store/data-store.service';
+import { Session } from '../model/session';
+import { Subscription } from 'rxjs/Subscription';
+import { Settings } from '../model/settings';
+import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/defaultIfEmpty';
-import {Item} from '../model/item';
+import { Item } from '../model/item';
 
 @Component({
   selector: 'app-order-outlet',
@@ -26,6 +26,7 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
   settings: Settings;
   order: Order;
   items: Observable<Item[]>;
+  count = 0;
   subtotal: number;
   tax: number;
   tip: number;
@@ -50,10 +51,12 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
     this.orderSubscription = this.service.getOrder(this.orderId).subscribe(obs => this.order = obs);
     this.settingsSubscription = this.service.settings.subscribe(obs => {
       this.settings = obs;
-      this.buildOrder(this.items)});
+      this.buildOrder(this.items)
+    });
     this.changeBasisSubscription = this.service.changeBasis.subscribe(obs => {
       this.settings.changeOption = obs;
-      this.buildOrder(this.items)});
+      this.buildOrder(this.items)
+    });
     this.sessionSubscription = this.service.session.subscribe(obs => this.session = obs);
     this.itemsSubscription = this.service.getItems(this.orderId).subscribe(items => this.buildOrder(items));
   }
@@ -67,8 +70,9 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   buildOrder(items) {
-    if (!items) return;
+    if (!items) {return};
     this.items = items;
+    this.count = items.map(item => 1).reduce((acc, one) => acc + one, 0);
     this.subtotal = items.map(item => {
       if (item.quantity && item.price) {
         return item.quantity * item.price;

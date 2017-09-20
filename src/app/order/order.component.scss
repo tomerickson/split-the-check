@@ -1,9 +1,17 @@
-.short {
-  color: red;
-}
+md-list-item {
+  box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
 
-.remove {
-  &:hover {
-    color: rgba(192, 0, 0, 1);
+  .short {
+    color: red;
   }
+
+  .remove {
+    &:hover {
+      color: rgba(192, 0, 0, 1);
+    }
+  }
+}
+md-divider {
+  display:block;
+  margin-bottom:1em;
 }
