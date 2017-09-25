@@ -4,7 +4,7 @@
       <md-grid-tile>
         <button md-icon-button class="remove"
                 title="Remove this item."
-                (click)="onRemove()">
+                (click)="openDialog()">
           <md-icon>remove_circle</md-icon>
         </button>
       </md-grid-tile>
@@ -59,15 +59,19 @@
       </md-grid-tile>
       <md-grid-tile>
         <button md-icon-button class="save"
-                itle="Save" (click)="onSave()" tabindex="0">
+                [disabled]="itemForm.invalid"
+                title="Save"
+                (click)="onSave()" tabindex="0">
           <md-icon>done</md-icon>
         </button>
         <button md-icon-button class="undo"
-                title="Undo" (click)="onUndo()">
+                title="Undo" (click)="onUndo()"
+                [disabled]="!itemForm.dirty">
           <md-icon>undo</md-icon>
         </button>
         <button md-icon-button class="add"
                 tabindex="0" title="Add"
+                [disabled]="itemForm.invalid"
                 (keydown.Space)="onAdd()" (click)="onAdd()">
           <md-icon>add_circle</md-icon>
         </button>

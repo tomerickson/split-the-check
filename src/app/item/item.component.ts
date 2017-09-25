@@ -1,9 +1,11 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2 } from '@angular/core';
 import { Item } from '../model/item';
 import { DataStoreService } from '../data-store/data-store.service';
 import { Subscription } from 'rxjs/Subscription';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import 'rxjs/add/operator/map';
+
+import { DialogsService } from '../dialogs/dialogs.service';
 
 @Component({
   selector: 'app-item-outlet',
@@ -21,12 +23,16 @@ export class ItemComponent implements OnInit, OnDestroy {
   public itemForm: FormGroup;
   public quantityPattern = '^[0-9]+$';
   public pricePattern = `^[0-9]+$|^[0-9]+\\.[0-9]{0,3}$`;
+  public result: any;
+
   private priorValue: number;
   private itemSubscription: Subscription;
 
-  constructor(private service: DataStoreService, private formBuilder: FormBuilder) {
+  constructor(private service: DataStoreService,
+              private formBuilder: FormBuilder,
+              public dialog: DialogsService,
+              public renderer: Renderer2) {
     this.priorValue = 0;
-    console.log('item.component.ts constructor');
   }
 
   ngOnInit() {
@@ -37,9 +43,16 @@ export class ItemComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
   }
 
+  public openDialog() {
+    const message = 'This action cannot be undone.<br>Are you sure you want to do this?';
+    this.dialog
+      .confirm('Remove this item?', message)
+      .subscribe(res => {
+        this.result = res;
+        console.log(JSON.stringify(this.result));
+      });
+  }
   createForm() {
-    //  const ctlDescription = new FormControl('', Validators.required);
-    //  ctlDescription.patchValue(this.item.description);
     this.itemForm = this.formBuilder.group({
       description: [null, Validators.required],
       quantity: [null, [Validators.required, Validators.pattern(this.quantityPattern)]],
@@ -50,13 +63,12 @@ export class ItemComponent implements OnInit, OnDestroy {
     console.log('item=' + JSON.stringify(this.item));
   }
 
-   onUndo() {
-    if (this.itemForm.dirty) {
-      if (this.item.price === 0 && this.item.description === '' && this.item.quantity === 0 && this.item.instructions === '') {
-        this.service.removeItem(this.item.key);
-      } else {
-        this.itemForm.reset();
-      }
+  onUndo() {
+    this.itemForm.reset();
+    if (this.item.price === 0 && this.item.description === '' && this.item.quantity === 0 && this.item.instructions === '') {
+      this.service.removeItem(this.item.key);
+    } else {
+      this.itemForm.patchValue(this.item);
     }
   }
 
