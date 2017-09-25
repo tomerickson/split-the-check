@@ -76,7 +76,7 @@ export class ItemComponent implements OnInit, OnDestroy {
     this.service.addItem(this.orderId);
   }
 
-  onSave(data: any) {
+  onSave() {
     if (this.itemForm.valid && this.itemForm.dirty) {
       Object.assign(this.item, this.itemForm.value);
       this.service.updateItem(this.item);

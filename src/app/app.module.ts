@@ -25,7 +25,6 @@ import { InputComponent } from './input/input.component';
 import { TestComponent } from './test.component';
 import { HeaderComponent } from './header/header.component';
 import { HomeComponent } from './home/home.component';
-// import { ExampleDialogComponent } from './dialogs/example-dialog.component';
 
 export const appRoutes: Routes = [
   {
