@@ -12,19 +12,26 @@ import 'rxjs/add/operator/reduce';
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/toPromise';
 import { Order } from '../model/order';
-import { Thenable } from 'firebase/app';
+// import { Thenable } from 'firebase/app';
 import { Item } from '../model/item';
-import { FirebaseListObservable, FirebaseObjectObservable } from 'angularfire2/database';
+// import { FirebaseListObservable, FirebaseObjectObservable } from 'angularfire2/database';
 import { Settings } from '../model/settings';
 import { ChangeBasis } from '../model/change-basis';
+import { AngularFireList, AngularFireObject } from 'angularfire2/database';
+import { Session } from '../model/session';
+import { IDefault } from '../model/IDefault';
+import { Defaults } from '../model/defaults';
+import { AngularFirestoreDocument } from 'angularfire2/firestore';
 
+const PATH_ROOT = '/root';
 const PATH_ORDERS = '/orders/';
 const PATH_ITEMS = '/items/';
 const PATH_SETTINGS = '/settings';
 const PATH_SESSION = '/orderSummary';
 const PATH_TIP_OPTIONS_ENUM = '/enumerations/tipOptions';
 const PATH_CHANGE_OPTIONS_ENUM = '/enumerations/changeOptions';
-const PATH_DEFAULT_TAX_PERCENT = '/defaults/taxPercent';
+const PATH_DEFAULTS = '/root/defaults';
+const PATH_DEFAULT_TAX_PERCENT = '/root/defaults/taxPercent';
 const PATH_DEFAULT_TIP_PERCENT = '/defaults/tipPercent';
 const PATH_DEFAULT_DELIVERY = '/defaults/delivery';
 const PATH_DEFAULT_SHOW_INTRO = '/defaults/showIntro';
@@ -47,13 +54,14 @@ export class DataStoreService implements OnDestroy {
   private firstTime = true;
 
   public Orders: Order[] = [];
-  public AllItems: FirebaseListObservable<any>;
-  public AllOrders: FirebaseListObservable<any>;
-  getTaxPercent = (): FirebaseObjectObservable<any> => {
-    return this.service.getItem(PATH_SETTINGS_TAX_PERCENT);
+  public AllItems: Observable<Item[]>;
+  public AllOrders: Observable<Order[]>;
+
+  getTaxPercent = (): Observable<any> => {
+    return this.service.getObject(PATH_SETTINGS_TAX_PERCENT);
   }
-  getTipPercent = (): FirebaseObjectObservable<any> => {
-    return this.service.getItem(PATH_SETTINGS_TIP_PERCENT);
+  getTipPercent = (): Observable<any> => {
+    return this.service.getObject(PATH_SETTINGS_TIP_PERCENT);
   }
   getDelivery = () => {
     return this.service.getItem(PATH_SETTINGS_DELIVERY);
@@ -73,29 +81,28 @@ export class DataStoreService implements OnDestroy {
   constructor(private svc: DataProviderService) {
     this.service = svc;
     if (this.firstTime) {
-      this.service.db.app.database().goOnline();
       this.setDefaults();
     }
   }
 
-  get session(): FirebaseObjectObservable<any> {
-    return this.service.getItem(PATH_SESSION);
+  get session(): Observable<Session> {
+    return this.service.getObject(PATH_SESSION);
   }
 
-  get settings(): FirebaseObjectObservable<Settings> {
-    return this.service.getItem(PATH_SETTINGS);
+  get settings(): Observable<Settings> {
+    return this.service.getObject(PATH_SETTINGS);
   }
 
   setSettings(settings: Settings) {
     this.service.set(PATH_SETTINGS, settings);
   }
 
-  get changeBasis(): FirebaseObjectObservable<any> {
-    return this.service.getItem(PATH_SETTINGS_CHANGE_OPTION);
+  get changeBasis(): Observable<ChangeBasis> {
+    return this.service.getObject(PATH_SETTINGS_CHANGE_OPTION);
   }
 
   get showIntro(): Observable<boolean> {
-    return this.service.getItem(PATH_SETTINGS_SHOW_INTRO);
+    return this.service.getObject(PATH_SETTINGS_SHOW_INTRO);
   }
 
   set showIntro(value) {
@@ -105,6 +112,7 @@ export class DataStoreService implements OnDestroy {
 
   setDefaults() {
     console.log('data-store.service.setDefaults');
+    const defaults = this.service.getRawItem<Defaults>(PATH_DEFAULTS);
     let result: boolean;
     result = this.service.copyNode(PATH_DEFAULT_TAX_PERCENT, PATH_SETTINGS_TAX_PERCENT);
     if (result) {
@@ -125,7 +133,7 @@ export class DataStoreService implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.service.db.app.database().goOffline();
+    // this.service.afs.app.database().goOffline();
   }
 
   setDefaultTipOption(option: TipBasis): boolean {
@@ -147,25 +155,21 @@ export class DataStoreService implements OnDestroy {
   }
 
   getDefaultTipOption() {
-    let tipBasis: TipBasis;
-    const obj = this.service.query(PATH_TIP_OPTIONS_ENUM, FILTER_DEFAULT_OPTION)
-      .map(project => tipBasis = project[0]);
-    return tipBasis;
+    const obj = this.service.query(PATH_TIP_OPTIONS_ENUM, FILTER_DEFAULT_OPTION);
+    return obj.take(1)[0];
   }
 
   getDefaultChangeOption(): ChangeBasis {
-    let changeBasis: ChangeBasis;
-    const obj = this.service.query(PATH_CHANGE_OPTIONS_ENUM, FILTER_DEFAULT_OPTION)
-      .map(project => changeBasis = project[0]);
-    return changeBasis;
+    const obj = this.service.query(PATH_CHANGE_OPTIONS_ENUM, FILTER_DEFAULT_OPTION);
+    return obj.take(1)[0];
   }
 
-  getTipOptions(): FirebaseListObservable<any> {
+  getTipOptions(): Observable<TipBasis[]> {
     // return this.service.getList(PATH_ENUM_TIP_OPTIONS);
     return this.service.query(PATH_ENUM_TIP_OPTIONS, CHANGE_OPTIONS_SORT);
   }
 
-  getChangeOptions(): FirebaseListObservable<any> {
+  getChangeOptions(): Observable<ChangeBasis[]> {
     // return this.service.getList(PATH_ENUM_CHANGE_OPTIONS);
     return this.service.query(PATH_ENUM_CHANGE_OPTIONS, CHANGE_OPTIONS_SORT);
   }
@@ -202,27 +206,26 @@ export class DataStoreService implements OnDestroy {
 
 // Order-list
 //
-  getOrders(): FirebaseListObservable<any> {
-    return this.service.getList(PATH_ORDERS);
+  getOrders(): Observable<Order[]> {
+    return this.service.getList<Order>(PATH_ORDERS);
   }
 
 // Order level queries
 //
-  addOrder(): Thenable<IOrder> {
-    return this.service.push<IOrder>(PATH_ORDERS, {key: null, name: null, paid: 0});
+  addOrder() {
+    this.service.push<IOrder>(PATH_ORDERS, {key: null, name: null, paid: 0});
   }
 
   removeOrder(key: string) {
-    const fbo = this.service.getItem(PATH_ORDERS + key) as FirebaseObjectObservable<any>;
-    return fbo.remove();
+    this.service.remove(PATH_ORDERS + key);
   }
 
-  getOrder(key: any): FirebaseObjectObservable<any> {
-    return this.service.getItem(PATH_ORDERS + key)
+  getOrder(key: string): Observable<Order> {
+    return this.service.getItem<Order>(PATH_ORDERS + key);
   }
 
   getPaid(key: string): Observable<number> {
-    return this.service.getItem(PATH_ORDERS + key + '/paid');
+    return this.service.getObject<number>(PATH_ORDERS + key + '/paid');
   }
 
 // Return items attached to an order,
@@ -239,14 +242,13 @@ export class DataStoreService implements OnDestroy {
   // Return the $value property of the incoming key/value pair
   // patched with the $key property.
 
-  updateOrder(key: string, updates: object): Thenable<any> {
-    const foo = this.service.getItem(PATH_ORDERS + key) as FirebaseObjectObservable<Order>;
-    return foo.update(updates);
+  updateOrder(key: string, updates: object) {
+    this.service.getItemWithKey<Order>(PATH_ORDERS + key).update(updates);
   }
 
 //
-  addItem(orderId: string): Thenable<any> {
-    return this.service.push<IItem>(PATH_ITEMS, {
+  addItem(orderId: string) {
+    this.service.push<IItem>(PATH_ITEMS, {
       orderId: orderId,
       description: null, quantity: null, price: null, instructions: null, key: null
     })
@@ -255,10 +257,9 @@ export class DataStoreService implements OnDestroy {
 // Item-level queries
 
   removeItem(itemId: string) {
-    const fbo = this.service.getItem(PATH_ITEMS + itemId) as FirebaseObjectObservable<Item>;
-    return fbo.remove();
+    this.service.remove(PATH_ITEMS + itemId);
   }
-
+/*
   getItem(key: string): FirebaseObjectObservable<any> {
     return this.service.getItem(PATH_ITEMS + key);
   }
@@ -270,9 +271,9 @@ export class DataStoreService implements OnDestroy {
     console.log(result.$ref.toJSON());
     return this.service.getItem(path);
   }
-
-  updateItem(item: Item): Thenable<any> {
-    const foo = this.service.getItem(PATH_ITEMS + item.key) as FirebaseObjectObservable<Item>;
+*/
+  updateItem(item: Item) {
+    const foo = this.service.getItemWithKey<Item>(PATH_ITEMS + item.key);
     return foo.update(item);
   }
 

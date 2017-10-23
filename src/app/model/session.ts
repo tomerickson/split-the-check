@@ -52,8 +52,11 @@ export class Session implements OnDestroy {
     return paid;
   }
 
+  // Round the total to the nearest penny before
+  // calculating change
+  //
   get overShort(): number {
-    return this.total - this.paid;
+    return Math.round(this.total * 100) / 100 - this.paid;
   }
 
   ngOnDestroy() {

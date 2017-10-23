@@ -1,10 +1,12 @@
-import {Injectable, OnDestroy} from '@angular/core';
-import {AngularFireDatabase, FirebaseListObservable, FirebaseObjectObservable} from 'angularfire2/database';
-import {TipBasis} from '../model/tip-basis';
-import {Thenable} from 'firebase/app';
+import { Injectable, OnDestroy } from '@angular/core';
+import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument} from 'angularfire2/firestore'
+// import { AngularFireDatabase } from 'angularfire2/database';
+import { TipBasis } from '../model/tip-basis';
 import 'rxjs/add/operator/take';
-import {Settings} from '../model/settings';
-import {Observable} from 'rxjs/Observable';
+import { Observable } from 'rxjs/Observable';
+import * as firebase from 'firebase';
+import DocumentSnapshot = firebase.firestore.DocumentSnapshot;
+import { Action } from 'angularfire2/firestore/interfaces';
 
 @Injectable()
 
@@ -27,15 +29,16 @@ export class DataProviderService implements OnDestroy {
 
   private LOG = true || false;
 
-  db: AngularFireDatabase;
+  // db: AngularFireDatabase;
+  afs: AngularFirestore;
 
-  constructor(fb: AngularFireDatabase) {
-    this.db = fb;
+  constructor(fs: AngularFirestore) {
+    // this.db = fb;
+    this.afs = fs;
   }
 
   ngOnDestroy() {
     try {
-      this.db.app.database().goOffline();
       if (this.LOG) {
         this.logTask(this.MSG_DISCONNECT, '', '', true);
       }
@@ -46,34 +49,48 @@ export class DataProviderService implements OnDestroy {
     }
   }
 
-  getList(path: string, preserveSnapshot?: boolean, take?: any): FirebaseListObservable<any[]> {
-    let result: FirebaseListObservable<any[]> = null;
-    try {
-      if (preserveSnapshot === true) {
-        result = this.db.list(path, {preserveSnapshot: true});
-      } else {
-        result = this.db.list(path);
-      }
-      if (typeof take !== 'undefined') {
-        result = result.take(take) as FirebaseListObservable<any[]>;
-      }
-      if (this.LOG) {
-        this.logTask(this.MSG_LIST, path, null, true);
-      }
-    } catch (err) {
-      this.logTask(this.MSG_LIST, path, null, false);
-      throw err;
+  getListWithMetadata<T>(path: string): AngularFirestoreCollection<T> {
+    return this.afs.collection(path) as AngularFirestoreCollection<T>;
+  }
+
+  getList<T>(path: string, take?: any): Observable<T[]> {
+    let result = this.afs.collection(path).valueChanges() as Observable<T[]>;
+    if (take) {
+      result = result.take(take);
     }
     return result;
   }
 
-  getItem(path: string): FirebaseObjectObservable<any> {
-    let result: FirebaseObjectObservable<any>;
+  getObject<T>(path: string, take?: any) {
+    return this.afs.doc(path).valueChanges() as Observable<T>;
+  }
+
+  activator<T>(type: { new(): T ; } ): T {
+    return new type();
+  }
+
+  getItemWithKey<T> (path: string): AngularFirestoreDocument<T> {
+    return this.afs.doc<T>(path);
+  }
+
+  getRawItem<T>(docPath: string) {
+    let result = null;
+    this.afs
+      .doc<T>(docPath)
+      .snapshotChanges()
+      .map(obs => result = obs);
+    return result;
+  }
+
+  getItem<T>(path: string): Observable < T > {
+    const result: Observable<T> = null;
     try {
-      result = this.db.object(path);
-      if (this.LOG) {
-        this.logTask(this.MSG_OBJECT, path, null, true);
-      }
+        this.afs.doc<T>(path).valueChanges().map(obs => {
+          if (this.LOG) {
+          this.logSuccess(this.MSG_OBJECT, path, JSON.stringify(obs));
+          }
+          return obs;
+        })
     } catch (err) {
       this.logTask(this.MSG_OBJECT, path, null, false);
       throw err;
@@ -81,8 +98,8 @@ export class DataProviderService implements OnDestroy {
     return result;
   }
 
-  push<T>(path: string, value: T): Thenable<T> {
-    return this.db.list(path).push(value)
+  push<T>(path: string, value: T): Promise < void > {
+    return this.afs.collection(path).add(value)
       .then(() => {
         if (this.LOG) {
           this.logTask(this.MSG_PUSH, path, value, true);
@@ -94,8 +111,8 @@ export class DataProviderService implements OnDestroy {
       });
   }
 
-  updatePath(path: string, newObject: object): Thenable<any> {
-    return this.db.object(path).update(newObject)
+  updatePath(path: string, newObject: object): Promise < any > {
+    return this.afs.doc(path).update(newObject)
       .then(() => {
         if (this.LOG) {
           this.logTask(this.MSG_UPDATE, path, newObject, true);
@@ -107,31 +124,26 @@ export class DataProviderService implements OnDestroy {
       });
   }
 
-  /**
-   updateObject(observable: FirebaseObjectObservable<any>, newObject: object): Thenable<any> {
-    return observable.update(newObject)
-      .then(() => {
-        if (this.LOG) {this.logTask(this.MSG_UPDATE, observable.$ref.key, newObject, true); }
-      })
-      .catch(err => {
-        this.logTask(this.MSG_UPDATE, observable.$ref.key, newObject, false);
-      })
-  }*/
-
   // Update the object to reflect the content
   // of the 'changes' object.
   //
-  updateObject(path: string, changes: object) {
-    try {
-      const obj = this.db.object(path);
-      return obj.update(changes);
-    } catch (err) {
-      throw(err);
-    }
+  updateObject(path: string, changes: object): Promise < void > {
+    const obj = this.afs.doc(path);
+    return obj.update(changes)
+      .then(_ => {
+        if (this.LOG) {
+          this.logTask(this.MSG_UPDATE, path, changes, true);
+        }
+      })
+      .catch(err => {
+        if (this.LOG) {
+          this.logTask(this.MSG_UPDATE, path, changes, false);
+        }
+      })
   }
 
-  set (path: string, value: any): Thenable<any> {
-    return this.db.object(path).set(value)
+  set(path: string, value: any): Promise < void > {
+    return this.afs.doc(path).set(value)
       .then(() => {
         if (this.LOG) {
           this.logTask(this.MSG_SET, path, value, true);
@@ -143,21 +155,17 @@ export class DataProviderService implements OnDestroy {
       })
   }
 
-  query(path: string, filter: any, preserveSnapshot?: boolean): FirebaseListObservable<any> {
-    try {
-      const result = this.db.list(path, {query: filter});
+  query<T>(path: string, filter: any): Observable < T[] > {
+    let result = null;
+      result = this.afs.collection(path, filter).valueChanges() as Observable<T[]>;
       if (this.LOG) {
         this.logTask(this.MSG_QUERY, path, filter, true);
       }
-      return result;
-    } catch (err) {
-      this.logTask(this.MSG_QUERY, path, filter, false);
-      throw(err);
-    }
+    return result;
   }
 
-  remove(path: string): Thenable<any> {
-    return this.db.object(path).remove()
+  remove(path: string): Promise < any > {
+    return this.afs.doc(path).delete()
       .then(() => {
         if (this.LOG) {
           this.logTask(this.MSG_REMOVE, path, null, true);
@@ -171,67 +179,92 @@ export class DataProviderService implements OnDestroy {
 
   copyNode(oldPath: string, newPath: string): boolean {
     let success = false;
-    const oldRef = this.db.object(oldPath).$ref;
-    const newRef = this.db.object(newPath).$ref;
-    oldRef.once('value', (snap) => {
-      newRef.set(snap.val(), ((error) => {
+    let node;
+    const oldRef = this.afs.doc(oldPath).valueChanges().map(obj => node = obj.valueOf());
+    // debugger;
+    const newRef = this.afs.doc(newPath);
+    newRef.set(oldRef)
+      .then((oldOutcome) => {
         success = true;
-        if (error) {
-          success = false;
-          if (this.LOG) {
-            this.logTask(this.MSG_COPY, oldPath, newPath, false, error);
-          }
-        } else {
-          if (this.LOG) {
-            this.logTask(this.MSG_COPY, oldPath, newPath, true);
-          }
+        if (this.LOG) {
+          this.logSuccess(this.MSG_COPY, oldPath, newPath, oldOutcome);
+          return true;
         }
-      }));
-    });
-    return true;
+      })
+      .catch((oldOutcome) => {
+        if (this.LOG) {
+          this.logFailure(this.MSG_COPY, oldPath, newPath, oldOutcome);
+          return false;
+        }
+      });
+    return success;
   }
 
   moveNode(oldPath, newPath): boolean {
     let success = false;
-    const oldRef = this.db.object(oldPath).$ref;
-    const newRef = this.db.object(newPath).$ref;
-    oldRef.once('value', (snap) => {
-      newRef.set(snap.val(), (error) => {
-          if (!error) {
-            success = true;
-            oldRef.remove();
-          } else {
+    const newRef = this.afs.doc(newPath);
+    newRef.set(this.afs.doc(oldPath))
+      .then((newOutcome) => {
+        success = true;
+        this.afs.doc(oldPath).delete()
+          .then((oldOutcome) => {
             if (this.LOG) {
-              this.logTask(this.MSG_MOVE, oldPath, newPath, false, error);
+              this.logSuccess(this.MSG_MOVE, oldPath, newPath, oldOutcome);
+              return true;
             }
-          }
+          })
+          .catch((oldOutcome) => {
+            success = false;
+            if (this.LOG) {
+              this.logFailure(this.MSG_MOVE, oldPath, newPath, oldOutcome);
+            }
+            return false;
+          })
+      })
+      .catch((newOutcome) => {
+        success = false;
+        if (this.LOG) {
+          this.logFailure(this.MSG_MOVE, oldPath, newPath, newOutcome);
         }
-      )
-    });
+        return false;
+      });
+
+    if (success) {
+      if (this.LOG) {
+        this.logTask(this.MSG_MOVE, oldPath, newPath, true, null);
+      }
+      return true;
+    }
     return success;
   }
 
-  mockQuery(): FirebaseListObservable<TipBasis[]> {
-    let result: FirebaseListObservable<TipBasis[]> = null;
+  mockQuery(): Observable < TipBasis[] > {
+    let result: AngularFirestoreCollection<TipBasis> = null;
     try {
-      result = this.db.list('/enumerations/tipOptions/',
-        {
-          query: {
-            orderByChild: 'isDefault',
-            equalTo: true,
-            limitToFirst: 1
-          }
-        });
+      result = this.afs.collection('/enumerations/tipOptions/', ref => ref.orderBy('isDefault').limit(1));
+
     } catch (e) {
       console.log(e)
     }
-    return result;
+    return result.valueChanges();
+  }
+
+  identity<T>(arg?: T): T {
+    return arg as T;
+  }
+
+  logSuccess(method: string, path: string, value: any = null, message ?: any) {
+    this.logTask(method, path, value, true, message);
+  }
+
+  logFailure(method: string, path: string, value: any = null, message ?: any) {
+    this.logTask(method, path, value, false, message);
   }
 
   // Log the action
   //
   // TODO: Replace this with a decorator?
-  logTask(method: string, path: string, value: any = null, success: boolean = false, error?: any) {
+  private logTask(method: string, path: string, value: any = null, success: boolean = false, error?: any) {
     if (typeof(console) !== 'undefined') {
 
       // Use console.info for success messages and console.error

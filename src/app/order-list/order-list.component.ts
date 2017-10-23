@@ -31,7 +31,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
       this.orders = [];
       outer.map(inner => {
         const newOrder = Object.assign({}, inner);
-        newOrder.key = inner.$key;
+        newOrder.key = inner.key;
         newOrder.name = inner.name;
         newOrder.paid = inner.paid;
         this.orders.push(newOrder);

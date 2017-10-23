@@ -1,14 +1,14 @@
 <!-- Running totals -->
 <div *ngIf="session" id="totals">
-  <md-grid-list cols="2" rowHeight="4:1">
-    <md-grid-tile colspan="2">
+  <mat-grid-list cols="2" rowHeight="4:1">
+    <mat-grid-tile colspan="2">
       Totals
-    </md-grid-tile>
-    <md-grid-tile>Orders:</md-grid-tile>
-    <md-grid-tile>{{session.orders.length}}</md-grid-tile>
-    <md-grid-tile>Subtotal:</md-grid-tile>
-    <md-grid-tile>{{session.subtotal | number:'1.2-2'}}</md-grid-tile>
-  </md-grid-list>
+    </mat-grid-tile>
+    <mat-grid-tile>Orders:</mat-grid-tile>
+    <mat-grid-tile>{{session.orders.length}}</mat-grid-tile>
+    <mat-grid-tile>Subtotal:</mat-grid-tile>
+    <mat-grid-tile>{{session.subtotal | number:'1.2-2'}}</mat-grid-tile>
+  </mat-grid-list>
   <table>
     <thead>
     <tr>
@@ -63,9 +63,9 @@
     <tr>
       <td colspan="2">
         <span>Remove orders</span>
-        <md-icon id="remove-orders"
+        <mat-icon id="remove-orders"
                  title="Clear all Orders."
-                 (click)="clearOrder($event)">remove_circle</md-icon>
+                 (click)="clearOrder($event)">remove_circle</mat-icon>
       </td>
     </tr>
     </tfoot>

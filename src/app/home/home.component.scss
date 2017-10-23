@@ -1,0 +1,32 @@
+div#wrapper {
+  display:flex;
+}
+
+#home-card {
+  margin-right: 1em;
+  margin-top: 1ex;
+  min-width: 50em;
+}
+
+section#intro {
+  margin-right: 8em;
+}
+
+div#prairiedog {
+  float: left;
+  margin: 1rem;
+  button {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1em;
+  }
+}
+
+#instructions {
+  clear: left;
+}
+
+[hidden] {
+  display: none !important;
+}

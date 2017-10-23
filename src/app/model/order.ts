@@ -25,7 +25,6 @@ export class Order implements IOrder, OnDestroy {
   constructor(orderId: string, private service: DataStoreService,
               public settings: Observable<Settings>, public session: Observable<Session>) {
     this.service.getOrder(orderId).map(obs => {
-      this.key = obs.$key;
       this.name = obs.name;
       this.paid = obs.paid;
       this.itemsScript = this.service.getItems(orderId).subscribe(source => {

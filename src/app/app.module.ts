@@ -1,11 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
-import {CommonModule} from '@angular/common'
+import { CommonModule } from '@angular/common'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { HttpModule } from '@angular/http';
-import { MaterialDesignModule} from './material-design.module';
+import { MaterialDesignModule } from './material-design.module';
 import { AppComponent } from './app.component';
 import { OrderListComponent } from './order-list/order-list.component';
 import { OrderComponent } from './order/order.component';
@@ -16,6 +16,7 @@ import { environment } from '../environments/environment';
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireAuthModule } from 'angularfire2/auth';
 import { AngularFireDatabaseModule } from 'angularfire2/database'
+import { AngularFirestoreModule } from 'angularfire2/firestore';
 import { DataStoreService } from './data-store/data-store.service';
 import { DataProviderService } from './data-provider/data-provider.service';
 import { ValidationService } from './validation.service';
@@ -25,6 +26,7 @@ import { InputComponent } from './input/input.component';
 import { TestComponent } from './test.component';
 import { HeaderComponent } from './header/header.component';
 import { HomeComponent } from './home/home.component';
+import { TobeTestedComponent } from './tobe-tested/tobe-tested.component';
 
 export const appRoutes: Routes = [
   {
@@ -55,7 +57,8 @@ export const appRoutes: Routes = [
     ControlMessagesComponent,
     InputComponent,
     HeaderComponent,
-    HomeComponent
+    HomeComponent,
+    TobeTestedComponent
   ],
 
   imports: [
@@ -67,13 +70,14 @@ export const appRoutes: Routes = [
     HttpModule,
     RouterModule.forRoot(appRoutes, {enableTracing: true}),
     MaterialDesignModule,
-    AngularFireModule.initializeApp(environment.firebase),
+    AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
-    AngularFireDatabaseModule],
+    // AngularFireDatabaseModule,
+    AngularFirestoreModule.enablePersistence()],
 
   providers: [DataStoreService, DataProviderService, ValidationService],
 
-  bootstrap: [/*MockComponent,*/ AppComponent]
+  bootstrap: [AppComponent]
 })
 export class AppModule {
 }

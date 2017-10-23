@@ -6,7 +6,7 @@ import { ChangeBasis } from '../model/change-basis';
 import { TipBasis } from '../model/tip-basis';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { IDefault } from '../model/IDefault';
-import { MdRadioChange } from '@angular/material';
+import { MatRadioChange } from '@angular/material';
 
 @Component({
   selector: 'app-settings',
@@ -164,11 +164,11 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
     console.log('clicking');
   }
 
-  handleTipBasisClick(event: MdRadioChange) {
+  handleTipBasisClick(event: MatRadioChange) {
     const basis: TipBasis = Object.assign({}, event.value);
     this.tipBasis = basis;
   }
-  handleChangeBasisClick(event: MdRadioChange) {
+  handleChangeBasisClick(event: MatRadioChange) {
     const basis: ChangeBasis = Object.assign({}, event.value);
     this.changeBasis = basis;
   }

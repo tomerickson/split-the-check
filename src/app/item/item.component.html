@@ -1,16 +1,16 @@
-<md-card>
+<mat-card>
   <form [formGroup]="itemForm">
-    <md-grid-list cols="6" rowHeight="3:1">
-      <md-grid-tile>
-        <button md-icon-button class="remove"
+    <mat-grid-list cols="6" rowHeight="3:1">
+      <mat-grid-tile>
+        <button mat-icon-button class="remove"
                 title="Remove this item."
                 (click)="openDialog()">
-          <md-icon>remove_circle</md-icon>
+          <mat-icon>remove_circle</mat-icon>
         </button>
-      </md-grid-tile>
-      <md-grid-tile>
-        <md-form-field>
-          <input mdInput id="description"
+      </mat-grid-tile>
+      <mat-grid-tile>
+        <mat-form-field>
+          <input matInput id="description"
                  class="form-control text-line"
                  name="description"
                  formControlName="description"
@@ -20,11 +20,11 @@
                  tabindex="0">
           <app-control-messages [control]="itemForm.controls['description']"
                                 [expando]="'description'"></app-control-messages>
-        </md-form-field>
-      </md-grid-tile>
-      <md-grid-tile>
-        <md-form-field>
-          <input mdInput id="price"
+        </mat-form-field>
+      </mat-grid-tile>
+      <mat-grid-tile>
+        <mat-form-field>
+          <input matInput id="price"
                  class="form-control"
                  name="price"
                  onfocus="select();"
@@ -32,11 +32,11 @@
                  placeholder="Price"
                  tabindex="0">
           <app-control-messages [control]="itemForm.controls['price']" [expando]="'price'"></app-control-messages>
-        </md-form-field>
-      </md-grid-tile>
-      <md-grid-tile>
-        <md-form-field>
-          <input mdInput class="form-control"
+        </mat-form-field>
+      </mat-grid-tile>
+      <mat-grid-tile>
+        <mat-form-field>
+          <input matInput class="form-control"
                  id="quantity"
                  name="quantity"
                  onfocus="select();"
@@ -44,38 +44,38 @@
                  tabindex="0">
           <app-control-messages [control]="itemForm.controls['quantity']" [expando]="'quantity'">
           </app-control-messages>
-        </md-form-field>
-      </md-grid-tile>
-      <md-grid-tile>
-        <md-form-field>
-          <input mdInput class="form-control"
+        </mat-form-field>
+      </mat-grid-tile>
+      <mat-grid-tile>
+        <mat-form-field>
+          <input matInput class="form-control"
                  id="instructions"
                  name="instructions"
                  onfocus="select();"
                  formControlName="instructions"
                  placeholder="Instructions"
                  tabindex="0">
-        </md-form-field>
-      </md-grid-tile>
-      <md-grid-tile>
-        <button md-icon-button class="save"
+        </mat-form-field>
+      </mat-grid-tile>
+      <mat-grid-tile>
+        <button mat-icon-button class="save"
                 [disabled]="itemForm.invalid"
                 title="Save"
                 (click)="onSave()" tabindex="0">
-          <md-icon>done</md-icon>
+          <mat-icon>done</mat-icon>
         </button>
-        <button md-icon-button class="undo"
+        <button mat-icon-button class="undo"
                 title="Undo" (click)="onUndo()"
                 [disabled]="!itemForm.dirty">
-          <md-icon>undo</md-icon>
+          <mat-icon>undo</mat-icon>
         </button>
-        <button md-icon-button class="add"
+        <button mat-icon-button class="add"
                 tabindex="0" title="Add"
                 [disabled]="itemForm.invalid"
                 (keydown.Space)="onAdd()" (click)="onAdd()">
-          <md-icon>add_circle</md-icon>
+          <mat-icon>add_circle</mat-icon>
         </button>
-      </md-grid-tile>
-    </md-grid-list>
+      </mat-grid-tile>
+    </mat-grid-list>
   </form>
-</md-card>
+</mat-card>

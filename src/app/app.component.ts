@@ -1,8 +1,6 @@
 import {Component, OnDestroy, OnInit, Output} from '@angular/core';
 import {DataStoreService} from './data-store/data-store.service';
 import {Settings} from './model/settings';
-import {Subject} from 'rxjs/Subject';
-import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Component({
@@ -17,6 +15,7 @@ export class AppComponent implements OnInit, OnDestroy {
   @Output() settings: BehaviorSubject<Settings>;
 
   constructor(svc: DataStoreService) {
+    debugger;
     this.service = svc;
     this.settings = new BehaviorSubject<Settings>(null);
     this.service.showIntro.subscribe(obs => this.showIntro);

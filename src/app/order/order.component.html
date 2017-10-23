@@ -1,103 +1,103 @@
-<md-list-item id="order">
-  <md-expansion-panel [hideToggle]="false" expanded="true">
-    <md-expansion-panel-header>
-      <md-panel-title>
+<mat-list-item id="order">
+  <mat-expansion-panel [hideToggle]="false" expanded="true">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
         <label>{{"Order " + (index+1)}}</label>
-      </md-panel-title>
-      <md-panel-description>
-        <md-table>
-          <md-row>
-            <md-cell>Ordered by: {{order.name}}</md-cell>
-            <md-cell>Items: {{count}}</md-cell>
-            <md-cell>Total: {{total | number:'1.2-2'}}</md-cell>
-            <md-cell>Paid: {{order.paid | number:'1.2-2'}}</md-cell>
-            <md-cell><span>Over / Short: </span><span  [class.short]="overShort > 0">{{overShort | number:'1.2-2'}}</span></md-cell>
-          </md-row>
-        </md-table>
-      </md-panel-description>
-    </md-expansion-panel-header>
-    <md-card class="mat-elevation-z0">
+      </mat-panel-title>
+      <mat-panel-description>
+        <mat-table>
+          <mat-row>
+            <mat-cell>Ordered by: {{order.name}}</mat-cell>
+            <mat-cell>Items: {{count}}</mat-cell>
+            <mat-cell>Total: {{total | number:'1.2-2'}}</mat-cell>
+            <mat-cell>Paid: {{order.paid | number:'1.2-2'}}</mat-cell>
+            <mat-cell><span>Over / Short: </span><span  [class.short]="overShort > 0">{{overShort | number:'1.2-2'}}</span></mat-cell>
+          </mat-row>
+        </mat-table>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <mat-card class="mat-elevation-z0">
       <form name="order-form">
-        <md-grid-list cols="2" rowHeight="5:1">
-          <md-grid-tile>
-            <md-form-field>
-              <md-placeholder>Ordered by:</md-placeholder>
-              <input mdInput
+        <mat-grid-list cols="2" rowHeight="5:1">
+          <mat-grid-tile>
+            <mat-form-field>
+              <mat-placeholder>Ordered by:</mat-placeholder>
+              <input matInput
                      type="text"
                      name="name"
                      id="input-order-name"
                      [ngModel]="order.name"
                      (change)="updateName($event)">
-            </md-form-field>
-          </md-grid-tile>
-          <md-grid-tile>
-            <md-form-field>
-              <md-placeholder>Payment:</md-placeholder>
-              <input mdInput
+            </mat-form-field>
+          </mat-grid-tile>
+          <mat-grid-tile>
+            <mat-form-field>
+              <mat-placeholder>Payment:</mat-placeholder>
+              <input matInput
                      id="input-paid"
                      type="text"
                      name="paid"
                      [ngModel]="(order.paid.toFixed(2))"
                      (focus)="selectPaid($event)"
                      (change)="updatePaid($event)">
-            </md-form-field>
-          </md-grid-tile>
-        </md-grid-list>
+            </mat-form-field>
+          </mat-grid-tile>
+        </mat-grid-list>
       </form>
-      <md-grid-list cols="7" rowHeight="3:1">
-        <md-grid-tile>
+      <mat-grid-list cols="7" rowHeight="3:1">
+        <mat-grid-tile>
           Subtotal
-        </md-grid-tile>
-        <md-grid-tile>
+        </mat-grid-tile>
+        <mat-grid-tile>
           Tax
-        </md-grid-tile>
-        <md-grid-tile>
+        </mat-grid-tile>
+        <mat-grid-tile>
           Tip
-        </md-grid-tile>
-        <md-grid-tile>
+        </mat-grid-tile>
+        <mat-grid-tile>
           Delivery
-        </md-grid-tile>
-        <md-grid-tile>
+        </mat-grid-tile>
+        <mat-grid-tile>
           Total
-        </md-grid-tile>
-        <md-grid-tile>
+        </mat-grid-tile>
+        <mat-grid-tile>
           Paid
-        </md-grid-tile>
-        <md-grid-tile>
+        </mat-grid-tile>
+        <mat-grid-tile>
           Over / Short
-        </md-grid-tile>
-        <md-grid-tile>
+        </mat-grid-tile>
+        <mat-grid-tile>
           {{subtotal | number:'1.2-2'}}
-        </md-grid-tile>
-        <md-grid-tile>
+        </mat-grid-tile>
+        <mat-grid-tile>
           {{tax | number:'1.2-2'}}
-        </md-grid-tile>
-        <md-grid-tile>
+        </mat-grid-tile>
+        <mat-grid-tile>
           {{tip | number:'1.2-2'}}
-        </md-grid-tile>
-        <md-grid-tile>
+        </mat-grid-tile>
+        <mat-grid-tile>
           {{delivery | number:'1.2-2'}}
-        </md-grid-tile>
-        <md-grid-tile>
+        </mat-grid-tile>
+        <mat-grid-tile>
           {{total | number:'1.2-2'}}
-        </md-grid-tile>
-        <md-grid-tile>
+        </mat-grid-tile>
+        <mat-grid-tile>
           {{order.paid | number:'1.2-2'}}
-        </md-grid-tile>
-        <md-grid-tile [class.short]="overShort > 0">
+        </mat-grid-tile>
+        <mat-grid-tile [class.short]="overShort > 0">
           {{overShort | number:'1.2-2'}}
-        </md-grid-tile>
-      </md-grid-list>
+        </mat-grid-tile>
+      </mat-grid-list>
       <app-item-list-outlet [orderId]="orderId"></app-item-list-outlet>
-    </md-card>
-    <md-action-row>
-      <button md-icon-button>
-      <md-icon
+    </mat-card>
+    <mat-action-row>
+      <button mat-icon-button>
+      <mat-icon
       class="remove"
         (click)="removeOrder()"
-        title="Remove this order.">remove_circle</md-icon>
+        title="Remove this order.">remove_circle</mat-icon>
       </button>
-    </md-action-row>
-  </md-expansion-panel>
-</md-list-item>
-<md-divider></md-divider>
+    </mat-action-row>
+  </mat-expansion-panel>
+</mat-list-item>
+<mat-divider></mat-divider>
