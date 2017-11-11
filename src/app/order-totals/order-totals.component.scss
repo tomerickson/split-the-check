@@ -1,23 +1,24 @@
 mat-grid-list {
-  --columns: 2;
+    columns: 2;
 }
-  #remove-orders {
+
+#remove-orders {
     margin-left: auto;
     margin-right: auto;
     &:hover {
-      color: rgba(192, 0, 0, 1);
+        color: rgba(192, 0, 0, 1);
     }
-  }
+}
 
-  #footer {
+#footer {
     margin: 0 auto;
-  }
+}
 
-  .short {
+.short {
     color: red;
-  }
+}
 
-  div {
+div {
     width: 10em;
     float: right;
     margin-right: 5px;
@@ -28,29 +29,28 @@ mat-grid-list {
     background-color: white;
     z-index: 10;
     table {
-      font-family: "Segoe UI", Helvetica, "Sans Serif";
-      font-size: 10pt;
-      width: 100%;
-      thead {
-        th {
-          text-align: center;
+        font-family: "Segoe UI", Helvetica, "Sans Serif";
+        font-size: 10pt;
+        width: 100%;
+        thead {
+            th {
+                text-align: center;
+            }
         }
-      }
-      tbody {
-        tr:nth-child(odd) {
-          background-color: ghostwhite;
+        tbody {
+            tr:nth-child(odd) {
+                background-color: ghostwhite;
+            }
+            tr {
+                td {
+                    white-space: nowrap;
+                    text-align: right;
+                    width: 30%;
+                }
+            }
         }
-        tr {
-          td {
-            white-space: nowrap;
-            text-align: right;
-            width: 30%;
-          }
+        tfoot {
+            text-align: center;
         }
-      }
-      tfoot {
-        text-align:center;
-      }
     }
-  }
-
+}

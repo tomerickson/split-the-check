@@ -1,13 +1,13 @@
 <!-- Running totals -->
-<div *ngIf="session" id="totals">
+<div *ngIf="service.session" id="totals">
   <mat-grid-list cols="2" rowHeight="4:1">
     <mat-grid-tile colspan="2">
       Totals
     </mat-grid-tile>
     <mat-grid-tile>Orders:</mat-grid-tile>
-    <mat-grid-tile>{{session.orders.length}}</mat-grid-tile>
+    <mat-grid-tile>{{(service.session|async)?.orders.length}}</mat-grid-tile>
     <mat-grid-tile>Subtotal:</mat-grid-tile>
-    <mat-grid-tile>{{session.subtotal | number:'1.2-2'}}</mat-grid-tile>
+    <mat-grid-tile>{{(service.session|async)?.subtotal | number:'1.2-2'}}</mat-grid-tile>
   </mat-grid-list>
   <table>
     <thead>
@@ -18,39 +18,39 @@
     <tbody>
     <tr>
       <td>Orders:</td>
-      <td><span *ngIf="session">{{session.orders.length}}</span></td>
+      <td><span *ngIf="service.session">{{(service.session|async)?.orders.length}}</span></td>
     </tr>
     <tr>
       <td>Subtotal:</td>
       <td>
-        <span *ngIf="session.settings">{{session.subtotal | number:'1.2-2'}}</span>
+        <span *ngIf="service.session">{{(service.session|async)?.subtotal | number:'1.2-2'}}</span>
       </td>
     </tr>
     <tr>
       <td>Sales Tax:</td>
       <td>
-        <span *ngIf="session.settings">{{session.tax | number:'1.2-2'}}</span>
+        <span *ngIf="service.session">{{(service.session|async)?.tax | number:'1.2-2'}}</span>
       </td>
     </tr>
     <tr>
       <td>Tip:</td>
       <td>
-        <span *ngIf="session.settings">{{session.tip | number:'1.2-2'}}</span>
+        <span *ngIf="service.session">{{(service.session|async)?.tip | number:'1.2-2'}}</span>
       </td>
     </tr>
     <tr>
       <td>Delivery:</td>
       <td>
-        <span *ngIf="session.settings">{{session.settings.delivery | number:'1.2-2'}}</span>
+        <span *ngIf="service.session">{{(service.session|async)?.delivery | number:'1.2-2'}}</span>
       </td>
     </tr>
     <tr>
       <td>Total:</td>
-      <td><span *ngIf="session.settings">{{session.total | number:'1.2-2'}}</span></td>
+      <td><span *ngIf="service.session">{{(service.session|async)?.total | number:'1.2-2'}}</span></td>
     </tr>
     <tr>
       <td>Paid:</td>
-      <td><span>{{session.paid | number:'1.2-2'}}</span>
+      <td><span>{{(service.session|async)?.paid | number:'1.2-2'}}</span>
       </td>
     </tr>
     <tr>

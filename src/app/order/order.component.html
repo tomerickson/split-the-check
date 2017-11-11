@@ -8,7 +8,7 @@
         <mat-table>
           <mat-row>
             <mat-cell>Ordered by: {{order.name}}</mat-cell>
-            <mat-cell>Items: {{count}}</mat-cell>
+            <mat-cell>Items: {{count | async}}</mat-cell>
             <mat-cell>Total: {{total | number:'1.2-2'}}</mat-cell>
             <mat-cell>Paid: {{order.paid | number:'1.2-2'}}</mat-cell>
             <mat-cell><span>Over / Short: </span><span  [class.short]="overShort > 0">{{overShort | number:'1.2-2'}}</span></mat-cell>

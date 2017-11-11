@@ -4,7 +4,7 @@ import {
   MatButtonModule,
   MatCardModule,
   MatChipsModule, MatDialogModule, MatExpansionModule, MatGridListModule,
-  MatIconModule,
+  MatIconModule, MatListModule, MatTableModule,
 } from '@angular/material';
 import { DialogsService } from './dialogs/dialogs.service';
 import { ConfirmDialogComponent } from './dialogs/confirm-dialog.component';
@@ -25,8 +25,10 @@ const MATERIAL_MODULES = [
   , MatGridListModule
   , MatIconModule
   , MatInputModule
+  , MatListModule
   , MatMenuModule
   , MatRadioModule
+  , MatTableModule
   , MatToolbarModule
   , MatTooltipModule
 ];

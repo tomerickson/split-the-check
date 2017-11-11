@@ -34,6 +34,7 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   constructor(public service: DataStoreService, @Inject(FormBuilder) builder: FormBuilder) {
+    console.log('entering settings.constructor');
     this.fb = builder;
     this.buildForm();
   }

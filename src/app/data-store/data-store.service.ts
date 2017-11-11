@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { DataProviderService } from '../data-provider/data-provider.service';
-import { TipBasis } from '../model/tip-basis';
 import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/observable/fromPromise';
 import 'rxjs/add/operator/defaultIfEmpty';
@@ -11,27 +11,18 @@ import 'rxjs/add/operator/publish';
 import 'rxjs/add/operator/reduce';
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/toPromise';
-import { Order } from '../model/order';
-// import { Thenable } from 'firebase/app';
-import { Item } from '../model/item';
-// import { FirebaseListObservable, FirebaseObjectObservable } from 'angularfire2/database';
-import { Settings } from '../model/settings';
-import { ChangeBasis } from '../model/change-basis';
-import { AngularFireList, AngularFireObject } from 'angularfire2/database';
-import { Session } from '../model/session';
-import { IDefault } from '../model/IDefault';
-import { Defaults } from '../model/defaults';
-import { AngularFirestoreDocument } from 'angularfire2/firestore';
+import { ChangeBasis, Defaults, IItem, IOrder, Item, Order, Session, Settings, TipBasis } from '../model';
+import { AngularFireList, QueryFn } from 'angularfire2/database';
+import { Subscription } from 'rxjs/Subscription';
 
-const PATH_ROOT = '/root';
 const PATH_ORDERS = '/orders/';
 const PATH_ITEMS = '/items/';
 const PATH_SETTINGS = '/settings';
 const PATH_SESSION = '/orderSummary';
 const PATH_TIP_OPTIONS_ENUM = '/enumerations/tipOptions';
 const PATH_CHANGE_OPTIONS_ENUM = '/enumerations/changeOptions';
-const PATH_DEFAULTS = '/root/defaults';
-const PATH_DEFAULT_TAX_PERCENT = '/root/defaults/taxPercent';
+const PATH_DEFAULTS = '/defaults';
+const PATH_DEFAULT_TAX_PERCENT = '/defaults/taxPercent';
 const PATH_DEFAULT_TIP_PERCENT = '/defaults/tipPercent';
 const PATH_DEFAULT_DELIVERY = '/defaults/delivery';
 const PATH_DEFAULT_SHOW_INTRO = '/defaults/showIntro';
@@ -52,30 +43,90 @@ export class DataStoreService implements OnDestroy {
 
   private service: DataProviderService;
   private firstTime = true;
+  private _allOrders: BehaviorSubject<IOrder[]>;
+  private _allItems: BehaviorSubject<IItem[]>;
+  private _session: Observable<Session>;
+  private _settings: BehaviorSubject<Settings>;
+  private _orderSub: Subscription;
+  private _itemSub: Subscription;
+  private _sessionSub: Subscription;
+  private _settingsSub: Subscription = null;
 
   public Orders: Order[] = [];
-  public AllItems: Observable<Item[]>;
-  public AllOrders: Observable<Order[]>;
 
-  getTaxPercent = (): Observable<any> => {
-    return this.service.getObject(PATH_SETTINGS_TAX_PERCENT);
-  }
-  getTipPercent = (): Observable<any> => {
-    return this.service.getObject(PATH_SETTINGS_TIP_PERCENT);
-  }
+  changeOption: BehaviorSubject<ChangeBasis>;
+  tipOption: BehaviorSubject<TipBasis>;
+  delivery: BehaviorSubject<number>;
+  tipPercent: BehaviorSubject<number>;
+  taxPercent: BehaviorSubject<number>;
+
+  static orderByValueFilter(ref): QueryFn {
+    return ref.orderByChild('value');
+  };
+
+  static findDefaultValueFilter(ref): QueryFn {
+    return ref.orderByChild('isDefault').equalTo(true).limitToFirst(1);
+  };
+
+
+  getTaxPercent = (): Observable<number> => {
+    return this.service.getItem<number>(PATH_SETTINGS_TAX_PERCENT).valueChanges();
+  };
+  getTipPercent = (): Observable<number> => {
+    return this.service.getItem<number>(PATH_SETTINGS_TIP_PERCENT).valueChanges();
+  };
   getDelivery = () => {
     return this.service.getItem(PATH_SETTINGS_DELIVERY);
-  }
+  };
   getChangeOption = () => {
     return this.service.getItem(PATH_SETTINGS_CHANGE_OPTION);
-  }
+  };
   getTipOption = () => {
     return this.service.getItem(PATH_SETTINGS_TIP_OPTION);
-  }
+  };
 
   mapOption = (source, destination) => {
     destination = source.$value;
     return destination;
+  };
+
+  get allOrders() {
+    if (this._orderSub === null) {
+      this._orderSub = this.service.getList<IOrder>(PATH_ORDERS).valueChanges<IOrder>()
+        .subscribe((obs) => this._allOrders.next(obs));
+    }
+    return this._allOrders;
+  }
+
+  get allItems() {
+    if (this._itemSub === null) {
+      this._itemSub = this.service.getList<IItem>(PATH_ITEMS).valueChanges<IItem>()
+        .subscribe(obs => this._allItems.next(obs));
+    }
+    return this._allItems;
+  }
+
+  get session(): Observable<Session> {
+    if (this._sessionSub === null) {
+      this._sessionSub = this.service.getItem<Session>(PATH_SESSION).valueChanges<Session>()
+        .subscribe(obs => this._session = Observable.of(obs));
+    }
+    return this._session;
+  }
+
+  get settings(): BehaviorSubject<Settings> {
+    if (this._settingsSub === null) {
+      this._settingsSub = this.service.getItem<Settings>(PATH_SETTINGS).valueChanges<Settings>()
+        .subscribe(obs => this._settings.next(obs));
+      this.settings.subscribe(settings => {
+        this.changeOption.next(settings.changeOption);
+        this.tipOption.next(settings.tipOption);
+        this.delivery.next(settings.delivery);
+        this.taxPercent.next(settings.taxPercent);
+        this.tipPercent.next(settings.tipPercent);
+      });
+    }
+    return this._settings;
   }
 
   constructor(private svc: DataProviderService) {
@@ -85,24 +136,8 @@ export class DataStoreService implements OnDestroy {
     }
   }
 
-  get session(): Observable<Session> {
-    return this.service.getObject(PATH_SESSION);
-  }
-
-  get settings(): Observable<Settings> {
-    return this.service.getObject(PATH_SETTINGS);
-  }
-
-  setSettings(settings: Settings) {
-    this.service.set(PATH_SETTINGS, settings);
-  }
-
-  get changeBasis(): Observable<ChangeBasis> {
-    return this.service.getObject(PATH_SETTINGS_CHANGE_OPTION);
-  }
-
   get showIntro(): Observable<boolean> {
-    return this.service.getObject(PATH_SETTINGS_SHOW_INTRO);
+    return this.service.getItem(PATH_SETTINGS_SHOW_INTRO).valueChanges<boolean>();
   }
 
   set showIntro(value) {
@@ -110,30 +145,42 @@ export class DataStoreService implements OnDestroy {
   }
 
 
-  setDefaults() {
-    console.log('data-store.service.setDefaults');
-    const defaults = this.service.getRawItem<Defaults>(PATH_DEFAULTS);
-    let result: boolean;
-    result = this.service.copyNode(PATH_DEFAULT_TAX_PERCENT, PATH_SETTINGS_TAX_PERCENT);
-    if (result) {
-      result = this.service.copyNode(PATH_DEFAULT_TIP_PERCENT, PATH_SETTINGS_TIP_PERCENT);
-    }
-    if (result) {
-      result = this.service.copyNode(PATH_DEFAULT_DELIVERY, PATH_SETTINGS_DELIVERY);
-    }
-    /* if (result) {
-      result = this.service.copyNode(PATH_DEFAULT_SHOW_INTRO, PATH_SETTINGS_SHOW_INTRO);
-    }*/
+  setSettings(settings: Settings) {
+    this.service.set(PATH_SETTINGS, settings);
+  }
 
-    if (result) {
-      this.AllItems = this.service.getList(PATH_ITEMS);
-      this.AllOrders = this.service.getList(PATH_ORDERS);
-    }
-    this.firstTime = false;
+  getSettings(): Observable<Settings> {
+    return this.service.getItem<Settings>(PATH_SETTINGS).valueChanges<Settings>();
+  }
+
+  unwrapItem<T>(observable: Observable<T>): T {
+    const result: T = null;
+    const subscription = observable.subscribe(obs => Object.assign(result, obs));
+    subscription.unsubscribe();
+    return result;
+  }
+
+  setDefaults() {
+    console.log('entering data-store.service.setDefaults');
+    this.service.getItem<Defaults>(PATH_DEFAULTS).valueChanges().map((obs: Observable<Defaults>) => {
+      let result: boolean = this.service.copyNode(PATH_DEFAULT_TAX_PERCENT, PATH_SETTINGS_TAX_PERCENT);
+
+      if (result) {
+        result = this.service.copyNode(PATH_DEFAULT_TIP_PERCENT, PATH_SETTINGS_TIP_PERCENT);
+      }
+
+      if (result) {
+        result = this.service.copyNode(PATH_DEFAULT_DELIVERY, PATH_SETTINGS_DELIVERY);
+      }
+
+      this.firstTime = false;
+      console.log('exiting data-store.service.setDefaults');
+    });
   }
 
   ngOnDestroy() {
-    // this.service.afs.app.database().goOffline();
+    this._orderSub.unsubscribe();
+    this._itemSub.unsubscribe();
   }
 
   setDefaultTipOption(option: TipBasis): boolean {
@@ -154,24 +201,37 @@ export class DataStoreService implements OnDestroy {
     }
   }
 
-  getDefaultTipOption() {
-    const obj = this.service.query(PATH_TIP_OPTIONS_ENUM, FILTER_DEFAULT_OPTION);
-    return obj.take(1)[0];
+  getDefaultTipOption(): Observable<TipBasis> {
+    const query = {
+      orderByChild: 'isDefault',
+      equalTo: true,
+      limitToFirst: 1
+    }
+    const qry: AngularFireList<TipBasis> = this.service.query<TipBasis>(PATH_TIP_OPTIONS_ENUM, query)
+    return qry.valueChanges().take(1)[0];
   }
 
-  getDefaultChangeOption(): ChangeBasis {
-    const obj = this.service.query(PATH_CHANGE_OPTIONS_ENUM, FILTER_DEFAULT_OPTION);
-    return obj.take(1)[0];
+  getDefaultChangeOption(): Observable<ChangeBasis> {
+    const qry = this.service.query<ChangeBasis>(PATH_CHANGE_OPTIONS_ENUM, DataStoreService.findDefaultValueFilter);
+    return qry.valueChanges().take(1)[0];
   }
 
   getTipOptions(): Observable<TipBasis[]> {
-    // return this.service.getList(PATH_ENUM_TIP_OPTIONS);
-    return this.service.query(PATH_ENUM_TIP_OPTIONS, CHANGE_OPTIONS_SORT);
+    console.log('entering getTipOptions');
+    const query: any = {
+      orderByChild: 'value'
+    }
+    return this.service.query<TipBasis>(PATH_ENUM_TIP_OPTIONS, query)
+      .valueChanges() as Observable<TipBasis[]>;
   }
 
   getChangeOptions(): Observable<ChangeBasis[]> {
-    // return this.service.getList(PATH_ENUM_CHANGE_OPTIONS);
-    return this.service.query(PATH_ENUM_CHANGE_OPTIONS, CHANGE_OPTIONS_SORT);
+    console.log('entering getChangeOptions');
+    const query: any = {
+      orderByChild: 'value'
+    }
+    return this.service.query<ChangeBasis>(PATH_ENUM_CHANGE_OPTIONS, query)
+      .valueChanges() as Observable<ChangeBasis[]>;
   }
 
   toggleShowIntro(choice: boolean) {
@@ -191,7 +251,7 @@ export class DataStoreService implements OnDestroy {
   }
 
   setChangeBasis(changeBasis) {
-//    debugger;
+    //    debugger;
     this.service.set(PATH_SETTINGS_CHANGE_OPTION, changeBasis);
   }
 
@@ -204,14 +264,14 @@ export class DataStoreService implements OnDestroy {
     this.service.remove(PATH_ITEMS);
   }
 
-// Order-list
-//
+  // Order-list
+  //
   getOrders(): Observable<Order[]> {
-    return this.service.getList<Order>(PATH_ORDERS);
+    return this.service.getList<Order>(PATH_ORDERS).valueChanges();
   }
 
-// Order level queries
-//
+  // Order level queries
+  //
   addOrder() {
     this.service.push<IOrder>(PATH_ORDERS, {key: null, name: null, paid: 0});
   }
@@ -221,32 +281,29 @@ export class DataStoreService implements OnDestroy {
   }
 
   getOrder(key: string): Observable<Order> {
-    return this.service.getItem<Order>(PATH_ORDERS + key);
+    return this.service.getItem<Order>(PATH_ORDERS + key).valueChanges<Order>();
   }
 
   getPaid(key: string): Observable<number> {
-    return this.service.getObject<number>(PATH_ORDERS + key + '/paid');
+    return this.service.getItem<number>(PATH_ORDERS + key + '/paid').valueChanges<number>();
   }
 
-// Return items attached to an order,
-// update item.key with the firebase key
-//
-  getItems(orderId: string): Observable<any> {
+  // Return items attached to an order,
+  // update item.key with the firebase key
+  //
+  getItems(orderId: string): Observable<Item[]> {
     const filter = {orderByChild: 'orderId', equalTo: orderId};
-    return this.service.query(PATH_ITEMS, filter);
-    /*.map(element => {
-      return element;
-    });*/
+    return this.service.query(PATH_ITEMS, filter).valueChanges();
   }
 
   // Return the $value property of the incoming key/value pair
   // patched with the $key property.
 
-  updateOrder(key: string, updates: object) {
-    this.service.getItemWithKey<Order>(PATH_ORDERS + key).update(updates);
+  updateOrder(key: string, updates) {
+    this.service.updateObject<Order>(PATH_ORDERS + key, updates);
   }
 
-//
+  //
   addItem(orderId: string) {
     this.service.push<IItem>(PATH_ITEMS, {
       orderId: orderId,
@@ -254,35 +311,35 @@ export class DataStoreService implements OnDestroy {
     })
   }
 
-// Item-level queries
+  // Item-level queries
 
   removeItem(itemId: string) {
     this.service.remove(PATH_ITEMS + itemId);
   }
-/*
-  getItem(key: string): FirebaseObjectObservable<any> {
-    return this.service.getItem(PATH_ITEMS + key);
-  }
 
-  getItemField(key: string, field: string): FirebaseObjectObservable<any> {
-    let path = PATH_ITEM.replace('\[key\]', key);
-    path = path.replace('\[value\]', field);
-    const result = this.service.getItem(path);
-    console.log(result.$ref.toJSON());
-    return this.service.getItem(path);
-  }
-*/
+  /*
+    getItem(key: string): FirebaseObjectObservable<any> {
+      return this.service.getItem(PATH_ITEMS + key);
+    }
+
+    getItemField(key: string, field: string): FirebaseObjectObservable<any> {
+      let path = PATH_ITEM.replace('\[key\]', key);
+      path = path.replace('\[value\]', field);
+      const result = this.service.getItem(path);
+      console.log(result.$ref.toJSON());
+      return this.service.getItem(path);
+    }
+  */
   updateItem(item: Item) {
-    const foo = this.service.getItemWithKey<Item>(PATH_ITEMS + item.key);
-    return foo.update(item);
+    return this.service.updateObject<Item>(PATH_ITEMS + item.key, item);
   }
 
-//
+  //
   mockQuery(): Observable<TipBasis[]> {
-    return this.service.mockQuery();
+    return this.service.mockQuery().valueChanges();
   }
 
-// App-level queries
+  // App-level queries
 
   //
   private patchKey(kvp: { $key, $value }) {
@@ -290,4 +347,5 @@ export class DataStoreService implements OnDestroy {
     result['key'] = kvp.$key;
     return result;
   }
+
 }

@@ -2,6 +2,7 @@ import {Component, OnDestroy, OnInit, Output} from '@angular/core';
 import {DataStoreService} from './data-store/data-store.service';
 import {Settings} from './model/settings';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'app-root',
@@ -10,19 +11,13 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 export class AppComponent implements OnInit, OnDestroy {
 
-  showIntro: boolean;
+  showIntro: Observable<boolean>;
   service: DataStoreService;
   @Output() settings: BehaviorSubject<Settings>;
 
   constructor(svc: DataStoreService) {
-    debugger;
     this.service = svc;
-    this.settings = new BehaviorSubject<Settings>(null);
-    this.service.showIntro.subscribe(obs => this.showIntro);
-    this.service.settings.subscribe(obs => {
-      this.settings.next(obs);
-      this.showIntro = this.settings.getValue().showIntro;
-    });
+    this.showIntro = this.service.showIntro;
   }
 
   ngOnInit() {

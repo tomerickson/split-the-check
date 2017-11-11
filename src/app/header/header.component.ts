@@ -12,6 +12,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   iconClass: string;
 
   constructor(public service: DataStoreService) {
+    console.log('enter header.constructor');
   }
 
   ngOnInit() {
@@ -23,5 +24,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   toggleIntro(value) {
     this.service.showIntro = value;
+    console.log('exiting header.toggleIntro');
   }
 }

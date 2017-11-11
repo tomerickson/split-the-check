@@ -24,7 +24,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.settingsSub = this.service.settings.subscribe(obj => this.settings = obj);
+    this.settingsSub = this.service.getSettings().subscribe(obj => this.settings = obj);
     const obs = this.service.getOrders();
     this.orderSub = obs.subscribe(outer => {
      // console.log('loading orders: ' + JSON.stringify(outer));

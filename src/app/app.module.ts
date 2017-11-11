@@ -72,8 +72,7 @@ export const appRoutes: Routes = [
     MaterialDesignModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
-    // AngularFireDatabaseModule,
-    AngularFirestoreModule.enablePersistence()],
+    AngularFireDatabaseModule],
 
   providers: [DataStoreService, DataProviderService, ValidationService],
 
