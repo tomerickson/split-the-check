@@ -1,8 +1,11 @@
 import { Injectable, Inject, OnDestroy } from '@angular/core';
-import { AngularFireDatabase, AngularFireList, AngularFireObject } from 'angularfire2/database';
-import { TipBasis } from '../model/tip-basis';
+import {AngularFireAction, AngularFireDatabase, AngularFireList, AngularFireObject, QueryFn} from 'angularfire2/database';
 import 'rxjs/add/operator/take';
 import * as firebase from 'firebase';
+import { Query } from 'firebase/database';
+import { queryDef } from '@angular/core/src/view/query';
+import {Observable} from 'rxjs/Observable';
+import DataSnapshot = firebase.database.DataSnapshot;
 
 @Injectable()
 
@@ -80,6 +83,8 @@ export class DataProviderService implements OnDestroy {
     return result;
   }
 
+  yadayada<T>(path, query) {}
+
   updatePath(path: string, newObject: object): Promise<any> {
     return this.db.object(path).update(newObject)
       .then(() => {
@@ -102,7 +107,7 @@ export class DataProviderService implements OnDestroy {
       })
       .catch(err => {
         this.logFailure(this.MSG_UPDATE, path, changes, err);
-      })
+      });
   }
 
   set(path: string, value: any): Promise<void> {
@@ -113,13 +118,18 @@ export class DataProviderService implements OnDestroy {
       .catch(err => {
         this.logFailure(this.MSG_SET, path, value, err);
         throw (err);
-      })
+      });
   }
 
-  query<T>(path: string, query: any): AngularFireList<T> {
-    let result: AngularFireList<T> = null;
+  query<T>(path: string, query?: Query): Observable<AngularFireAction<DataSnapshot>[]> {
+
+    let result: Observable<AngularFireAction<DataSnapshot>[]>;
     try {
-      result = this.db.list<T>(path, ref => query);
+      if (query) {
+        result = this.db.list<T>(path, query).snapshotChanges();
+      } else {
+        result = this.db.list<T>(path).snapshotChanges();
+      }
       this.logSuccess(this.MSG_QUERY, path, query);
     } catch (err) {
       this.logFailure(this.MSG_QUERY, path, null, err);
@@ -137,17 +147,17 @@ export class DataProviderService implements OnDestroy {
       .catch(err => {
         this.logTask(this.MSG_REMOVE, path, null, false);
         throw (err);
-      })
+      });
   }
 
-  copyNode(oldPath: string, newPath: string): boolean {
+  copyNode(oldPath: string, newPath: string): Promise<void> {
     let success = false;
     let node;
     const oldRef = this.db.object(oldPath).valueChanges().map(obj => node = obj.valueOf());
     // debugger;
     const newRef = this.db.object(newPath);
-    newRef.set(oldRef)
-      .then((oldOutcome) => {
+    const promise = newRef.set(oldRef);
+      promise.then((oldOutcome) => {
         success = true;
         this.logSuccess(this.MSG_COPY, oldPath, newPath, oldOutcome);
         return true;
@@ -156,7 +166,7 @@ export class DataProviderService implements OnDestroy {
         this.logFailure(this.MSG_COPY, oldPath, newPath, oldOutcome);
         return false;
       });
-    return success;
+    return promise;
   }
 
   moveNode(oldPath, newPath): boolean {
@@ -174,7 +184,7 @@ export class DataProviderService implements OnDestroy {
             success = false;
             this.logFailure(this.MSG_MOVE, oldPath, newPath, oldOutcome);
             return false;
-          })
+          });
       })
       .catch((newOutcome) => {
         success = false;
@@ -189,17 +199,6 @@ export class DataProviderService implements OnDestroy {
       return true;
     }
     return success;
-  }
-
-  mockQuery(): AngularFireList<TipBasis> {
-    let result: AngularFireList<TipBasis> = null;
-    try {
-      result = this.db.list<TipBasis>('/enumerations/tipOptions/', ref => ref.orderByChild('isDefault').equalTo(true));
-
-    } catch (e) {
-      console.log(e)
-    }
-    return result;
   }
 
   identity<T>(arg?: T): T {

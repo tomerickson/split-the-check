@@ -26,7 +26,7 @@
     </ul>
   </section>
   <mat-list *ngIf="orders">
-    <app-order-outlet *ngFor="let order of orders;let i = index"
+    <app-order-outlet *ngFor="let order of (service.allOrders|async);let i = index"
                       [orderId]="order.key"
                       [index]="i"
                       (onRemove)="onRemove($event, i)">

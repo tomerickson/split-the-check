@@ -1,5 +1,7 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'app-header',
@@ -8,22 +10,17 @@ import { DataStoreService } from '../data-store/data-store.service';
 })
 export class HeaderComponent implements OnInit, OnDestroy {
 
-  @Input() showIntro;
-  iconClass: string;
-
   constructor(public service: DataStoreService) {
-    console.log('enter header.constructor');
   }
 
   ngOnInit() {
   }
 
-  ngOnDestroy() {
+  ngOnDestroy() {;
   }
 
-
   toggleIntro(value) {
-    this.service.showIntro = value;
+    this.service.toggleShowIntro(value);
     console.log('exiting header.toggleIntro');
   }
 }

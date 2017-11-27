@@ -8,6 +8,7 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/defaultIfEmpty';
 import { Item } from '../model/item';
 import { Helpers, IOrder } from '../model';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-order-outlet',
@@ -24,7 +25,7 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
 
   session: Session;
   settings: Settings;
-  order: Observable<Order>;
+  order: BehaviorSubject<Order>;
   items: Observable<Item[]>;
   count: Observable<number>;
   subtotal: Observable<number>;
@@ -34,6 +35,7 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
   total: Observable<number>;
   paid: Observable<number>;
   overShort: Observable<number>;
+  positive: Observable<boolean>;
   orderSubscription: Subscription;
   itemsSubscription: Subscription;
   sessionSubscription: Subscription;
@@ -48,7 +50,7 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit() {
-    this.order = this.service.getOrder(this.orderId);
+    this.orderSubscription = this.service.getOrder(this.orderId).subscribe(() => this.order);
     this.itemsSubscription = this.service.getItems(this.orderId).subscribe(items => this.buildOrder(items));
   }
 
@@ -85,6 +87,8 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
 
     this.overShort = Observable.combineLatest(this.total, this.order, this.service.changeOption,
       (total, order, changeOption) => Helpers.calculateOverShort(total, order.paid, changeOption));
+    this.positive = Observable.combineLatest(this.overShort, Observable.of(0),
+  (overShort, zero) => overShort > zero);
   }
 
   removeOrder() {

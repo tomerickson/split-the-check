@@ -12,11 +12,11 @@ export class Session implements OnDestroy {
   }
 
   get orders(): BehaviorSubject<IOrder[]> {
-    return this.service.allOrders;
+    return this.service.allOrders as BehaviorSubject<IOrder[]>;
   }
 
   get items(): BehaviorSubject<IItem[]> {
-    return this.service.allItems;
+    return this.service.allItems as BehaviorSubject<IItem[]>;
   }
   get subtotal(): Observable<number> {
     return this.service.allItems.map(arr => arr.map(itm => itm.price * itm.quantity)

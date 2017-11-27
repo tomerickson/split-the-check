@@ -15,32 +15,16 @@ import {Session} from '../model/session';
 export class OrderListComponent implements OnInit, OnDestroy {
   service: DataStoreService;
   orderSub: Subscription;
-  settingsSub: Subscription;
   orders: Order[];
-  settings: Settings;
 
   constructor(svc: DataStoreService) {
     this.service = svc;
   }
 
   ngOnInit() {
-    this.settingsSub = this.service.getSettings().subscribe(obj => this.settings = obj);
-    const obs = this.service.getOrders();
-    this.orderSub = obs.subscribe(outer => {
-     // console.log('loading orders: ' + JSON.stringify(outer));
-      this.orders = [];
-      outer.map(inner => {
-        const newOrder = Object.assign({}, inner);
-        newOrder.key = inner.key;
-        newOrder.name = inner.name;
-        newOrder.paid = inner.paid;
-        this.orders.push(newOrder);
-      })
-    });
   }
 
   ngOnDestroy() {
-    this.orderSub.unsubscribe();
   }
 
   addOrder() {
@@ -48,6 +32,6 @@ export class OrderListComponent implements OnInit, OnDestroy {
   }
 
   onRemove(event: Event, index: number) {
-    this.service.removeOrder(this.service.Orders[index].key);
+    this.service.removeOrder(this.service.allOrders[index].key);
   }
 }

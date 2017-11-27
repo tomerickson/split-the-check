@@ -1,29 +1,22 @@
-<mat-expansion-panel expanded="true">
+<mat-expansion-panel expanded="true" *ngIf="service">
   <mat-expansion-panel-header>
     <mat-panel-title>Settings</mat-panel-title>
     <mat-panel-description>These settings apply to all orders.</mat-panel-description>
   </mat-expansion-panel-header>
-  <form [formGroup]="changeForm" *ngIf="settings">
+  <form [formGroup]="changeForm">
     <mat-grid-list cols="6">
       <mat-grid-tile [colspan]="2">
         <mat-form-field>
           <mat-placeholder>Tax Percent:</mat-placeholder>
           <input matInput type="text" formControlName="taxPercent" class="form-control" id="input-sales-tax"
-                 tabindex="1"
-                 size="5" onfocus="this.select()">
+                 tabindex="1" size="5" onfocus="this.select()">
         </mat-form-field>
       </mat-grid-tile>
       <mat-grid-tile [colspan]="2">
         <mat-form-field>
           <mat-placeholder>Tip Percent:</mat-placeholder>
-          <input matInput type="text"
-                 formControlName="tipPercent"
-                 class="form-control"
-                 id="txtTip"
-                 tabindex="2"
-                 title="Tip Percent"
-                 size="5"
-                 onfocus="this.select()">
+          <input matInput type="text" formControlName="tipPercent" class="form-control" id="txtTip" tabindex="2"
+                 title="Tip Percent" size="5" onfocus="this.select()">
         </mat-form-field>
       </mat-grid-tile>
       <mat-grid-tile [colspan]="2">
@@ -36,35 +29,30 @@
       </mat-grid-tile>
       <mat-grid-tile [colspan]="2" id="tipBasisTile">
         <mat-grid-tile-header>Tip Basis:</mat-grid-tile-header>
-        <mat-radio-group
-          id="tipBasis"
-          name="tipBasis"
-          formControlName="tipBasis"
-          required
-          (change)="handleTipBasisClick($event)">
-          <mat-radio-button
-            *ngFor="let opt of tipOptions"
-            [checked]="selectedTipOption(opt)"
-            value="opt"
-            (select)="clicking($event)">
+        <mat-radio-group id="tipBasis"
+                         name="tipBasis"
+                         formControlName="tipBasis"
+                         required
+                         (change)="handleTipBasisClick($event)">
+          <mat-radio-button *ngFor="let opt of tipOptions|async"
+                            [checked]="selectedTipOption(opt)"
+                            value="opt"
+                            (select)="clicking($event)">
             {{opt.description}}
           </mat-radio-button>
         </mat-radio-group>
       </mat-grid-tile>
       <mat-grid-tile [colspan]="4" id="changeBasisTile">
         <mat-grid-tile-header>Change Basis:</mat-grid-tile-header>
-        <mat-radio-group
-          id="changeBasis"
-          name="changeBasis"
-          title="Calculate change to the denomination you select."
-          formControlName="changeBasis"
-          required
-          value="changeBasis"
-          (change)="handleChangeBasisClick($event)">
+        <mat-radio-group id="changeBasis"
+                         name="changeBasis"
+                         title="Calculate change to the denomination you select."
+                         formControlName="changeBasis"
+                         required
+                         value="changeBasis" (change)="handleChangeBasisClick($event)">
           <mat-radio-button
-            *ngFor="let opt of changeOptions"
-            value="opt"
-            [checked]="selectedChangeOption(opt)"
+            *ngFor="let opt of changeOptions|async"
+            value="opt" [checked]="selectedChangeOption(opt)"
             (select)="clicking($event)">
             {{opt.description}}
           </mat-radio-button>
@@ -73,4 +61,3 @@
     </mat-grid-list>
   </form>
 </mat-expansion-panel>
-
