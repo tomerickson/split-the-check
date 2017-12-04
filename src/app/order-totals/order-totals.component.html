@@ -1,13 +1,13 @@
 <!-- Running totals -->
-<div *ngIf="service.session" id="totals">
+<div *ngIf="session" id="totals">
     <mat-grid-list cols="2" rowHeight="4:1">
         <mat-grid-tile colspan="2">
             Totals
         </mat-grid-tile>
-        <mat-grid-tile>Orders:</mat-grid-tile>
-        <mat-grid-tile>{{(service.session|async)?.orders.length}}</mat-grid-tile>
-        <mat-grid-tile>Subtotal:</mat-grid-tile>
-        <mat-grid-tile>{{(service.session|async)?.subtotal | number:'1.2-2'}}</mat-grid-tile>
+        <mat-grid-tile *ngIf="session.orders">Orders:</mat-grid-tile>
+        <mat-grid-tile *ngIf="session.orders">{{session.orders.length}}</mat-grid-tile>
+        <mat-grid-tile *ngIf="session.items">Subtotal:</mat-grid-tile>
+        <mat-grid-tile *ngIf="session.items">{{session.subtotal| number:'1.2-2'}}</mat-grid-tile>
     </mat-grid-list>
     <!--<table>
     <thead>

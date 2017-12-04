@@ -34,7 +34,7 @@
                          formControlName="tipBasis"
                          required
                          (change)="handleTipBasisClick($event)">
-          <mat-radio-button *ngFor="let opt of tipOptions|async"
+          <mat-radio-button *ngFor="let opt of service.tipOptions|async"
                             [checked]="selectedTipOption(opt)"
                             value="opt"
                             (select)="clicking($event)">
@@ -47,12 +47,12 @@
         <mat-radio-group id="changeBasis"
                          name="changeBasis"
                          title="Calculate change to the denomination you select."
-                         formControlName="changeBasis"
+                         formControlName="changeOptions"
                          required
                          value="changeBasis" (change)="handleChangeBasisClick($event)">
           <mat-radio-button
-            *ngFor="let opt of changeOptions|async"
-            value="opt" [checked]="selectedChangeOption(opt)"
+            *ngFor="let opt of service.changeOptions"
+            value="opt"
             (select)="clicking($event)">
             {{opt.description}}
           </mat-radio-button>

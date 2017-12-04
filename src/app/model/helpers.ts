@@ -12,6 +12,12 @@ import { ChangeBasis } from './change-basis';
 
 export class Helpers {
 
+  static calculateSubtotal(items: IItem[]) {
+    let amt = 0;
+    items.forEach(item => amt = amt + (item.quantity * item.price));
+    return amt;
+  }
+
   static calculateTip(subtotal: number, basis: TipBasis, tax: number, pct: number): number {
     let amt = subtotal;
     if (basis.description === 'Gross') {

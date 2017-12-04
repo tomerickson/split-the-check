@@ -1,14 +1,14 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
-import { Order } from '../model/order';
 import { DataStoreService } from '../data-store/data-store.service';
-import { Session } from '../model/session';
-import { Subscription } from 'rxjs/Subscription';
-import { Settings } from '../model/settings';
-import { Observable } from 'rxjs/Observable';
+import { Order } from '../model';
+import { Session } from '../model';
+import { Settings } from '../model';
+import { Item } from '../model';
+import { Helpers } from '../model';
 import 'rxjs/add/operator/defaultIfEmpty';
-import { Item } from '../model/item';
-import { Helpers, IOrder } from '../model';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-order-outlet',
@@ -79,8 +79,8 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
     this.tip = Observable.combineLatest(this.subtotal, this.tax, this.service.tipPercent, this.service.tipOption,
       (amt, tax, pct, basis) => Helpers.calculateTip(amt, basis, tax, pct));
 
-    this.delivery = Observable.combineLatest(this.session.subtotal, this.session.delivery, this.subtotal,
-      (total, amt, delivery) => Helpers.calculateDelivery(total, amt, delivery));
+    this.delivery = Observable.combineLatest(this.subtotal,
+      (amt) => Helpers.calculateDelivery(this.session.subtotal, amt, this.session.delivery));
 
     this.total = Observable.combineLatest(this.subtotal, this.tax, this.tip, this.delivery,
       (amt, tax, tip, delivery) => amt + tax + tip + delivery);

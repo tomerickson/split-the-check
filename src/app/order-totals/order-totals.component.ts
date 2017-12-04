@@ -7,6 +7,7 @@ import 'rxjs/add/observable/zip'
 import {DataStoreService} from '../data-store/data-store.service';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Subscription } from 'rxjs/Subscription';
 
 
 @Component({
@@ -15,18 +16,22 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
   styleUrls: ['./order-totals.component.scss']
 })
 
-export class OrderTotalsComponent implements OnInit {
+export class OrderTotalsComponent implements OnInit, OnDestroy {
 
   service: DataStoreService;
-  session: BehaviorSubject<Session>;
+  session: Session;
+  sessionSub: Subscription;
 
   constructor(svc: DataStoreService) {
     this.service = svc;
-    this.session = this.service.session;
   }
 
   ngOnInit() {
+    this.sessionSub = this.service.session.subscribe(obs => this.session = obs);
+  }
 
+  ngOnDestroy() {
+    this.sessionSub.unsubscribe();
   }
 
   clearOrder(e: Event) {

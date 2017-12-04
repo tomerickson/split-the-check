@@ -1,61 +1,64 @@
 import {IItem, IOrder} from './index';
 import {DataStoreService} from '../data-store/data-store.service';
-import {OnDestroy} from '@angular/core';
+import { OnDestroy, OnInit } from '@angular/core';
 import {Helpers} from './helpers';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Subscription } from 'rxjs/Subscription';
 
-export class Session implements OnDestroy {
+export class Session implements OnInit, OnDestroy {
+
   public title = 'Split the Check';
+  public items: IItem[];
+  public orders: IOrder[];
+
+  private itemsSubscription: Subscription;
+  private ordersSubscription: Subscription;
 
   constructor(public service: DataStoreService) {
   }
 
-  get orders(): BehaviorSubject<IOrder[]> {
-    return this.service.allOrders as BehaviorSubject<IOrder[]>;
+  get subtotal(): number {
+    let result = 0;
+    this.items.forEach(item => result += (item.quantity * item.price));
+    return result;
   }
 
-  get items(): BehaviorSubject<IItem[]> {
-    return this.service.allItems as BehaviorSubject<IItem[]>;
-  }
-  get subtotal(): Observable<number> {
-    return this.service.allItems.map(arr => arr.map(itm => itm.price * itm.quantity)
-      .reduce((acc, vlu) => acc + vlu, 0));
+  get tax(): number {
+    return this.subtotal * this.service.taxPercent.getValue() / 100;
   }
 
-  get tax(): Observable<number> {
-    return Observable.combineLatest(this.subtotal, this.service.taxPercent,
-      (amt, pct) => amt * pct / 100);
+  get tip(): number {
+    return Helpers.calculateTip(this.subtotal, this.service.tipOption.getValue(), this.tax, this.service.tipPercent.getValue());
   }
 
-  get tip(): Observable<number> {
-    return Observable.combineLatest(this.subtotal, this.tax, this.service.tipOption, this.service.tipPercent,
-      (amt, tax, tipBasis, tipPercent) =>
-        Helpers.calculateTip(amt, tipBasis, tax, tipPercent));
+  get delivery(): number {
+    return this.service.delivery.getValue();
   }
 
-  get delivery(): Observable<number> {
-    return this.service.delivery;
+  get total(): number {
+    return this.subtotal + this.tax + this.tip + this.delivery;
   }
 
-  get total(): Observable<number> {
-    return Observable.combineLatest(this.subtotal, this.tax, this.tip, this.delivery,
-      (amt, tax, tip, delivery) => amt + tax + tip + delivery);
-  }
-
-  get paid(): Observable<number> {
-    return this.service.allOrders.map(arr => arr.map((order: IOrder) => order.paid)
-      .reduce((acc, amt) => acc + amt, 0));
+  get paid(): number {
+    let result = 0;
+    this.orders.forEach(order => result += order.paid);
+    return result;
   }
 
   // Round the total to the nearest penny before
   // calculating change
   //
-  get overShort(): Observable<number> {
-    return Observable.combineLatest(this.total, this.paid,
-      (total, paid) => Math.round(total * 100) / 100 - paid);
+  get overShort(): number {
+    return Math.round((this.total * 100) / 100) - this.paid;
   }
 
+  ngOnInit() {
+    this.itemsSubscription = this.service.allItems.subscribe(items => this.items = items);
+    this.ordersSubscription = this.service.allOrders.subscribe(orders => this.orders = orders);
+  }
   ngOnDestroy() {
+    this.itemsSubscription.unsubscribe();
+    this.ordersSubscription.unsubscribe();
   }
 }

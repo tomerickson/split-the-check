@@ -4,6 +4,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ChangeBasis, TipBasis } from '../model';
 import { MatRadioChange } from '@angular/material';
 import 'rxjs/add/operator/map';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'app-settings',
@@ -15,27 +17,31 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
 
   fb: FormBuilder;
   changeForm: FormGroup;
+  taxPercent: Observable<number>;
 
-  constructor(public service: DataStoreService, @Inject(FormBuilder) builder: FormBuilder) {
+  constructor(public service: DataStoreService, builder: FormBuilder) {
     console.log('entering settings.constructor');
     this.fb = builder;
   }
 
   ngOnInit() {
+    this.taxPercent = this.service.taxPercent;
     this.buildForm();
   }
 
   buildForm() {
     this.changeForm = this.fb.group({
-      taxPercent: [this.service.taxPercent.getValue(), Validators.required],
-      tipPercent: [(this.service) ? this.service.tipPercent.getValue() : null, Validators.required],
-      delivery: [(this.service) ? this.service.delivery : null, Validators.required],
-      tipBasis: [(this.service) ? this.service.tipOption : null, Validators.required],
-      changeBasis: [(this.service) ? this.service.changeOption : null, Validators.required]
+      taxPercent: [this.taxPercent, Validators.required],
+      tipPercent: [this.service.tipPercent.getValue(), Validators.required],
+      delivery: [(this.service) ? this.service.delivery.getValue() : null, Validators.required],
+      tipBasis: [(this.service) ? this.service.tipOption.getValue() : null, Validators.required],
+      changeBasis: [(this.service) ? this.service.changeOption.getValue() : null, Validators.required],
+      changeOptions: [this.service.changeOptions]
     });
   }
 
   ngOnDestroy() {
+    this.service.taxPercent.unsubscribe();
   }
 
   ngOnChanges(changes: SimpleChanges) {
