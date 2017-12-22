@@ -10,7 +10,8 @@
                     <mat-grid-tile>Items: {{count | async}}</mat-grid-tile>
                     <mat-grid-tile>Total: {{total | async | number:'1.2-2'}}</mat-grid-tile>
                     <mat-grid-tile>Paid: {{(order|async)?.paid | number:'1.2-2'}}</mat-grid-tile>
-                    <mat-grid-tile><span>Over / Short: </span><span [class.short]="(overShort|async) > 0">{{(overShort|async) | number:'1.2-2'}}</span></mat-grid-tile>
+                  <mat-grid-tile>Over / Short: </mat-grid-tile>
+                  <mat-grid-tile [class.short]="(overShort|async)">{{(overShort|async) | number:'1.2-2'}}</mat-grid-tile>
                 </mat-grid-list>
             </mat-panel-description>
         </mat-expansion-panel-header>

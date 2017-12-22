@@ -1,11 +1,12 @@
 import { Component, Inject, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ChangeBasis, TipBasis } from '../model';
+import { ChangeBasis, TipBasis, Settings } from '../model';
 import { MatRadioChange } from '@angular/material';
 import 'rxjs/add/operator/map';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-settings',
@@ -17,31 +18,50 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
 
   fb: FormBuilder;
   changeForm: FormGroup;
-  taxPercent: Observable<number>;
+  settings: Settings;
+  taxPercent: number;
+  tipPercent: number;
+  delivery: number;
+  showIntro: boolean;
+  tipBasis: TipBasis;
+  changeBasis: ChangeBasis;
+  tipOptions: TipBasis[];
+  changeOptions: ChangeBasis[];
+  subscriptions: Subscription[] = [];
 
   constructor(public service: DataStoreService, builder: FormBuilder) {
     console.log('entering settings.constructor');
     this.fb = builder;
+    this.settings = new Settings(service);
   }
 
   ngOnInit() {
-    this.taxPercent = this.service.taxPercent;
+    /*this.subscriptions.push(this.service.taxPercent.subscribe(() => this.taxPercent));
+    this.subscriptions.push(this.service.tipPercent.subscribe(() => this.tipPercent));
+    this.subscriptions.push(this.service.delivery.subscribe(() => this.delivery));
+    this.subscriptions.push(this.service.showIntro.subscribe((obs) => this.showIntro = obs));
+    this.subscriptions.push(this.service.tipOption.subscribe(() => this.tipBasis));
+    this.subscriptions.push(this.service.changeOption.subscribe(() => this.changeBasis));
+    this.subscriptions.push(this.service.tipOptions.subscribe(() => this.tipOptions));
+    this.subscriptions.push(this.service.changeOptions.subscribe(() => this.changeOptions));*/
     this.buildForm();
   }
 
   buildForm() {
+
     this.changeForm = this.fb.group({
-      taxPercent: [this.taxPercent, Validators.required],
-      tipPercent: [this.service.tipPercent.getValue(), Validators.required],
-      delivery: [(this.service) ? this.service.delivery.getValue() : null, Validators.required],
-      tipBasis: [(this.service) ? this.service.tipOption.getValue() : null, Validators.required],
-      changeBasis: [(this.service) ? this.service.changeOption.getValue() : null, Validators.required],
-      changeOptions: [this.service.changeOptions]
+      taxPercent: [this.settings.taxPercent, Validators.required],
+      tipPercent: [this.settings.tipPercent, Validators.required],
+      delivery: [this.settings.delivery, Validators.required],
+      tipBasis: [this.settings.tipOption, Validators.required],
+      changeBasis: [this.settings.changeOption, Validators.required],
+      changeOptions: [this.service.changeOptions],
+      tipOptions: [this.service.tipOptions]
     });
   }
 
   ngOnDestroy() {
-    this.service.taxPercent.unsubscribe();
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -50,24 +70,24 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
         const change = changes[propName];
         if (propName === 'tipOptions' && change.currentValue !== change.previousValue) {
           // this.tipOptions.sort((a, b) => a.value - b.value);
-          this.service.setTipBasis(change.currentValue);
+          this.settings.setTipOption(change.currentValue);
         }
 
         if (propName === 'changeOptions' && change.currentValue !== change.previousValue) {
           // this.changeOptions.sort((a, b) => a.value - b.value);
-          this.service.setChangeBasis(change.currentValue);
+          this.settings.setChangeOption(change.currentValue);
         }
 
         if (propName === 'taxPercent' && change.currentValue !== change.previousValue) {
-          this.service.setTaxPercent(change.currentValue);
+          this.settings.setTaxPercent(change.currentValue);
         }
 
         if (propName === 'tipPercent' && change.currentValue !== change.previousValue) {
-          this.service.setTipPercent(change.currentValue);
+          this.settings.setTipPercent(change.currentValue);
 
         }
         if (propName === 'delivery' && change.currentValue !== change.previousValue) {
-          this.service.setDelivery(change.currentValue);
+          this.settings.setDelivery(change.currentValue);
         }
       }
     }

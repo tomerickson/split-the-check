@@ -1,8 +1,9 @@
 import {Component, OnDestroy, OnInit, Output} from '@angular/core';
 import {DataStoreService} from './data-store/data-store.service';
-import {Settings} from './model/settings';
+import {Settings} from './model';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +22,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    // this.router.navigate(['/home'])
   }
 
   ngOnDestroy() {

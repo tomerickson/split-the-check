@@ -1,11 +1,12 @@
 import { Injectable, Inject, OnDestroy } from '@angular/core';
-import {AngularFireAction, AngularFireDatabase, AngularFireList, AngularFireObject, QueryFn} from 'angularfire2/database';
+import { AngularFireAction, AngularFireDatabase, AngularFireList, AngularFireObject, PathReference, QueryFn } from 'angularfire2/database';
 import 'rxjs/add/operator/take';
 import * as firebase from 'firebase';
 import { Query } from 'firebase/database';
 import { queryDef } from '@angular/core/src/view/query';
 import {Observable} from 'rxjs/Observable';
 import DataSnapshot = firebase.database.DataSnapshot;
+import { isNullOrUndefined } from 'util';
 
 @Injectable()
 
@@ -17,26 +18,35 @@ export class DataProviderService implements OnDestroy {
   private MSG_FAIL = ' failed.';
   private MSG_PUSH = 'push';
   private MSG_SET = 'set';
-  private MSG_LIST = 'get_list';
+  private MSG_LIST = 'list';
   private MSG_MOVE = 'move_node';
   private MSG_COPY = 'copy_node';
-  private MSG_OBJECT = 'get_object';
+  private MSG_OBJECT = 'object';
   private MSG_QUERY = 'query';
   private MSG_REMOVE = 'remove';
   private MSG_UPDATE = 'update';
   private MSG_DISCONNECT = 'goOffline';
+  private MSG_CONNECT = 'goOnline';
 
   private LOG = true || false;
   db: AngularFireDatabase;
 
   constructor(@Inject(AngularFireDatabase) fb: AngularFireDatabase) {
     this.db = fb;
+    try {
+      this.db.database.goOnline();
+      this.logSuccess(this.MSG_CONNECT, '', '', this.db.app.name);
+    } catch (e) {
+        this.logFailure(this.MSG_CONNECT, '', '', JSON.stringify(e));
+        throw(e);
+    }
   }
 
   ngOnDestroy() {
     try {
+      this.db.database.goOffline();
       if (this.LOG) {
-        this.logTask(this.MSG_DISCONNECT, '', '', true);
+        this.logSuccess(this.MSG_DISCONNECT, '');
       }
     } catch (e) {
       if (this.LOG) {
@@ -46,13 +56,8 @@ export class DataProviderService implements OnDestroy {
   }
 
   getList<T>(path: string): AngularFireList<T> {
-    let result: AngularFireList<T>;
-    try {
-      result = this.db.list<T>(path);
-      this.logSuccess(this.MSG_LIST, path, JSON.stringify(result));
-    } catch (err) {
-      this.logFailure(this.MSG_LIST, path, null, err);
-    }
+    const result = this.db.list<T>(path);
+    this.logSuccess(this.MSG_LIST, path, null, result);
     return result;
   }
 
@@ -61,14 +66,8 @@ export class DataProviderService implements OnDestroy {
   }
 
   getItem<T>(path: string): AngularFireObject<T> {
-    let result: AngularFireObject<T> = null;
-    try {
-      result = this.db.object<T>(path);
-      this.logSuccess(this.MSG_OBJECT, path, JSON.stringify(result));
-    } catch (err) {
-      this.logFailure(this.MSG_OBJECT, path, null, err);
-      throw err;
-    }
+    const result: AngularFireObject<T> =  this.db.object<T>(path);
+    this.logSuccess(this.MSG_OBJECT, path, result);
     return result;
   }
 
@@ -100,8 +99,7 @@ export class DataProviderService implements OnDestroy {
   // of the 'changes' object.
   //
   updateObject<T>(path: string, changes: T): Promise<void> {
-    const obj = this.db.object<T>(path);
-    return obj.update(changes)
+    return this.db.object<T>(path).update(changes)
       .then(_ => {
         this.logSuccess(this.MSG_UPDATE, path, changes);
       })
@@ -110,7 +108,7 @@ export class DataProviderService implements OnDestroy {
       });
   }
 
-  set(path: string, value: any): Promise<void> {
+  set(path: string, value: any): Promise<any> {
     return this.db.object(path).set(value)
       .then(() => {
         this.logSuccess(this.MSG_SET, path, value);
@@ -121,20 +119,9 @@ export class DataProviderService implements OnDestroy {
       });
   }
 
-  query<T>(path: string, query?: Query): Observable<AngularFireAction<DataSnapshot>[]> {
+  query<T>(path: string, query: Query): AngularFireList<T> {
 
-    let result: Observable<AngularFireAction<DataSnapshot>[]>;
-    try {
-      if (query) {
-        result = this.db.list<T>(path, query).snapshotChanges();
-      } else {
-        result = this.db.list<T>(path).snapshotChanges();
-      }
-      this.logSuccess(this.MSG_QUERY, path, query);
-    } catch (err) {
-      this.logFailure(this.MSG_QUERY, path, null, err);
-    }
-    return result;
+    return this.db.list<T>(path, query);
   }
 
   remove(path: string): Promise<any> {
@@ -233,7 +220,7 @@ export class DataProviderService implements OnDestroy {
 
       if (logFn) {
         let msg = 'firebase.' + method + ' ';
-        msg += ((value === null || value === undefined) ? '' : JSON.stringify(value));
+        msg += 'value: ' + ((isNullOrUndefined(value)) ? '' : JSON.stringify(value));
         msg += ' path: ' + path;
         msg += ' ';
         msg += (success) ? this.MSG_SUCCESS : this.MSG_FAIL;

@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
-import { Order } from '../model';
+import { ChangeBasis, IOrder, Order } from '../model';
 import { Session } from '../model';
 import { Settings } from '../model';
-import { Item } from '../model';
+import { IItem } from '../model';
 import { Helpers } from '../model';
 import 'rxjs/add/operator/defaultIfEmpty';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -20,27 +20,21 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
 
   @Input() orderId: string;
   @Input() index: number;
+  @Input() session: Session;
+  @Input() settings: Settings;
   @Output() onRemove = new EventEmitter<Order>();
   @Output() changeTrigger = new EventEmitter();
 
-  session: Session;
-  settings: Settings;
-  order: BehaviorSubject<Order>;
-  items: Observable<Item[]>;
-  count: Observable<number>;
-  subtotal: Observable<number>;
-  tax: Observable<number>;
-  tip: Observable<number>;
-  delivery: Observable<number>;
-  total: Observable<number>;
-  paid: Observable<number>;
-  overShort: Observable<number>;
-  positive: Observable<boolean>;
-  orderSubscription: Subscription;
-  itemsSubscription: Subscription;
-  sessionSubscription: Subscription;
-  settingsSubscription: Subscription;
-  changeBasisSubscription: Subscription;
+  name: string;
+  paid: number;
+  order: IOrder;
+  items: IItem[];
+  count: number;
+  total: number;
+  overShort: number;
+  positive: boolean;
+  changeBasis: ChangeBasis;
+  subscriptions: Subscription[];
 
   constructor(public service: DataStoreService) {
     this.order = null;
@@ -50,45 +44,29 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit() {
-    this.orderSubscription = this.service.getOrder(this.orderId).subscribe(() => this.order);
-    this.itemsSubscription = this.service.getItems(this.orderId).subscribe(items => this.buildOrder(items));
+    this.subscriptions.push(this.service.getOrder(this.orderId).subscribe((order) => this.buildOrder(order)));
+    this.subscriptions.push(this.service.getItems(this.orderId).subscribe(items => this.fillOrder(items)));
+    this.subscriptions.push(this.service.changeOption.subscribe(basis => this.changeBasis = basis[0]));
   }
 
   ngOnDestroy() {
-    this.orderSubscription.unsubscribe();
-    this.sessionSubscription.unsubscribe();
-    this.settingsSubscription.unsubscribe();
-    this.itemsSubscription.unsubscribe();
-    this.changeBasisSubscription.unsubscribe();
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
-  buildOrder(items) {
-    if (!items) {return};
+  buildOrder(order) {
+    this.order = order;
+    this.paid = order.paid;
+  }
+
+  fillOrder(items) {
+    if (!items) {
+      return
+    }
     this.items = items;
-    this.count = items.map(item => 1).reduce((acc, one) => acc + one, 0);
-    this.subtotal = items.map(item => {
-      if (item.quantity && item.price) {
-        return item.quantity * item.price;
-      }
-      return 0;
-    })
-      .reduce((total, value) => total + value, 0);
-    this.tax = Observable.combineLatest(this.subtotal, this.service.taxPercent,
-      (amt, pct) => amt * pct / 100);
-
-    this.tip = Observable.combineLatest(this.subtotal, this.tax, this.service.tipPercent, this.service.tipOption,
-      (amt, tax, pct, basis) => Helpers.calculateTip(amt, basis, tax, pct));
-
-    this.delivery = Observable.combineLatest(this.subtotal,
-      (amt) => Helpers.calculateDelivery(this.session.subtotal, amt, this.session.delivery));
-
-    this.total = Observable.combineLatest(this.subtotal, this.tax, this.tip, this.delivery,
-      (amt, tax, tip, delivery) => amt + tax + tip + delivery);
-
-    this.overShort = Observable.combineLatest(this.total, this.order, this.service.changeOption,
-      (total, order, changeOption) => Helpers.calculateOverShort(total, order.paid, changeOption));
-    this.positive = Observable.combineLatest(this.overShort, Observable.of(0),
-  (overShort, zero) => overShort > zero);
+    this.count = this.items.length;
+    this.delivery = Helpers.delivery( this.subtotal, this.session);
+    this.total = Helpers.total(this.subtotal, this.tax, this.tip, this.delivery);
+    this.overShort = Helpers.overShort(this.total, this.paid, this.session.changeBasis);
   }
 
   removeOrder() {
@@ -97,13 +75,13 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   updateName(event) {
-    const name: string = (<HTMLInputElement>event.target).value;
-    this.service.updateOrder(this.orderId, {name: name});
+    this.name = (<HTMLInputElement>event.target).value;
+    this.service.updateOrder(this.orderId, {name: this.name, paid: this.paid});
   }
 
   updatePaid(event) {
-    const paid: number = +(<HTMLInputElement>event.target).value;
-    this.service.updateOrder(this.orderId, {paid: paid})
+    this.paid = +(<HTMLInputElement>event.target).value;
+    this.service.updateOrder(this.orderId, {name: this.name, paid: this.paid});
   }
 
   selectPaid(event: Event) {

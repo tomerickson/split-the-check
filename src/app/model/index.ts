@@ -11,5 +11,4 @@ export * from './IDomainObject';
 export * from './IItem';
 export * from './IOrder';
 export * from './ObjectFactory';
-export * from './OrderTotals';
 export * from './tip-basis';

@@ -7,16 +7,18 @@ import 'rxjs/add/observable/fromPromise';
 import 'rxjs/add/operator/defaultIfEmpty';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/first';
+import 'rxjs/add/operator/materialize'
 import 'rxjs/add/operator/publish';
 import 'rxjs/add/operator/reduce';
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/toPromise';
-import { ChangeBasis, IItem, IOrder, Item, Order, Session, Settings, TipBasis } from '../model';
+import 'rxjs/observable/ConnectableObservable'
+import { ChangeBasis, IItem, IOrder, Item, Order, Settings, TipBasis } from '../model';
 import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/observable/from';
 
-const PATH_ORDERS = '/orders/';
-const PATH_ITEMS = '/items/';
+const PATH_ORDERS = '/orders';
+const PATH_ITEMS = '/items';
 const PATH_SETTINGS = '/settings';
 const PATH_SESSION = '/orderSummary';
 const PATH_DEFAULTS = '/defaults';
@@ -24,6 +26,8 @@ const PATH_DEFAULT_TAX_PERCENT = '/defaults/taxPercent';
 const PATH_DEFAULT_TIP_PERCENT = '/defaults/tipPercent';
 const PATH_DEFAULT_DELIVERY = '/defaults/delivery';
 const PATH_DEFAULT_SHOW_INTRO = '/defaults/showIntro';
+const PATH_DEFAULT_CHANGE_OPTION = '/enumerations/changeOptions/4';
+const PATH_DEFAULT_TIP_OPTION = '/enumerations/tipOptions/0';
 const PATH_SETTINGS_TAX_PERCENT = '/settings/taxPercent';
 const PATH_SETTINGS_TIP_PERCENT = '/settings/tipPercent';
 const PATH_SETTINGS_DELIVERY = '/settings/delivery';
@@ -40,45 +44,91 @@ const CHANGE_OPTIONS_SORT = {orderByChild: 'value'};
 @Injectable()
 export class DataStoreService implements OnDestroy {
 
-  public firstTime = true;
-  public allOrders: BehaviorSubject<any[]>;
-  public allItems: BehaviorSubject<any[]>;
-  public changeOption: BehaviorSubject<ChangeBasis>;
-  public changeOptions: ChangeBasis[];
-  public delivery: BehaviorSubject<number>;
-  public session: BehaviorSubject<Session>;
   public settings: BehaviorSubject<Settings>;
-  public showIntro: BehaviorSubject<boolean>;
-  public tipOption: BehaviorSubject<TipBasis>;
-  public tipOptions: BehaviorSubject<TipBasis[]>;
-  public tipPercent: BehaviorSubject<number>;
-  public taxPercent: BehaviorSubject<number>;
   private service: DataProviderService;
   private subscriptions: Array<Subscription>;
 
   constructor(private svc: DataProviderService) {
     this.service = svc;
     this.subscriptions = [];
-    this.taxPercent = new BehaviorSubject<number>(0);
-    this.allOrders = new BehaviorSubject<IOrder[]>(null);
-    this.allItems = new BehaviorSubject<IItem[]>(null);
-    this.changeOption = new BehaviorSubject<ChangeBasis>(null);
-    // this.changeOptions = new BehaviorSubject<ChangeBasis[]>(null);
-    this.delivery = new BehaviorSubject<number>(null);
-    this.session = new BehaviorSubject<Session>(null);
-    this.settings = new BehaviorSubject<Settings>(null);
-    this.showIntro = new BehaviorSubject<boolean>(null);
-    this.tipOption = new BehaviorSubject<TipBasis>(null);
-    this.tipOptions = new BehaviorSubject<TipBasis[]>(null);
-    this.tipPercent = new BehaviorSubject<number>(0);
     this.initialize();
+  }
+
+  get allItems(): Observable<IItem[]> {
+    return this.service.getList<IItem>(PATH_ITEMS).valueChanges();
+  }
+
+  get allOrders(): Observable<IOrder[]> {
+    return this.service.getList<IOrder>(PATH_ORDERS).valueChanges();
+  }
+
+  get changeOption(): BehaviorSubject<ChangeBasis> {
+    return <BehaviorSubject<ChangeBasis>>this.service.getItem<ChangeBasis>(PATH_DEFAULT_CHANGE_OPTION)
+      .valueChanges();
+  }
+
+  get tipOption(): BehaviorSubject<TipBasis> {
+    return <BehaviorSubject<TipBasis>> this.service.getItem<TipBasis>(PATH_DEFAULT_TIP_OPTION)
+      .valueChanges();
+  }
+
+  get changeOptions(): Observable<ChangeBasis> {
+    return this.service.getItem<ChangeBasis>(PATH_ENUM_CHANGE_OPTIONS).valueChanges();
+  }
+
+  get tipOptions(): Observable<TipBasis[]> {
+    return this.service.getList<TipBasis>(PATH_ENUM_TIP_OPTIONS).valueChanges();
+  }
+
+  get taxPercent(): Observable<number> {
+    return this.service.getItem<number>(PATH_SETTINGS_TAX_PERCENT).valueChanges();
+  }
+
+  get tipPercent(): Observable<number> {
+    return this.service.getItem<number>(PATH_SETTINGS_TIP_PERCENT).valueChanges();
+  }
+
+  get delivery(): Observable<number> {
+    return this.service.getItem<number>(PATH_SETTINGS_DELIVERY).valueChanges();
+  }
+
+  get showIntro(): Observable<boolean> {
+    return this.service.getItem<boolean>(PATH_SETTINGS_SHOW_INTRO).valueChanges();
+  }
+
+  get subtotal(): Observable<number> {
+    return this.allItems.map(each => each.map(item => item.price * item.quantity)
+      .reduce((sum, vlu) => sum + vlu, 0));
+  }
+
+  tax(subtotal: Observable<number>): Observable<number> {
+    return Observable.combineLatest(subtotal, this.taxPercent, ((amt, pct) => amt * pct / 100));
+  }
+
+  tip(subtotal: Observable<number>, taxAmount: Observable<number>): Observable<number> {
+    return Observable.combineLatest(subtotal, taxAmount, this.tipOption, this.tipPercent,
+      ((amt, tax, basis, pct) => amt + ((basis.description === 'Gross') ? tax : 0) * pct / 100))
+  }
+
+  deliveryShare(amt: Observable<number> ): Observable<number> {
+    return Observable.combineLatest(amt, this.subtotal, this.delivery,
+      ((a, t, delivery) => delivery * a / t));
+  }
+
+  total(subtotal: Observable<number>, taxAmount: Observable<number>, tipAmount: Observable<number>, delivery: Observable<number>) {
+    return Observable.combineLatest(subtotal, taxAmount, tipAmount, delivery,
+      ((amt, tax, tip, del) => amt + tax + tip + del))
+  }
+
+  overShort(total: Observable<number>, paid: Observable<number>): Observable<number> {
+    return Observable.combineLatest(total, paid, ((t, p) => t - p));
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
-  toggleShowIntro(choice: boolean) {
+  setShowIntro(choice: boolean) {
     this.service.set(PATH_SETTINGS, {showIntro: choice});
   }
 
@@ -113,7 +163,7 @@ export class DataStoreService implements OnDestroy {
 
   //
   addOrder() {
-    this.service.push<IOrder>(PATH_ORDERS, {key: null, name: null, paid: 0});
+    this.service.push<IOrder>(PATH_ORDERS, {key: null, name: null, paid: 0, items: null});
   }
 
   removeOrder(key: string) {
@@ -130,13 +180,10 @@ export class DataStoreService implements OnDestroy {
   }
 
   //
-  getItems(orderId: string): Observable<Item[]> {
-    let result: Observable<Item[]> = null;
+  getItems(orderId: string): Observable<IItem[]> {
+
     const filter = {orderByChild: 'orderId', equalTo: orderId};
-    // return this.service.query(PATH_ITEMS, filter).valueChanges();
-    this.service.query(PATH_ITEMS, filter)
-      .map(snap => snap.forEach(thing => result = thing.payload.val()));
-    return result;
+    return this.service.query<IItem>(PATH_ITEMS, filter).valueChanges();
   }
 
   // Order level queries
@@ -165,139 +212,27 @@ export class DataStoreService implements OnDestroy {
   // update item.key with the firebase key
 
   /**
-   * Clone the settings from the /defaults node to
-   * the /settings node.
-   *
-   * @returns {Promise<any>}
-   */
-  private setDefaults(): Promise<any> {
-    console.log('entering data-store.service.setDefaults');
-
-    let promise = this.service.getItem<number>(PATH_DEFAULT_TAX_PERCENT).valueChanges()
-      .take(1).do(tax => this.service.set(PATH_SETTINGS_TAX_PERCENT, tax)).toPromise<any>();
-
-    promise.then(() => {
-      promise = this.service.getItem<number>(PATH_DEFAULT_TIP_PERCENT).valueChanges()
-        .take(1).do(tip => this.service.set(PATH_SETTINGS_TIP_PERCENT, tip)).toPromise<any>();
-    });
-
-    promise.then(() => {
-      promise = this.service.getItem<number>(PATH_DEFAULT_DELIVERY).valueChanges()
-        .take(1).do(delivery => this.service.set(PATH_SETTINGS_DELIVERY, delivery)).toPromise<any>();
-    });
-
-    promise.then(() => {
-      promise = this.service.getItem<boolean>(PATH_DEFAULT_SHOW_INTRO).valueChanges()
-        .take(1).do(showTip => this.service.set(PATH_SETTINGS_SHOW_INTRO, showTip)).toPromise<any>();
-    });
-
-    promise.then(() => {
-      promise = this.service.query<TipBasis>(PATH_ENUM_TIP_OPTIONS,
-        ref => ref.orderByChild('isDefault').equalTo(true)
-          .limitToFirst(1)).take(1)
-        .do(tipBasis => this.service.set(PATH_SETTINGS_TIP_OPTION, tipBasis[0].payload.val())).toPromise<any>();
-    });
-
-    promise.then(() => {
-      promise = this.service.query<ChangeBasis>(PATH_ENUM_CHANGE_OPTIONS,
-        ref => ref.orderByChild('isDefault').equalTo(true)
-          .limitToFirst(1)).take(1)
-        .do(chgBasis => this.service.set(PATH_SETTINGS_CHANGE_OPTION, chgBasis[0].payload.val())).toPromise<any>();
-    });
-
-    return promise;
-  }
-
-  /**
-   * Create subscriptions for the current settings
-   *
-   * @param {Promise<any>} promise
-   * @returns {Promise<any>}
-   */
-  private subscribeAll(promise: Promise<any>): Promise<any> {
-
-    console.log('entering subscribeAll');
-    let path = PATH_ITEMS;
-
-    try {
-      this.subscriptions.push(this.service.getList(path)
-        .valueChanges()
-        .subscribe(obs => this.allItems.next(obs)));
-
-      path = PATH_ORDERS;
-      this.subscriptions.push(this.service.getList<IOrder>(path)
-        .valueChanges()
-        .subscribe(obs => this.allOrders.next(obs)));
-
-      path = PATH_SESSION;
-      this.subscriptions.push(this.service.getItem<Session>(path)
-        .valueChanges()
-        .subscribe(obs => this.session.next(obs)));
-
-      path = PATH_SETTINGS_TAX_PERCENT;
-      this.subscriptions.push(this.service.getItem<number>(path)
-        .valueChanges().subscribe(obs => this.taxPercent.next(obs)));
-
-      path = PATH_SETTINGS_TIP_PERCENT;
-      this.subscriptions.push(this.service.getItem<number>(path)
-        .valueChanges()
-        .subscribe(obs => this.tipPercent.next(obs)));
-
-      path = PATH_SETTINGS_DELIVERY;
-      this.subscriptions.push(this.service.getItem<number>(path)
-        .valueChanges()
-        .subscribe(obs => this.delivery.next(obs)));
-
-      path = PATH_SETTINGS_SHOW_INTRO;
-      this.subscriptions.push(this.service.getItem<boolean>(path)
-        .valueChanges()
-        .subscribe(obs => this.showIntro.next(obs)));
-
-      path = PATH_SETTINGS_CHANGE_OPTION;
-      this.subscriptions.push(this.service.getItem<ChangeBasis>(path)
-        .valueChanges()
-        .subscribe(obs => this.changeOption.next(obs)));
-
-      path = PATH_SETTINGS_TIP_OPTION;
-      this.subscriptions.push(this.service.getItem<TipBasis>(path)
-        .valueChanges()
-        .subscribe(obs => this.tipOption.next(obs)));
-
-      path = PATH_ENUM_CHANGE_OPTIONS;
-      this.subscriptions.push(this.service.getList<ChangeBasis>(path)
-        .valueChanges().subscribe(obs => {
-          this.changeOptions = [];
-          obs.map(opt => this.changeOptions.push(opt))
-        }));
-
-      path = PATH_ENUM_TIP_OPTIONS;
-      this.subscriptions.push(this.service.getList<TipBasis>(path)
-        .valueChanges()
-        .subscribe(obs => this.tipOptions.next(obs)));
-
-    } catch (err) {
-      this.service.logFailure('subscribeAll', path, null, err);
-    }
-    return promise;
-  }
-
-  /**
    * Initialize state
    *
    * @returns {Promise<any>}
    */
-  private initialize() {
-    let promise: Promise<any>;
-    if (this.firstTime) {
-      promise = this.setDefaults()
-        .then(() =>
-          promise = this.subscribeAll(promise)
-            .then(() => {
-              this.firstTime = false;
-              console.log('changeOptions:' + JSON.stringify(this.changeOptions));
-            })
-            .catch(err => console.log('subscribeAll failed: ' + JSON.stringify(err))))
-        .catch(err => console.log('setDefaults failed: ' + JSON.stringify(err)));
-    }
+  initialize(): Promise<any> {
+    const promise = new Promise<any>(() => {
+
+      this.subscriptions.push(this.service.getItem<number>(PATH_DEFAULT_TAX_PERCENT).valueChanges()
+        .subscribe(tax => this.service.set(PATH_SETTINGS_TAX_PERCENT, tax)));
+      this.subscriptions.push(this.service.getItem<number>(PATH_DEFAULT_TIP_PERCENT).valueChanges()
+        .subscribe(tip => this.service.set(PATH_SETTINGS_TIP_PERCENT, tip)));
+      this.subscriptions.push(this.service.getItem<number>(PATH_DEFAULT_DELIVERY).valueChanges()
+        .subscribe(delivery => this.service.set(PATH_SETTINGS_DELIVERY, delivery)));
+      this.subscriptions.push(this.service.getItem<boolean>(PATH_DEFAULT_SHOW_INTRO).valueChanges()
+        .subscribe(show => this.service.set(PATH_SETTINGS_SHOW_INTRO, show)));
+      this.subscriptions.push(this.service.getItem<TipBasis>(PATH_DEFAULT_TIP_OPTION).valueChanges()
+        .subscribe(option => this.service.set(PATH_SETTINGS_TIP_OPTION, option)));
+      this.subscriptions.push(this.service.getItem<ChangeBasis>(PATH_DEFAULT_CHANGE_OPTION).valueChanges()
+        .subscribe(option => this.service.set(PATH_SETTINGS_CHANGE_OPTION, option)));
+    })
+      .catch((err) => console.error('iniitialze error: ' + err));
+    return promise;
   }
 }

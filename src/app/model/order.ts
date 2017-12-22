@@ -1,15 +1,51 @@
-import { Item } from './item';
-import { IOrder } from './IOrder';
 import { DataStoreService } from '../data-store/data-store.service';
 import { OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
+import { IItem } from './IItem';
 
 export class Order implements OnInit, OnDestroy {
   key: string;
   name: string;
   paid: number;
-  items: Item[];
+
+  private service: DataStoreService;
+
+  constructor(public orderId: string,
+              private svc: DataStoreService) {
+    this.service = svc;
+  }
+
+  get items(): Observable<IItem[]> {
+    return this.service.getItems(this.key);
+  }
+
+  get subtotal(): Observable<number> {
+    return this.items.map(items => items.map(item => item.quantity * item.price)
+      .reduce((sum, vlu) => sum + vlu, 0));
+  }
+
+  get tax(): Observable<number> {
+    return Observable.combineLatest(this.subtotal,
+      this.service.taxPercent,
+      ((amt, pct) => amt * pct / 100));
+  }
+
+  get tip(): Observable<number> {
+    return Observable.combineLatest(this.subtotal,
+      this.tax,
+      this.service.tipOption,
+      this.service.tipPercent,
+      ((amt, tax, basis, pct) =>
+        amt + ((basis.description === 'Gross') ? tax : 0) * pct));
+  }
+
+  get delivery(): Observable<number> {
+    return Observable.combineLatest(this.subtotal,
+      this.service.subtotal,
+      this.service.delivery,
+      ((subtotal, total, delivery) => (total > 0 && delivery > 0) ? delivery * (subtotal / total) : 0));
+  }
+
   /*
   delivery: Observable<number>;
   items: Observable<Item[]>;
@@ -20,11 +56,15 @@ export class Order implements OnInit, OnDestroy {
   overShort: Observable<number>;
   taxPercent: Observable<number>;
   */
-  itemsScript: Subscription;
 
   // items: Observable<Item[]>;
 
-  constructor(public orderId: string, private service: DataStoreService) {
+  get total(): Observable<number> {
+    return Observable.combineLatest(this.subtotal,
+      this.tax,
+      this.tip,
+      this.delivery,
+      ((subtotal, tax, tip, delivery) => subtotal + tax + tip + delivery));
   }
 
   ngOnInit() {
@@ -32,11 +72,9 @@ export class Order implements OnInit, OnDestroy {
       this.name = obs.name;
       this.paid = obs.paid;
     });
-    this.itemsScript = this.service.getItems(this.orderId).subscribe(obs => this.items)
   }
 
   ngOnDestroy() {
-    this.itemsScript.unsubscribe();
   }
 }
 

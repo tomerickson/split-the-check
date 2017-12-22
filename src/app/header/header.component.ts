@@ -10,17 +10,22 @@ import { Observable } from 'rxjs/Observable';
 })
 export class HeaderComponent implements OnInit, OnDestroy {
 
+  showIntro: boolean;
+  subscriptions: Subscription[] = [];
+
   constructor(public service: DataStoreService) {
+    this.subscriptions.push(this.service.showIntro.subscribe(obs => this.showIntro = obs));
   }
 
   ngOnInit() {
   }
 
-  ngOnDestroy() {;
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   toggleIntro(value) {
-    this.service.toggleShowIntro(value);
+    this.service.setShowIntro(value);
     console.log('exiting header.toggleIntro');
   }
 }

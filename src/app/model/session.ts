@@ -1,64 +1,67 @@
-import {IItem, IOrder} from './index';
-import {DataStoreService} from '../data-store/data-store.service';
-import { OnDestroy, OnInit } from '@angular/core';
-import {Helpers} from './helpers';
-import { Observable } from 'rxjs/Observable';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
+import { DataStoreService } from '../data-store/data-store.service';
+import { IItem } from './iitem';
+import { IOrder } from './iorder';
+import { Helpers } from './helpers';
+import { ChangeBasis } from './change-basis';
+import { TipBasis } from './tip-basis';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
 
-export class Session implements OnInit, OnDestroy {
+export class Session implements OnDestroy {
 
   public title = 'Split the Check';
-  public items: IItem[];
-  public orders: IOrder[];
+  get items() {
+    return this.service.allItems;
+  }
+  public ready: BehaviorSubject<boolean>;
 
-  private itemsSubscription: Subscription;
-  private ordersSubscription: Subscription;
+  public service: DataStoreService;
+  private subscriptions: Subscription[];
+  private tipOptionSubscription: Subscription;
 
-  constructor(public service: DataStoreService) {
+  constructor(private svc: DataStoreService) {
+    console.log('entering session constructor');
+    this.service = svc;
+    this.subscriptions = [];
+    this.ready = new BehaviorSubject<boolean>(false);
   }
 
-  get subtotal(): number {
-    let result = 0;
-    this.items.forEach(item => result += (item.quantity * item.price));
-    return result;
+  public get orders(): Observable<IOrder[]> {
+    return this.service.allOrders;
+  }
+  public get subtotal(): Observable<number> {
+    return this.service.subtotal;
   }
 
-  get tax(): number {
-    return this.subtotal * this.service.taxPercent.getValue() / 100;
+  public get tax(): Observable<number> {
+    return this.service.tax(this.subtotal);
   }
 
-  get tip(): number {
-    return Helpers.calculateTip(this.subtotal, this.service.tipOption.getValue(), this.tax, this.service.tipPercent.getValue());
+  public get tip(): Observable<number> {
+    return this.service.tip(this.subtotal, this.tax);
   }
 
-  get delivery(): number {
-    return this.service.delivery.getValue();
+  public get delivery(): Observable<number> {
+    return this.service.deliveryShare(this.subtotal)
   }
 
-  get total(): number {
-    return this.subtotal + this.tax + this.tip + this.delivery;
+  public get total(): Observable<number> {
+    return this.service.total(this.subtotal, this.tax, this.tip, this.delivery);
   }
 
-  get paid(): number {
-    let result = 0;
-    this.orders.forEach(order => result += order.paid);
-    return result;
+  public get paid(): Observable<number> {
+    return this.orders.map(arr => arr.map(ord => ord.paid)
+      .reduce((sum, vlu) => sum + vlu, 0));
   }
 
-  // Round the total to the nearest penny before
-  // calculating change
-  //
-  get overShort(): number {
-    return Math.round((this.total * 100) / 100) - this.paid;
+  public get overShort(): Observable<number> {
+    return this.service.overShort(this.total, this.paid);
   }
 
-  ngOnInit() {
-    this.itemsSubscription = this.service.allItems.subscribe(items => this.items = items);
-    this.ordersSubscription = this.service.allOrders.subscribe(orders => this.orders = orders);
-  }
   ngOnDestroy() {
-    this.itemsSubscription.unsubscribe();
-    this.ordersSubscription.unsubscribe();
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.tipOptionSubscription.unsubscribe();
   }
 }

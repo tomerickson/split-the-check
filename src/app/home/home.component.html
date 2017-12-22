@@ -1,6 +1,6 @@
 <div id="wrapper">
     <mat-card id="home-card">
-        <section id="intro" [hidden]="!service.showIntro">
+        <section id="intro" [hidden]="!showIntro">
             <div id="prairiedog">
                 <img title="Prairie dog standing" src="/assets/images/prairiedog.jpg">
             </div>
@@ -19,7 +19,7 @@
                 <p>You can't make your co-workers any less boorish, but you can make your life easier by using the "Split the Check" lunch order form below.</p>
             </div>
         </section>
-        <section id="instructions" [hidden]="!service.showIntro">
+        <section id="instructions" [hidden]="!showIntro">
             <ul>
                 <li>
                     Enter your local sales tax percent, tip percent, and delivery charge if applicable.
@@ -40,6 +40,6 @@
         </section>
     </mat-card>
     <div>
-        <app-order-totals></app-order-totals>
+        <app-order-totals [session]="session"></app-order-totals>
     </div>
 </div>

@@ -1,73 +1,66 @@
 <!-- Running totals -->
-<div *ngIf="session" id="totals">
-    <mat-grid-list cols="2" rowHeight="4:1">
-        <mat-grid-tile colspan="2">
-            Totals
-        </mat-grid-tile>
-        <mat-grid-tile *ngIf="session.orders">Orders:</mat-grid-tile>
-        <mat-grid-tile *ngIf="session.orders">{{session.orders.length}}</mat-grid-tile>
-        <mat-grid-tile *ngIf="session.items">Subtotal:</mat-grid-tile>
-        <mat-grid-tile *ngIf="session.items">{{session.subtotal| number:'1.2-2'}}</mat-grid-tile>
-    </mat-grid-list>
-    <!--<table>
-    <thead>
-    <tr>
-      <th colspan="2">Totals</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-      <td>Orders:</td>
-      <td><span *ngIf="service.session">{{(service.session|async)?.orders.length}}</span></td>
-    </tr>
-    <tr>
-      <td>Subtotal:</td>
-      <td>
-        <span *ngIf="service.session">{{(service.session|async)?.subtotal | number:'1.2-2'}}</span>
-      </td>
-    </tr>
-    <tr>
-      <td>Sales Tax:</td>
-      <td>
-        <span *ngIf="service.session">{{(service.session|async)?.tax | number:'1.2-2'}}</span>
-      </td>
-    </tr>
-    <tr>
-      <td>Tip:</td>
-      <td>
-        <span *ngIf="service.session">{{(service.session|async)?.tip | number:'1.2-2'}}</span>
-      </td>
-    </tr>
-    <tr>
-      <td>Delivery:</td>
-      <td>
-        <span *ngIf="service.session">{{(service.session|async)?.delivery | number:'1.2-2'}}</span>
-      </td>
-    </tr>
-    <tr>
-      <td>Total:</td>
-      <td><span *ngIf="service.session">{{(service.session|async)?.total | number:'1.2-2'}}</span></td>
-    </tr>
-    <tr>
-      <td>Paid:</td>
-      <td><span>{{(service.session|async)?.paid | number:'1.2-2'}}</span>
-      </td>
-    </tr>
-    <tr>
-      <td>Over / Short:</td>
-      <td><span [class.short]="session.overShort > 0"
-                *ngIf="session.settings">{{session.overShort | number:'1.2-2'}}</span></td>
-    </tr>
-    </tbody>
-    <tfoot>
-    <tr>
-      <td colspan="2">
-        <span>Remove orders</span>
-        <mat-icon id="remove-orders"
-                 title="Clear all Orders."
-                 (click)="clearOrder($event)">remove_circle</mat-icon>
-      </td>
-    </tr>
-    </tfoot>
-  </table>-->
+<div id="totals">
+  <table>
+  <thead>
+  <tr>
+    <th colspan="2">Totals</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td>Orders:</td>
+    <td><span>{{(session.orders | async)?.length}}</span></td>
+  </tr>
+  <tr>
+    <td>Subtotal:</td>
+    <td>
+      <span>{{(session.subtotal | async) | number:'1.2-2'}}</span>
+    </td>
+  </tr>
+  <tr>
+    <td>Sales Tax:</td>
+    <td>
+      <span>{{(session.tax | async) | number:'1.2-2'}}</span>
+    </td>
+  </tr>
+  <tr>
+    <td>Tip:</td>
+    <td>
+      <span>{{(session.tip | async) | number:'1.2-2'}}</span>
+    </td>
+  </tr>
+  <tr>
+    <td>Delivery:</td>
+    <td>
+      <span>{{(session.delivery | async) | number:'1.2-2'}}</span>
+    </td>
+  </tr>
+  <tr>
+    <td>Total:</td>
+    <td><span>{{(session.total | async) | number:'1.2-2'}}</span>
+    </td>
+  </tr>
+  <tr>
+    <td>Paid:</td>
+    <td><span>{{(session.paid | async) | number:'1.2-2'}}</span></td>
+  </tr>
+  <tr>
+    <td>Over / Short:</td>
+    <td><span [class.short]="session.overShort > 0">
+      {{session.overShort | number:'1.2-2'}}
+    </span></td>
+  </tr>
+  </tbody>
+  <tfoot>
+  <tr>
+    <td colspan="2">
+      <span>Remove orders</span>
+      <mat-icon id="remove-orders"
+               title="Clear all Orders."
+               (click)="clearOrder($event)">remove_circle</mat-icon>
+    </td>
+  </tr>
+  </tfoot>
+</table>
 </div>
+
