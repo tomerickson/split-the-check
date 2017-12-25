@@ -2,6 +2,7 @@ import { DataStoreService } from '../data-store/data-store.service';
 import { OnDestroy, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { IItem } from './IItem';
+import { ChangeBasis } from './change-basis';
 
 export class Order implements OnInit, OnDestroy {
   key: string;
@@ -65,6 +66,11 @@ export class Order implements OnInit, OnDestroy {
       this.tip,
       this.delivery,
       ((subtotal, tax, tip, delivery) => subtotal + tax + tip + delivery));
+  }
+
+  get overShort(): Observable<number> {
+    return Observable.combineLatest(this.total, this.service.changeOption,
+      ((total, basis) => Math.round((total - this.paid) / basis.value) * basis.value));
   }
 
   ngOnInit() {

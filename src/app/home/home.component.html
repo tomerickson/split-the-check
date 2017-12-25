@@ -31,15 +31,15 @@
                 <li>You can give change to the nearest penny, nickel, dime, quarter or dollar.</li>
             </ul>
         </section>
-        <section *ngIf="service">
-            <app-settings>
+        <section *ngIf="settings">
+            <app-settings [settings]="settings">
             </app-settings>
         </section>
         <section>
             <app-order-list-outlet></app-order-list-outlet>
         </section>
     </mat-card>
-    <div>
+    <div *ngIf="session">
         <app-order-totals [session]="session"></app-order-totals>
     </div>
 </div>

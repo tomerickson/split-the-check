@@ -26,6 +26,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   toggleIntro(value) {
     this.service.setShowIntro(value);
-    console.log('exiting header.toggleIntro');
+    console.log('exiting header.toggleIntro with value: ' + value);
   }
 }

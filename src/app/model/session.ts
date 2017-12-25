@@ -22,7 +22,6 @@ export class Session implements OnDestroy {
   private tipOptionSubscription: Subscription;
 
   constructor(private svc: DataStoreService) {
-    console.log('entering session constructor');
     this.service = svc;
     this.subscriptions = [];
     this.ready = new BehaviorSubject<boolean>(false);
@@ -58,6 +57,10 @@ export class Session implements OnDestroy {
 
   public get overShort(): Observable<number> {
     return this.service.overShort(this.total, this.paid);
+  }
+
+  public get underPaid(): Observable<boolean> {
+    return Observable.combineLatest(this.overShort, Observable.of(0), (over, zero) => over < zero);
   }
 
   ngOnDestroy() {

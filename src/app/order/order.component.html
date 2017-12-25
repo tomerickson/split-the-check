@@ -7,9 +7,9 @@
             <mat-panel-description>
                 <mat-grid-list cols="5" rowHeight="5:1">
                     <mat-grid-tile>Ordered by: {{(order|async)?.name}}</mat-grid-tile>
-                    <mat-grid-tile>Items: {{count | async}}</mat-grid-tile>
-                    <mat-grid-tile>Total: {{total | async | number:'1.2-2'}}</mat-grid-tile>
-                    <mat-grid-tile>Paid: {{(order|async)?.paid | number:'1.2-2'}}</mat-grid-tile>
+                    <mat-grid-tile>Items: {{(order | async)?.items.length}}</mat-grid-tile>
+                    <mat-grid-tile>Total: {{(order | async)?.total | number:'1.2-2'}}</mat-grid-tile>
+                    <mat-grid-tile>Paid: {{(order | async)?.paid | number:'1.2-2'}}</mat-grid-tile>
                   <mat-grid-tile>Over / Short: </mat-grid-tile>
                   <mat-grid-tile [class.short]="(overShort|async)">{{(overShort|async) | number:'1.2-2'}}</mat-grid-tile>
                 </mat-grid-list>
@@ -55,25 +55,25 @@
                     Over / Short
                 </mat-grid-tile>
                 <mat-grid-tile>
-                    {{subtotal | number:'1.2-2'}}
+                    {{(order | async)?.subtotal | number:'1.2-2'}}
                 </mat-grid-tile>
                 <mat-grid-tile>
-                    {{tax | number:'1.2-2'}}
+                    {{(order | async)?.tax | number:'1.2-2'}}
                 </mat-grid-tile>
                 <mat-grid-tile>
-                    {{tip | number:'1.2-2'}}
+                    {{(order | async)?.tip | number:'1.2-2'}}
                 </mat-grid-tile>
                 <mat-grid-tile>
-                    {{delivery | number:'1.2-2'}}
+                    {{(order | async)?.delivery | number:'1.2-2'}}
                 </mat-grid-tile>
                 <mat-grid-tile>
-                    {{total | number:'1.2-2'}}
+                    {{(order | async)?.total | number:'1.2-2'}}
                 </mat-grid-tile>
                 <mat-grid-tile>
-                    {{(order|async)?.paid | number:'1.2-2'}}
+                    {{(order |async)?.paid | number:'1.2-2'}}
                 </mat-grid-tile>
                 <mat-grid-tile [class.short]="positive">
-                    {{overShort | number:'1.2-2'}}
+                    {{(order | async)?.overShort | number:'1.2-2'}}
                 </mat-grid-tile>
             </mat-grid-list>
             <app-item-list-outlet [orderId]="orderId"></app-item-list-outlet>

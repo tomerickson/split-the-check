@@ -9,45 +9,45 @@
   <tbody>
   <tr>
     <td>Orders:</td>
-    <td><span>{{(session.orders | async)?.length}}</span></td>
+    <td><span>{{orders}}</span></td>
   </tr>
   <tr>
     <td>Subtotal:</td>
     <td>
-      <span>{{(session.subtotal | async) | number:'1.2-2'}}</span>
+      <span>{{subtotal | number:'1.2-2'}}</span>
     </td>
   </tr>
   <tr>
     <td>Sales Tax:</td>
     <td>
-      <span>{{(session.tax | async) | number:'1.2-2'}}</span>
+      <span>{{tax | number:'1.2-2'}}</span>
     </td>
   </tr>
   <tr>
     <td>Tip:</td>
     <td>
-      <span>{{(session.tip | async) | number:'1.2-2'}}</span>
+      <span>{{tip | number:'1.2-2'}}</span>
     </td>
   </tr>
   <tr>
     <td>Delivery:</td>
     <td>
-      <span>{{(session.delivery | async) | number:'1.2-2'}}</span>
+      <span>{{delivery | number:'1.2-2'}}</span>
     </td>
   </tr>
   <tr>
     <td>Total:</td>
-    <td><span>{{(session.total | async) | number:'1.2-2'}}</span>
+    <td><span>{{total | number:'1.2-2'}}</span>
     </td>
   </tr>
   <tr>
     <td>Paid:</td>
-    <td><span>{{(session.paid | async) | number:'1.2-2'}}</span></td>
+    <td><span>{{paid | number:'1.2-2'}}</span></td>
   </tr>
   <tr>
     <td>Over / Short:</td>
-    <td><span [class.short]="session.overShort > 0">
-      {{session.overShort | number:'1.2-2'}}
+    <td><span [class.short]="underPaid">
+      {{overShort | number:'1.2-2'}}
     </span></td>
   </tr>
   </tbody>

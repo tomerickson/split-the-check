@@ -8,35 +8,49 @@
       <mat-grid-tile [colspan]="2">
         <mat-form-field>
           <mat-placeholder>Tax Percent:</mat-placeholder>
-          <input matInput type="text" formControlName="taxPercent" class="form-control" id="input-sales-tax"
-                 tabindex="1" size="5" onfocus="this.select()">
+          <input matInput type="text"
+                 name="taxPercent"
+                 formControlName="taxPercent"
+                 title="Tax Percent"
+                 class="form-control" id="input-sales-tax"
+                 tabindex="1" size="5"
+                 value="{{taxPercent}}"
+                 onfocus="this.select()">
         </mat-form-field>
       </mat-grid-tile>
       <mat-grid-tile [colspan]="2">
         <mat-form-field>
           <mat-placeholder>Tip Percent:</mat-placeholder>
           <input matInput type="text" formControlName="tipPercent" class="form-control" id="txtTip" tabindex="2"
-                 title="Tip Percent" size="5" onfocus="this.select()">
+                 title="Tip Percent" size="5"
+                 value="{{tipPercent}}"
+                 (change)="setTipPercent($event)"
+                 onfocus="this.select()">
         </mat-form-field>
       </mat-grid-tile>
       <mat-grid-tile [colspan]="2">
         <mat-form-field>
           <mat-placeholder>Delivery Charge:</mat-placeholder>
           <input matInput type="text" formControlName="delivery" class="form-control" id="txtDelivery" tabindex="3"
-                 size="7" (change)="setDelivery($event)" onfocus="this.select()"
+                 size="7"
+                 value="{{delivery}}"
+                 (change)="setDelivery($event)"
+                 onfocus="this.select()"
                  title="The delivery charge applies to the entire order.">
         </mat-form-field>
       </mat-grid-tile>
       <mat-grid-tile [colspan]="2" id="tipBasisTile">
         <mat-grid-tile-header>Tip Basis:</mat-grid-tile-header>
-        <mat-radio-group id="tipBasis"
-                         name="tipBasis"
+        <mat-radio-group id="tipOptions"
+                         title="Calculate tip based on gross or net."
                          formControlName="tipBasis"
                          required
+                         value="tipBasis"
                          (change)="handleTipBasisClick($event)">
           <mat-radio-button *ngFor="let opt of tipOptions"
-                            [checked]="selectedTipOption(opt)"
-                            value="opt"
+                            name="tipOptions"
+                            [value]="opt"
+                            [checked]="(opt.value===tipBasis.value)"
                             (select)="clicking($event)">
             {{opt.description}}
           </mat-radio-button>
@@ -44,15 +58,17 @@
       </mat-grid-tile>
       <mat-grid-tile [colspan]="4" id="changeBasisTile">
         <mat-grid-tile-header>Change Basis:</mat-grid-tile-header>
-        <mat-radio-group id="changeBasis"
-                         name="changeBasis"
+        <mat-radio-group id="changeOptions"
                          title="Calculate change to the denomination you select."
-                         formControlName="changeOptions"
+                         formControlName="changeBasis"
                          required
-                         value="changeBasis" (change)="handleChangeBasisClick($event)">
+                         value="changeBasis"
+                         (change)="handleChangeBasisClick($event)">
           <mat-radio-button *ngFor="let opt of changeOptions"
-            value="opt"
-            (select)="clicking($event)">
+                            name="changeOptions"
+                            [value]="opt"
+                            [checked]="(opt.value===changeBasis.value)"
+                            (select)="clicking($event)">
             {{opt.description}}
           </mat-radio-button>
         </mat-radio-group>
@@ -60,3 +76,6 @@
     </mat-grid-list>
   </form>
 </mat-expansion-panel>
+<div id="changes">
+  <label>{{activity | json}}</label>
+</div>

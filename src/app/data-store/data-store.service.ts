@@ -72,8 +72,8 @@ export class DataStoreService implements OnDestroy {
       .valueChanges();
   }
 
-  get changeOptions(): Observable<ChangeBasis> {
-    return this.service.getItem<ChangeBasis>(PATH_ENUM_CHANGE_OPTIONS).valueChanges();
+  get changeOptions(): Observable<ChangeBasis[]> {
+    return this.service.getList<ChangeBasis>(PATH_ENUM_CHANGE_OPTIONS).valueChanges();
   }
 
   get tipOptions(): Observable<TipBasis[]> {
@@ -107,7 +107,7 @@ export class DataStoreService implements OnDestroy {
 
   tip(subtotal: Observable<number>, taxAmount: Observable<number>): Observable<number> {
     return Observable.combineLatest(subtotal, taxAmount, this.tipOption, this.tipPercent,
-      ((amt, tax, basis, pct) => amt + ((basis.description === 'Gross') ? tax : 0) * pct / 100))
+      ((amt, tax, basis, pct) => (amt + ((basis.description === 'Gross') ? tax : 0)) * pct / 100))
   }
 
   deliveryShare(amt: Observable<number> ): Observable<number> {
@@ -129,7 +129,7 @@ export class DataStoreService implements OnDestroy {
   }
 
   setShowIntro(choice: boolean) {
-    this.service.set(PATH_SETTINGS, {showIntro: choice});
+    this.service.set(PATH_SETTINGS_SHOW_INTRO, choice);
   }
 
   setTaxPercent(value: number) {
@@ -137,11 +137,11 @@ export class DataStoreService implements OnDestroy {
   }
 
   setTipPercent(value: number) {
-    return this.service.set(PATH_SETTINGS, {tipPercent: value});
+    return this.service.set(PATH_SETTINGS_TIP_PERCENT, value);
   }
 
   setDelivery(value: number) {
-    return this.service.set(PATH_SETTINGS, {delivery: value});
+    return this.service.set(PATH_SETTINGS_DELIVERY, value);
   }
 
   setChangeBasis(changeBasis) {

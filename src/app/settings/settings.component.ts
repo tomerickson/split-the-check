@@ -1,4 +1,4 @@
-import { Component, Inject, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Inject, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ChangeBasis, TipBasis, Settings } from '../model';
@@ -16,9 +16,10 @@ import { Subscription } from 'rxjs/Subscription';
 
 export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
 
+  @Input() settings: Settings;
   fb: FormBuilder;
+  activity: Object;
   changeForm: FormGroup;
-  settings: Settings;
   taxPercent: number;
   tipPercent: number;
   delivery: number;
@@ -30,34 +31,30 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
   subscriptions: Subscription[] = [];
 
   constructor(public service: DataStoreService, builder: FormBuilder) {
-    console.log('entering settings.constructor');
     this.fb = builder;
-    this.settings = new Settings(service);
   }
 
   ngOnInit() {
-    /*this.subscriptions.push(this.service.taxPercent.subscribe(() => this.taxPercent));
-    this.subscriptions.push(this.service.tipPercent.subscribe(() => this.tipPercent));
-    this.subscriptions.push(this.service.delivery.subscribe(() => this.delivery));
-    this.subscriptions.push(this.service.showIntro.subscribe((obs) => this.showIntro = obs));
-    this.subscriptions.push(this.service.tipOption.subscribe(() => this.tipBasis));
-    this.subscriptions.push(this.service.changeOption.subscribe(() => this.changeBasis));
-    this.subscriptions.push(this.service.tipOptions.subscribe(() => this.tipOptions));
-    this.subscriptions.push(this.service.changeOptions.subscribe(() => this.changeOptions));*/
+    this.subscriptions.push(this.settings.taxPercent.subscribe((obs) => this.taxPercent = obs));
+    this.subscriptions.push(this.settings.tipPercent.subscribe((obs) => this.tipPercent = obs));
+    this.subscriptions.push(this.settings.delivery.subscribe((obs) => this.delivery = obs));
+    this.subscriptions.push(this.settings.showIntro.subscribe((obs) => this.showIntro = obs));
+    this.subscriptions.push(this.settings.tipOption.subscribe((obs) => this.tipBasis = obs));
+    this.subscriptions.push(this.settings.changeOption.subscribe((obs) => this.changeBasis = obs));
+    this.subscriptions.push(this.service.tipOptions.subscribe((obs) => this.tipOptions = obs));
+    this.subscriptions.push(this.service.changeOptions.subscribe((obs) => this.changeOptions = obs));
     this.buildForm();
   }
 
   buildForm() {
 
     this.changeForm = this.fb.group({
-      taxPercent: [this.settings.taxPercent, Validators.required],
-      tipPercent: [this.settings.tipPercent, Validators.required],
-      delivery: [this.settings.delivery, Validators.required],
-      tipBasis: [this.settings.tipOption, Validators.required],
-      changeBasis: [this.settings.changeOption, Validators.required],
-      changeOptions: [this.service.changeOptions],
-      tipOptions: [this.service.tipOptions]
-    });
+      taxPercent: [this.taxPercent, [Validators.required, Validators.pattern('\d+(\.\d+)')]],
+      tipPercent: [this.tipPercent, Validators.required],
+      delivery: [this.delivery, Validators.required],
+      changeBasis: [this.changeBasis, Validators.required],
+      tipBasis: [this.tipBasis, Validators.required]
+    }, {updateOn: 'change'});
   }
 
   ngOnDestroy() {
@@ -65,9 +62,13 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
+
     for (const propName in changes) {
+      console.log('ngOnChanges.propName:' +  propName);
       if (changes.hasOwnProperty(propName)) {
+
         const change = changes[propName];
+        this.activity = propName;
         if (propName === 'tipOptions' && change.currentValue !== change.previousValue) {
           // this.tipOptions.sort((a, b) => a.value - b.value);
           this.settings.setTipOption(change.currentValue);

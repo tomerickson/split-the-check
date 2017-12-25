@@ -44,13 +44,9 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit() {
-    this.subscriptions.push(this.service.getOrder(this.orderId).subscribe((order) => this.buildOrder(order)));
-    this.subscriptions.push(this.service.getItems(this.orderId).subscribe(items => this.fillOrder(items)));
-    this.subscriptions.push(this.service.changeOption.subscribe(basis => this.changeBasis = basis[0]));
   }
 
   ngOnDestroy() {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   buildOrder(order) {
@@ -62,11 +58,6 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
     if (!items) {
       return
     }
-    this.items = items;
-    this.count = this.items.length;
-    this.delivery = Helpers.delivery( this.subtotal, this.session);
-    this.total = Helpers.total(this.subtotal, this.tax, this.tip, this.delivery);
-    this.overShort = Helpers.overShort(this.total, this.paid, this.session.changeBasis);
   }
 
   removeOrder() {

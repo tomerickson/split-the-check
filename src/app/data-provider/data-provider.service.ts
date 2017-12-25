@@ -28,7 +28,7 @@ export class DataProviderService implements OnDestroy {
   private MSG_DISCONNECT = 'goOffline';
   private MSG_CONNECT = 'goOnline';
 
-  private LOG = true || false;
+  private LOG = false;
   db: AngularFireDatabase;
 
   constructor(@Inject(AngularFireDatabase) fb: AngularFireDatabase) {

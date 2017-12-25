@@ -9,7 +9,7 @@ import { DataStoreService } from '../data-store/data-store.service';
 
 export class Settings {
 
-  private service: DataStoreService;
+  public service: DataStoreService;
   constructor(svc: DataStoreService) {
     this.service = svc;
   }

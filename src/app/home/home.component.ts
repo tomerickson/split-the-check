@@ -1,7 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
-import { Session } from '../model';
+import { Session, Settings } from '../model';
 import { Subscription } from 'rxjs/Subscription';
+import { isNullOrUndefined } from 'util';
 
 @Component({
   selector: 'app-home',
@@ -13,11 +14,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   showIntro: boolean;
   service: DataStoreService;
   session: Session;
+  settings: Settings;
   subscriptions: Subscription[] = [];
 
   constructor(svc: DataStoreService) {
     this.service = svc;
     this.session = new Session(this.service);
+    this.settings = new Settings(this.service);
   }
 
   ngOnInit() {

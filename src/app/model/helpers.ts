@@ -50,7 +50,7 @@ export class Helpers {
    * @param {Observable<Settings>} settings
    * @returns {number}
    */
-  static tax(subtotal: number, settings: Observable<Settings>): number ;
+  /*static tax(subtotal: number, settings: Observable<Settings>): number ;
   static tax(subtotal: Observable<number>,
              settings: Observable<Settings>): Observable<number>;
   static tax(subtotal: number | Observable<number>,
@@ -59,9 +59,9 @@ export class Helpers {
       return subtotal * Helpers.unwrap(settings).taxPercent / 100;
     } else {
       const sub: Observable<number> = subtotal as Observable<number>;
-      return Observable.combineLatest(sub, settings.taxPercent, ((amt, pct) => amt * pct / 100));
+      return Observable.combineLatest(sub, service.taxPercent, ((amt, pct) => amt * pct / 100));
     }
-  }
+  }*/
 
   /**
    * Calculate tip
@@ -113,49 +113,6 @@ export class Helpers {
       const result = Observable.of(Helpers.calcDelivery(amt, settings, session));
       subscription.unsubscribe();
       return result;
-    }
-  }
-
-  static total(subtotal: number, taxAmount: number, tipAmount: number, delivery: number): number;
-  static total(subtotal: Observable<number>,
-               taxAmount: Observable<number>,
-               tipAmount: Observable<number>,
-               delivery: Observable<number>): Observable<number>;
-
-  static total(subtotal: number | Observable<number>,
-               taxAmount: number | Observable<number>,
-               tipAmount: number | Observable<number>,
-               delivery: number | Observable<number>): number | Observable<number> {
-    if (typeof subtotal === 'number' && typeof taxAmount === 'number' && typeof tipAmount === 'number' && typeof delivery === 'number') {
-      return subtotal + taxAmount + tipAmount + delivery;
-    } else {
-      const subAmt: Observable<number> = subtotal as Observable<number>;
-      const taxAmt: Observable<number> = taxAmount as Observable<number>;
-      const tipAmt: Observable<number> = tipAmount as Observable<number>;
-      const delAmt: Observable<number> = delivery as Observable<number>;
-      return Observable.combineLatest(subAmt, taxAmt, tipAmt, delAmt,
-        (amt, tax, tip, del) => amt + tax + tip + del);
-    }
-  }
-
-  static overShort(total: number,
-                   paid: number,
-                   changeBasis: ChangeBasis): number;
-  static overShort(total: Observable<number>,
-                   paid: Observable<number>,
-                   changeBasis: Observable<ChangeBasis>): Observable<number>;
-  static overShort(total: any, paid: any, changeBasis: any): number | Observable<number> {
-    if (typeof total === 'number') {
-      const amt: number = total as number;
-      const pay: number = paid as number;
-      const chg: ChangeBasis = changeBasis as ChangeBasis;
-      return Math.round((amt - pay) / chg.value) * chg.value
-    } else {
-      const amt: Observable<number> = total as Observable<number>;
-      const pay: Observable<number> = paid as Observable<number>;
-      const chg: Observable<ChangeBasis> = changeBasis as Observable<ChangeBasis>;
-      return Observable.combineLatest(amt, pay, chg, (a, p, c) =>
-        Math.round((a - p) / c.value) * c.value)
     }
   }
 
