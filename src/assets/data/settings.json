@@ -3,8 +3,8 @@
     "salesTaxPercent": "6",
     "tipPercent": "20",
     "deliveryCharge":  "0",
-    "changeBasis": ".25",
-    "tipBasis": "1"
+    "changeOption": ".25",
+    "tipOption": "1"
   },
   "tipBases": [
     {"value": "0", "description": "Gross", "isDefault": false},

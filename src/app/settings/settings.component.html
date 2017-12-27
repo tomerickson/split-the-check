@@ -3,7 +3,7 @@
     <mat-panel-title>Settings</mat-panel-title>
     <mat-panel-description>These settings apply to all orders.</mat-panel-description>
   </mat-expansion-panel-header>
-  <form [formGroup]="changeForm">
+  <form [formGroup]="changeForm" (ngSubmit)="postit(changeForm.value)">
     <mat-grid-list cols="6">
       <mat-grid-tile [colspan]="2">
         <mat-form-field>
@@ -16,6 +16,12 @@
                  tabindex="1" size="5"
                  value="{{taxPercent}}"
                  onfocus="this.select()">
+          <mat-error *ngIf="changeForm.controls['taxPercent'].hasError('required')">
+            {{errorMessages.required}}
+          </mat-error>
+          <mat-error *ngIf="changeForm.controls['taxPercent'].hasError('pattern')">
+            {{errorMessages.pattern}}
+          </mat-error>
         </mat-form-field>
       </mat-grid-tile>
       <mat-grid-tile [colspan]="2">
@@ -24,8 +30,13 @@
           <input matInput type="text" formControlName="tipPercent" class="form-control" id="txtTip" tabindex="2"
                  title="Tip Percent" size="5"
                  value="{{tipPercent}}"
-                 (change)="setTipPercent($event)"
                  onfocus="this.select()">
+          <mat-error *ngIf="changeForm.controls['tipPercent'].hasError('required')">
+            {{errorMessages.required}}
+          </mat-error>
+          <mat-error *ngIf="changeForm.controls['tipPercent'].hasError('pattern')">
+            {{errorMessages.pattern}}
+          </mat-error>
         </mat-form-field>
       </mat-grid-tile>
       <mat-grid-tile [colspan]="2">
@@ -33,25 +44,30 @@
           <mat-placeholder>Delivery Charge:</mat-placeholder>
           <input matInput type="text" formControlName="delivery" class="form-control" id="txtDelivery" tabindex="3"
                  size="7"
-                 value="{{delivery}}"
-                 (change)="setDelivery($event)"
+                 value="{{delivery | number: '1.2-2'}}"
                  onfocus="this.select()"
+                 (blur)="decimalize($event)"
                  title="The delivery charge applies to the entire order.">
+          <mat-error *ngIf="changeForm.controls['delivery'].hasError('required')">
+            {{errorMessages.required}}
+          </mat-error>
+          <mat-error *ngIf="changeForm.controls['delivery'].hasError('pattern')">
+            {{errorMessages.pattern}}
+          </mat-error>
         </mat-form-field>
       </mat-grid-tile>
       <mat-grid-tile [colspan]="2" id="tipBasisTile">
         <mat-grid-tile-header>Tip Basis:</mat-grid-tile-header>
         <mat-radio-group id="tipOptions"
                          title="Calculate tip based on gross or net."
-                         formControlName="tipBasis"
+                         formControlName="tipOption"
                          required
-                         value="tipBasis"
-                         (change)="handleTipBasisClick($event)">
+                         value="tipBasis">
           <mat-radio-button *ngFor="let opt of tipOptions"
                             name="tipOptions"
+                            tabindex="4"
                             [value]="opt"
-                            [checked]="(opt.value===tipBasis.value)"
-                            (select)="clicking($event)">
+                            [checked]="(opt.value===tipOption.value)">
             {{opt.description}}
           </mat-radio-button>
         </mat-radio-group>
@@ -60,22 +76,34 @@
         <mat-grid-tile-header>Change Basis:</mat-grid-tile-header>
         <mat-radio-group id="changeOptions"
                          title="Calculate change to the denomination you select."
-                         formControlName="changeBasis"
+                         formControlName="changeOption"
                          required
-                         value="changeBasis"
-                         (change)="handleChangeBasisClick($event)">
+                         value="changeBasis">
           <mat-radio-button *ngFor="let opt of changeOptions"
                             name="changeOptions"
+                            tabindex="5"
                             [value]="opt"
-                            [checked]="(opt.value===changeBasis.value)"
-                            (select)="clicking($event)">
+                            [checked]="(opt.value===changeOption.value)">
             {{opt.description}}
           </mat-radio-button>
         </mat-radio-group>
       </mat-grid-tile>
     </mat-grid-list>
+    <mat-grid-list cols="6" rowHeight="3:1">
+      <mat-grid-tile id="submitTile" [colspan]="6" *ngIf="changeForm.dirty">
+        <button type="submit"
+                title="Submit"
+                (change)="postit(changeForm.getRawValue())"
+                [disabled]="!changeForm.valid">
+          <mat-icon>save</mat-icon>
+        </button>
+        <button type="button"
+                title="Undo"
+                (click)="undoit()"
+                [disabled]="!changeForm.valid">
+          <mat-icon>undo</mat-icon>
+        </button>
+      </mat-grid-tile>
+    </mat-grid-list>
   </form>
 </mat-expansion-panel>
-<div id="changes">
-  <label>{{activity | json}}</label>
-</div>
