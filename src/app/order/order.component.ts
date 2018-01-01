@@ -27,14 +27,14 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
 
   name: string;
   paid: number;
-  order: IOrder;
+  order: Order;
   items: IItem[];
   count: number;
   total: number;
   overShort: number;
   positive: boolean;
   changeBasis: ChangeBasis;
-  subscriptions: Subscription[];
+  subscriptions: Subscription[] = [];
 
   constructor(public service: DataStoreService) {
     this.order = null;
@@ -43,10 +43,27 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
   }
 
+
   ngOnInit() {
+    const promise: Promise<number> = new Promise<number>(() =>
+      this.subscriptions.push(this.service.getOrder(this.orderId).subscribe(obs => {
+        this.order.name = obs.name;
+        this.order.paid = obs.paid;
+        this.order.key = obs.key;
+      })))
+      .then(() =>
+        this.subscriptions.push(this.service.getItems(this.orderId).subscribe(obs => {
+          this.order.items = obs;
+        })))
+      .then(() =>
+        this.subscriptions.push(this.service.changeOption.subscribe(obs => this.changeBasis = obs)));
+    promise
+      .then(() => console.log('order ngOnInit succeeded'))
+      .catch(err => console.error('order ngOnInit failed with error ' + err));
   }
 
   ngOnDestroy() {
+    this.subscriptions.forEach((subscription => subscription.unsubscribe()));
   }
 
   buildOrder(order) {

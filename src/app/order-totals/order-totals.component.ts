@@ -42,10 +42,7 @@ export class OrderTotalsComponent implements OnInit, AfterContentInit, AfterView
   }
 
   ngOnInit() {
-    if (isNullOrUndefined(this.session)) {
-      debugger;
-    }
-    this.subscriptions.push(this.session.orders.subscribe(obs => this.orders = obs.length));
+    /*this.subscriptions.push(this.session.orders.subscribe(obs => this.orders = obs.length));
     this.subscriptions.push(this.session.subtotal.subscribe(obs => this.subtotal = obs));
     this.subscriptions.push(this.session.tax.subscribe(obs => this.tax = obs));
     this.subscriptions.push(this.session.tip.subscribe(obs => this.tip = obs));
@@ -53,8 +50,7 @@ export class OrderTotalsComponent implements OnInit, AfterContentInit, AfterView
     this.subscriptions.push(this.session.total.subscribe(obs => this.total = obs));
     this.subscriptions.push(this.session.paid.subscribe(obs => this.paid = obs));
     this.subscriptions.push(this.session.overShort.subscribe(obs => this.overShort = obs));
-    this.subscriptions.push(this.session.underPaid.subscribe(obs => this.underPaid = obs));
-
+    this.subscriptions.push(this.session.underPaid.subscribe(obs => this.underPaid = obs));*/
   }
 
   ngOnDestroy() {

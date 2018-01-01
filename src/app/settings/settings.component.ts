@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Inject, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ChangeBasis, TipBasis, Settings } from '../model';
+import { ChangeBasis, TipBasis, Settings, Helpers } from '../model';
 import { MatRadioChange } from '@angular/material';
 import 'rxjs/add/operator/map';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -29,7 +29,8 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
   changeOption: ChangeBasis;
   tipOptions: TipBasis[];
   changeOptions: ChangeBasis[];
-  subscriptions: Subscription[] = [];
+  private subscriptions: Subscription[] = [];
+  private helpers: Helpers;
   numberPattern = '^\\d+(\\.\\d+)?$';
 
   errorMessages: {[key: string]: string} = {
@@ -37,9 +38,10 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
     pattern: 'Numeric required.'
   };
 
-  constructor(public service: DataStoreService, private builder: FormBuilder, private cd: ChangeDetectorRef) {
+  constructor(public service: DataStoreService, private hlp: Helpers, private builder: FormBuilder, private cd: ChangeDetectorRef) {
     this.fb = builder;
     this.changer = cd;
+    this.helpers = hlp;
   }
 
   ngOnInit() {
@@ -48,30 +50,18 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   buildSubscriptionsAndFillForm() {
-    this.subscriptions.push(this.settings.taxPercent.subscribe((obs) => {
-      this.taxPercent = obs;
-      // this.changeForm.patchValue({taxPercent: this.taxPercent});
+    this.subscriptions.push(this.service.settings.subscribe(obs => {
+      this.settings = obs;
+      this.taxPercent = this.settings.taxPercent;
+      this.tipPercent = this.settings.tipPercent;
+      this.delivery = this.settings.delivery;
+      this.changeOption = this.settings.changeOption;
+      this.tipOption = this.settings.tipOption;
       this.changeForm.controls['taxPercent'].setValue(this.taxPercent);
-    }));
-    this.subscriptions.push(this.settings.tipPercent.subscribe((obs) => {
-      this.tipPercent = obs;
-      this.changeForm.patchValue({tipPercent: this.tipPercent});
-    }));
-    this.subscriptions.push(this.settings.delivery.subscribe((obs) => {
-      this.delivery = obs;
-      this.changeForm.patchValue({delivery: this.delivery});
-    }));
-    this.subscriptions.push(this.settings.showIntro.subscribe((obs) => {
-      this.showIntro = obs;
-      this.changeForm.patchValue({showIntro: this.showIntro});
-    }));
-    this.subscriptions.push(this.settings.tipOption.subscribe((obs) => {
-      this.tipOption = obs;
-      this.changeForm.patchValue({tipOption: this.tipOption});
-    }));
-    this.subscriptions.push(this.settings.changeOption.subscribe((obs) => {
-      this.changeOption = obs;
-      this.changeForm.patchValue({changeOption: this.changeOption});
+      this.changeForm.controls['tipPercent'].setValue(this.tipPercent);
+      this.changeForm.controls['delivery'].setValue(this.delivery);
+      this.changeForm.controls['tipOption'].setValue(this.tipOption);
+      this.changeForm.controls['changeOption'].setValue(this.changeOption);
     }));
     this.subscriptions.push(this.service.tipOptions.subscribe((obs) => this.tipOptions = obs));
     this.subscriptions.push(this.service.changeOptions.subscribe((obs) => this.changeOptions = obs));
@@ -134,15 +124,15 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
    * POST the changes back to the /settings node
    * @param formValue
    */
-  postit(formValue) {
-    this.service.setSettings(formValue);
-    alert(JSON.stringify(formValue));
+  postIt(formValue) {
+    this.service.setSettings(formValue)
+      .then(() =>  alert(JSON.stringify(formValue)));
   }
 
   /**
    * Revert any changes.
    */
-  undoit() {
+  undoIt() {
     this.clearSubscriptions();
     this.buildSubscriptionsAndFillForm();
   }
@@ -156,18 +146,5 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
     const control = event.currentTarget as HTMLInputElement;
     const value: any = control.value;
     control.value = (value * 1).toFixed(2);
-  }
-
-  clicking(value: any) {
-    console.log('clicking');
-  }
-
-
-  handleTipBasisClick(event: MatRadioChange) {
-    const basis: TipBasis = Object.assign({}, event.value);
-  }
-
-  handleChangeBasisClick(event: MatRadioChange) {
-    const basis: ChangeBasis = Object.assign({}, event.value);
   }
 }

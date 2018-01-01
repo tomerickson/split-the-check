@@ -1,64 +1,37 @@
-import {TipBasis} from './tip-basis';
-import {ChangeBasis} from './change-basis';
-import { Observable } from 'rxjs/Observable';
+import { TipBasis } from './tip-basis';
+import { ChangeBasis } from './change-basis';
 import { DataStoreService } from '../data-store/data-store.service';
+import { Subscription } from 'rxjs/Subscription';
+import { OnDestroy } from '@angular/core';
 
 /**
  * Created by Erick on 2/27/2017.
  */
 
-export class Settings {
+export class Settings implements OnDestroy {
 
   public service: DataStoreService;
+  taxPercent: number;
+  tipPercent: number;
+  delivery: number;
+  changeOption: ChangeBasis;
+  tipOption: TipBasis;
+  showIntro: boolean;
+
+  private subscriptions: Subscription[] = [];
+
   constructor(svc: DataStoreService) {
     this.service = svc;
+    this.subscriptions.push(this.service.settings.subscribe(obs => {
+      this.taxPercent = obs.taxPercent;
+      this.tipPercent = obs.tipPercent;
+      this.delivery = obs.delivery;
+      this.changeOption = obs.changeOption;
+      this.showIntro = obs.showIntro;
+    }));
   }
 
-  get taxPercent(): Observable<number> {
-    return this.service.taxPercent;
-  }
-
-  setTaxPercent(percent: number) {
-    this.service.setTaxPercent(percent);
-  }
-
-  get tipPercent(): Observable<number> {
-    return this.service.tipPercent;
-  }
-
-  setTipPercent(percent: number) {
-    this.service.setTipPercent(percent);
-  }
-
-  get delivery(): Observable<number> {
-    return this.service.delivery;
-  }
-
-  setDelivery(delivery: number) {
-    this.service.setDelivery(delivery);
-  }
-
-  get changeOption(): Observable<ChangeBasis> {
-    return this.service.changeOption;
-  }
-
-  setChangeOption(option: ChangeBasis) {
-    this.service.setChangeBasis(option);
-  }
-
-  get tipOption(): Observable<TipBasis> {
-    return this.service.tipOption;
-  }
-
-  setTipOption(option: TipBasis) {
-    this.service.setTipBasis(option);
-  }
-
-  get showIntro(): Observable<boolean> {
-    return this.service.showIntro;
-  }
-
-  setShowIntro(show: boolean) {
-    this.service.setShowIntro(show);
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }

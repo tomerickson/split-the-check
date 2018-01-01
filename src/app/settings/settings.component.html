@@ -3,7 +3,7 @@
     <mat-panel-title>Settings</mat-panel-title>
     <mat-panel-description>These settings apply to all orders.</mat-panel-description>
   </mat-expansion-panel-header>
-  <form [formGroup]="changeForm" (ngSubmit)="postit(changeForm.value)">
+  <form [formGroup]="changeForm" (ngSubmit)="postIt(changeForm.value)">
     <mat-grid-list cols="6">
       <mat-grid-tile [colspan]="2">
         <mat-form-field>
@@ -93,13 +93,13 @@
       <mat-grid-tile id="submitTile" [colspan]="6" *ngIf="changeForm.dirty">
         <button type="submit"
                 title="Submit"
-                (change)="postit(changeForm.getRawValue())"
+                (change)="postIt(changeForm.getRawValue())"
                 [disabled]="!changeForm.valid">
           <mat-icon>save</mat-icon>
         </button>
         <button type="button"
                 title="Undo"
-                (click)="undoit()"
+                (click)="undoIt()"
                 [disabled]="!changeForm.valid">
           <mat-icon>undo</mat-icon>
         </button>

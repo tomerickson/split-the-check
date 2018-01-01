@@ -5,129 +5,118 @@ import { TipBasis } from './tip-basis';
 import 'rxjs/add/operator/defaultIfEmpty';
 import { IItem } from './IItem';
 import { Observable } from 'rxjs/Observable';
-import { ChangeBasis } from './change-basis';
-import { Session } from './session';
-import { Subscription } from 'rxjs/Subscription';
 import { Settings } from './settings';
+import { ChangeBasis } from './change-basis';
+import { Injectable, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs/Subscription';
+import { DataStoreService } from '../data-store/data-store.service';
 
-export class Helpers {
+@Injectable()
+
+export class Helpers implements OnDestroy {
+
+  private subscriptions: Subscription[] = [];
+  private service: DataStoreService;
+  private settings: Settings;
+
+  constructor(svc: DataStoreService) {
+    this.service = svc;
+    this.subscriptions.push(this.service.settings.subscribe(obs => this.settings = obs));
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+  }
 
   /**
-   * Calculate total of merchandise
-   *
+   * Subtotals
    * @param {IItem[]} items
-   * @param {boolean} numeric?
    * @returns {number}
    */
-  static subtotal(items: IItem[], numeric?: boolean): number ;
-  /**
-   *
-   * @param {Observable<IItem[]>} items
-   * @returns {Observable<number>}
-   */
-  static subtotal(items: Observable<IItem[]>): Observable<number> ;
-  /**
-   *
-   * @param {IItem[] | Observable<IItem[]>} items
-   * @param {boolean} numeric
-   * @returns {number | Observable<number>}
-   */
-  static subtotal(items: IItem[] | Observable<IItem[]>, numeric?: boolean): number | Observable<number> {
-    if (numeric) {
-      const itms = <IItem[]>items;
-      return itms.map(item => item.price * item.quantity).reduce((sum, vlu) => sum + vlu, 0);
-    } else {
-      const itms = <Observable<IItem[]>>items;
-      return itms.map(element => element.map(item => item.price * item.quantity)
-        .reduce((sum, vlu) => sum + vlu, 0));
-    }
+  public subtotal(items: IItem[]): number {
+    return items.map(item => item.price * item.quantity).reduce((sum, vlu) => sum + vlu, 0);
   }
 
   /**
    * Calculate tax
    *
    * @param {number} subtotal
-   * @param {Observable<Settings>} settings
    * @returns {number}
    */
-  /*static tax(subtotal: number, settings: Observable<Settings>): number ;
-  static tax(subtotal: Observable<number>,
-             settings: Observable<Settings>): Observable<number>;
-  static tax(subtotal: number | Observable<number>,
-             settings: Observable<Settings>) {
-    if (typeof subtotal === 'number') {
-      return subtotal * Helpers.unwrap(settings).taxPercent / 100;
-    } else {
-      const sub: Observable<number> = subtotal as Observable<number>;
-      return Observable.combineLatest(sub, service.taxPercent, ((amt, pct) => amt * pct / 100));
-    }
-  }*/
+  public tax(subtotal: number): number {
+    return subtotal * this.settings.taxPercent / 100;
+  }
 
   /**
    * Calculate tip
    *
    * @param {number} subtotal
-   * @param {number | Observable<number>} taxAmount
-   * @param {Settings} settings
-   * @returns {number | Observable<number>}
+   * @param {number} taxAmount
+   * @returns {number}
    */
-  static tip(subtotal: number,
-             taxAmount: number,
-             settings: Settings): number;
-
-  static tip(subtotal: Observable<number>,
-             taxAmount: Observable<number>,
-             settings: Settings): Observable<number>;
-
-  static tip(subtotal: number | Observable<number>,
-             taxAmount: number | Observable<number>,
-             settings: Settings): number | Observable<number> {
-    const basis: TipBasis = Helpers.unwrap(settings.tipOption);
-    if (typeof subtotal === 'number') {
-      let result = 0;
-      const tax: number = taxAmount as number;
-      const pct: number = Helpers.unwrap(settings.tipPercent);
-      if (basis.description === 'Gross') {
-        result = (subtotal + tax) * pct / 100;
-      } else {
-        result = result = subtotal * pct / 100;
-      }
-      return result;
+  public tip(subtotal: number,
+             taxAmount: number): number {
+    let result = 0;
+    if (this.settings.tipOption.description === 'Gross') {
+      result = (subtotal + taxAmount) * this.settings.tipPercent / 100;
     } else {
-      const amt: Observable<number> = subtotal as Observable<number>;
-      return Observable.combineLatest(amt, settings.taxPercent, settings.tipPercent, ((a, t, p) =>
-        (a + (basis.description === 'Gross' ? t : 0)) * p / 100));
+      result = subtotal * this.settings.tipPercent / 100;
     }
+    return result;
   }
 
-  static delivery(thisTotal: number, settings: Settings, session: Session): number;
-
-  static delivery(thisTotal: Observable<number>, settings: Settings, session: Session): Observable<number>;
-
-  static delivery(thisTotal: number | Observable<number>, settings: Settings, session: Session): number | Observable<number> {
-    if (typeof thisTotal === 'number') {
-      return Helpers.calcDelivery(thisTotal, settings, session);
-    } else {
-      let amt = 0;
-      const subscription: Subscription = thisTotal.subscribe(total => amt = total);
-      const result = Observable.of(Helpers.calcDelivery(amt, settings, session));
-      subscription.unsubscribe();
-      return result;
-    }
+  /**
+   * Calculate delivery
+   *
+   * @param {number} thisTotal
+   * @param {number} sessionTotal
+\   * @returns {number}
+   */
+  public delivery(thisTotal: number, sessionTotal: number): number {
+    return this.calcDelivery(thisTotal, sessionTotal, this.settings.delivery);
   }
 
-  private static unwrap(observable: Observable<any>): any {
+  /**?
+   * Total of merchandise, tax, tip and delivery
+   *
+   * @param {number} subtotal
+   * @param {number} tax
+   * @param {number} tip
+   * @param {number} delivery
+   * @returns {number}
+   */
+  public total(subtotal: number, tax: number, tip: number, delivery: number): number {
+    return subtotal + tax + tip + delivery;
+  }
+
+  /**
+   * Difference between total and paid, optionally rounded
+   * to the denomination specified
+   * @param {number} total
+   * @param {number} paid
+   * @param {boolean?} round
+   * @returns {number}
+   */
+  public overShort(total: number, paid: number, round?: boolean) {
+    let result = total - paid;
+    if (round) {
+      result = result / this.settings.changeOption.value * this.settings.changeOption.value;
+    }
+    return result;
+  }
+
+  public unwrap(observable: Observable<any>): any {
     let result: any;
     const subscription = observable.subscribe(obs => result = obs);
     subscription.unsubscribe();
     return result;
   }
 
-  private static calcDelivery(subtotal: number, settings: Settings, session: Session): number {
+  private calcDelivery(subtotal: number, sessionTotal: number, delivery: number): number {
     let result = 0;
-    Observable.combineLatest(session.subtotal, settings.delivery, ((total, delivery) => {
-      result = (total > 0 && delivery > 0) ? delivery * (subtotal / total) : 0;
-    }));
+    if (delivery > 0 && sessionTotal > 0) {
+      result = delivery * (subtotal / sessionTotal);
+    }
     return result;
   }
 }

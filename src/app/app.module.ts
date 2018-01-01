@@ -26,6 +26,7 @@ import { TestComponent } from './test.component';
 import { HeaderComponent } from './header/header.component';
 import { HomeComponent } from './home/home.component';
 import { TobeTestedComponent } from './tobe-tested/tobe-tested.component';
+import { Helpers } from './model';
 
 export const appRoutes: Routes = [
   {
@@ -76,7 +77,7 @@ export function initializer(service: DataStoreService) {
     AngularFireAuthModule,
     AngularFireDatabaseModule],
 
-  providers: [DataStoreService, DataProviderService, ValidationService],
+  providers: [DataStoreService, DataProviderService, Helpers, ValidationService],
 
   bootstrap: [AppComponent]
 })

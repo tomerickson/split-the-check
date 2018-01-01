@@ -7,6 +7,8 @@ import { queryDef } from '@angular/core/src/view/query';
 import {Observable} from 'rxjs/Observable';
 import DataSnapshot = firebase.database.DataSnapshot;
 import { isNullOrUndefined } from 'util';
+import ThenableReference = firebase.database.ThenableReference;
+import Reference = firebase.storage.Reference;
 
 @Injectable()
 
@@ -71,11 +73,11 @@ export class DataProviderService implements OnDestroy {
     return result;
   }
 
-  push<T>(path: string, value: T): Promise<void> {
-    let result = null;
+  push<T>(path: string, value: T): firebase.database.ThenableReference {
+    let result: firebase.database.ThenableReference = null;
     try {
-      result = this.db.list(path).push(value);
-      this.logSuccess(this.MSG_PUSH, path, value, true);
+      result = this.db.database.ref(path).push(value);
+      this.logSuccess(this.MSG_PUSH, path, value, 'key: ' + result.key);
     } catch (err) {
       this.logFailure(this.MSG_PUSH, path, err);
     }
@@ -119,7 +121,7 @@ export class DataProviderService implements OnDestroy {
       });
   }
 
-  query<T>(path: string, query: Query): AngularFireList<T> {
+  query<T>(path: string, query: QueryFn): AngularFireList<T> {
 
     return this.db.list<T>(path, query);
   }

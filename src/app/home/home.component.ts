@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
-import { Session, Settings } from '../model';
+import { Helpers, Session, Settings } from '../model';
 import { Subscription } from 'rxjs/Subscription';
 import { isNullOrUndefined } from 'util';
 
@@ -15,11 +15,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   service: DataStoreService;
   session: Session;
   settings: Settings;
-  subscriptions: Subscription[] = [];
+  private subscriptions: Subscription[] = [];
+  private helpers: Helpers;
 
-  constructor(svc: DataStoreService) {
+  constructor(svc: DataStoreService, private hlp: Helpers) {
     this.service = svc;
-    this.session = new Session(this.service);
+    this.helpers = hlp;
+    this.session = new Session(this.service, this.helpers);
     this.settings = new Settings(this.service);
   }
 

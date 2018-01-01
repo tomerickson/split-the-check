@@ -5,6 +5,8 @@ import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 import {Settings} from '../model/settings';
 import {Session} from '../model/session';
+import { IOrder } from '../model';
+import { isNullOrUndefined } from 'util';
 
 @Component({
   selector: 'app-order-list-outlet',
@@ -13,18 +15,24 @@ import {Session} from '../model/session';
 })
 
 export class OrderListComponent implements OnInit, OnDestroy {
+  @Input() settings: Settings;
+  @Input() session: Session;
   service: DataStoreService;
-  orderSub: Subscription;
-  orders: Order[];
+  subscriptions: Subscription[] = [];
+  orders: IOrder[];
 
   constructor(svc: DataStoreService) {
     this.service = svc;
   }
 
   ngOnInit() {
+    this.subscriptions.push(this.service.allOrders.subscribe(obs => this.orders = obs));
+    if (isNullOrUndefined(this.settings)) {debugger; }
+    if (isNullOrUndefined(this.session)) {debugger; }
   }
 
   ngOnDestroy() {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   addOrder() {

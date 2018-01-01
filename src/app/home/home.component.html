@@ -36,7 +36,10 @@
             </app-settings>
         </section>
         <section>
-            <app-order-list-outlet></app-order-list-outlet>
+            <app-order-list-outlet
+              [settings]="settings"
+            [session]="session">
+            </app-order-list-outlet>
         </section>
     </mat-card>
     <div *ngIf="session">

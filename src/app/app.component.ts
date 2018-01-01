@@ -14,7 +14,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   showIntro: Observable<boolean>;
   service: DataStoreService;
-  @Output() settings: BehaviorSubject<Settings>;
+  // @Output() settings: BehaviorSubject<Settings>;
 
   constructor(svc: DataStoreService) {
     this.service = svc;
@@ -26,7 +26,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.settings.unsubscribe();
+    // this.settings.unsubscribe();
   }
 }
 
