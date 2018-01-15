@@ -1,11 +1,8 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {Order} from '../model/order';
-import {DataStoreService} from '../data-store/data-store.service';
-import {Observable} from 'rxjs/Observable';
-import {Subscription} from 'rxjs/Subscription';
-import {Settings} from '../model/settings';
-import {Session} from '../model/session';
-import { IOrder } from '../model';
+import { Component, Input, OnDestroy, OnInit} from '@angular/core';
+import { DataStoreService} from '../data-store/data-store.service';
+import { Observable} from 'rxjs/Observable';
+import { Subscription} from 'rxjs/Subscription';
+import { OrderBase, Order, Settings, Session} from '../model';
 import { isNullOrUndefined } from 'util';
 
 @Component({
@@ -19,27 +16,36 @@ export class OrderListComponent implements OnInit, OnDestroy {
   @Input() session: Session;
   service: DataStoreService;
   subscriptions: Subscription[] = [];
-  orders: IOrder[];
+  orders: OrderBase[];
 
   constructor(svc: DataStoreService) {
     this.service = svc;
   }
 
   ngOnInit() {
-    this.subscriptions.push(this.service.allOrders.subscribe(obs => this.orders = obs));
-    if (isNullOrUndefined(this.settings)) {debugger; }
-    if (isNullOrUndefined(this.session)) {debugger; }
-  }
+    const promise: Promise<void> = new Promise<void>(() =>
+      this.subscriptions.push(this.service.allOrders.subscribe(obs => this.orders = obs)));
+    promise
+      .catch(err => console.error(err))
+    }
 
   ngOnDestroy() {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   addOrder() {
-    this.service.addOrder();
+    this.service.addOrder(new OrderStub());
   }
 
   onRemove(event: Event, index: number) {
     this.service.removeOrder(this.service.allOrders[index].key);
   }
+}
+
+class OrderStub implements OrderBase {
+  key: string;
+  orderId: string;
+  name: string;
+  paid: number;
+  items: null
 }

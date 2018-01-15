@@ -1,11 +1,8 @@
-import { ChangeDetectorRef, Component, Inject, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ChangeBasis, TipBasis, Settings, Helpers } from '../model';
-import { MatRadioChange } from '@angular/material';
 import 'rxjs/add/operator/map';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
 @Component({
@@ -14,17 +11,14 @@ import { Subscription } from 'rxjs/Subscription';
   styleUrls: ['settings.component.scss']
 })
 
-export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
+export class SettingsComponent implements OnInit, OnDestroy {
 
   @Input() settings: Settings;
   fb: FormBuilder;
-  changer: ChangeDetectorRef;
-  activity: Object;
   changeForm: FormGroup;
   taxPercent: number;
   tipPercent: number;
   delivery: number;
-  showIntro: boolean;
   tipOption: TipBasis;
   changeOption: ChangeBasis;
   tipOptions: TipBasis[];
@@ -38,33 +32,36 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
     pattern: 'Numeric required.'
   };
 
-  constructor(public service: DataStoreService, private hlp: Helpers, private builder: FormBuilder, private cd: ChangeDetectorRef) {
+  constructor(public service: DataStoreService, private hlp: Helpers, private builder: FormBuilder) {
     this.fb = builder;
-    this.changer = cd;
     this.helpers = hlp;
   }
 
   ngOnInit() {
     this.buildForm();
-    this.buildSubscriptionsAndFillForm();
+    this.buildSubscriptionsAndFillForm()
+      .then(() => console.log('settings init complete'))
+      .catch(err => console.error('settings init failed: ' + err.toJSON()));
   }
 
   buildSubscriptionsAndFillForm() {
-    this.subscriptions.push(this.service.settings.subscribe(obs => {
-      this.settings = obs;
-      this.taxPercent = this.settings.taxPercent;
-      this.tipPercent = this.settings.tipPercent;
-      this.delivery = this.settings.delivery;
-      this.changeOption = this.settings.changeOption;
-      this.tipOption = this.settings.tipOption;
-      this.changeForm.controls['taxPercent'].setValue(this.taxPercent);
-      this.changeForm.controls['tipPercent'].setValue(this.tipPercent);
-      this.changeForm.controls['delivery'].setValue(this.delivery);
-      this.changeForm.controls['tipOption'].setValue(this.tipOption);
-      this.changeForm.controls['changeOption'].setValue(this.changeOption);
-    }));
-    this.subscriptions.push(this.service.tipOptions.subscribe((obs) => this.tipOptions = obs));
-    this.subscriptions.push(this.service.changeOptions.subscribe((obs) => this.changeOptions = obs));
+    return new Promise<any>(() => {
+      this.subscriptions.push(this.service.settings.subscribe(obs => {
+        this.settings = obs;
+        this.taxPercent = this.settings.taxPercent;
+        this.tipPercent = this.settings.tipPercent;
+        this.delivery = this.settings.delivery;
+        this.changeOption = this.settings.changeOption;
+        this.tipOption = this.settings.tipOption;
+        this.changeForm.controls['taxPercent'].setValue(this.taxPercent);
+        this.changeForm.controls['tipPercent'].setValue(this.tipPercent);
+        this.changeForm.controls['delivery'].setValue(this.delivery);
+        this.changeForm.controls['tipOption'].setValue(this.tipOption);
+        this.changeForm.controls['changeOption'].setValue(this.changeOption);
+      }));
+      this.subscriptions.push(this.service.tipOptions.subscribe((obs) => this.tipOptions = obs));
+      this.subscriptions.push(this.service.changeOptions.subscribe((obs) => this.changeOptions = obs));
+    });
   }
 
   clearSubscriptions() {
@@ -81,43 +78,10 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
       changeOption: [null, Validators.required],
       tipOption: [this.tipOption, Validators.required]
     }, {updateOn: 'change'});
-    // this.changeForm.get('taxPercent').valueChanges.forEach((value) => alert('taxpercent: ' + this.changeForm.valid));
   }
 
   ngOnDestroy() {
     this.clearSubscriptions();
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-
-    /*for (const propName in changes) {
-      if (changes.hasOwnProperty(propName)) {
-
-        const change = changes[propName];
-        this.activity = propName;
-        if (propName === 'tipOptions' && change.currentValue !== change.previousValue) {
-          // this.tipOptions.sort((a, b) => a.value - b.value);
-          this.settings.setTipOption(change.currentValue);
-        }
-
-        if (propName === 'changeOptions' && change.currentValue !== change.previousValue) {
-          // this.changeOptions.sort((a, b) => a.value - b.value);
-          this.settings.setChangeOption(change.currentValue);
-        }
-
-        if (propName === 'taxPercent' && change.currentValue !== change.previousValue) {
-          this.settings.setTaxPercent(change.currentValue);
-        }
-
-        if (propName === 'tipPercent' && change.currentValue !== change.previousValue) {
-          this.settings.setTipPercent(change.currentValue);
-
-        }
-        if (propName === 'delivery' && change.currentValue !== change.previousValue) {
-          this.settings.setDelivery(change.currentValue);
-        }
-      }
-    }*/
   }
 
   /**
@@ -134,6 +98,7 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
    */
   undoIt() {
     this.clearSubscriptions();
+    this.changeForm.reset();
     this.buildSubscriptionsAndFillForm();
   }
 

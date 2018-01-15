@@ -1,81 +1,79 @@
-<mat-card>
-  <form [formGroup]="itemForm">
-    <mat-grid-list cols="6" rowHeight="3:1">
-      <mat-grid-tile>
-        <button mat-icon-button class="remove"
-                title="Remove this item."
-                (click)="openDialog()">
-          <mat-icon>remove_circle</mat-icon>
-        </button>
-      </mat-grid-tile>
-      <mat-grid-tile>
-        <mat-form-field>
-          <input matInput id="description"
-                 class="form-control text-line"
-                 name="description"
-                 formControlName="description"
-                 placeholder="Description"
-                 onfocus="select();"
-                 value="item!async?.description"
-                 tabindex="0">
-          <app-control-messages [control]="itemForm.controls['description']"
-                                [expando]="'description'"></app-control-messages>
-        </mat-form-field>
-      </mat-grid-tile>
-      <mat-grid-tile>
-        <mat-form-field>
-          <input matInput id="price"
-                 class="form-control"
-                 name="price"
-                 onfocus="select();"
-                 formControlName="price"
-                 placeholder="Price"
-                 tabindex="0">
-          <app-control-messages [control]="itemForm.controls['price']" [expando]="'price'"></app-control-messages>
-        </mat-form-field>
-      </mat-grid-tile>
-      <mat-grid-tile>
-        <mat-form-field>
-          <input matInput class="form-control"
-                 id="quantity"
-                 name="quantity"
-                 onfocus="select();"
-                 placeholder="Qty." formControlName="quantity"
-                 tabindex="0">
-          <app-control-messages [control]="itemForm.controls['quantity']" [expando]="'quantity'">
-          </app-control-messages>
-        </mat-form-field>
-      </mat-grid-tile>
-      <mat-grid-tile>
-        <mat-form-field>
-          <input matInput class="form-control"
-                 id="instructions"
-                 name="instructions"
-                 onfocus="select();"
-                 formControlName="instructions"
-                 placeholder="Instructions"
-                 tabindex="0">
-        </mat-form-field>
-      </mat-grid-tile>
-      <mat-grid-tile>
-        <button mat-icon-button class="save"
-                [disabled]="itemForm.invalid"
-                title="Save"
-                (click)="onSave()" tabindex="0">
-          <mat-icon>done</mat-icon>
-        </button>
-        <button mat-icon-button class="undo"
-                title="Undo" (click)="onUndo()"
-                [disabled]="!itemForm.dirty">
-          <mat-icon>undo</mat-icon>
-        </button>
-        <button mat-icon-button class="add"
-                tabindex="0" title="Add"
-                [disabled]="itemForm.invalid"
-                (keydown.Space)="onAdd()" (click)="onAdd()">
-          <mat-icon>add_circle</mat-icon>
-        </button>
-      </mat-grid-tile>
-    </mat-grid-list>
-  </form>
-</mat-card>
+<form [formGroup]="itemForm">
+  <mat-grid-list cols="6" rowHeight="3:1">
+    <mat-grid-tile>
+      <button mat-icon-button class="remove"
+              title="Remove this item."
+              (click)="openDialog()">
+        <mat-icon>remove_circle</mat-icon>
+      </button>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <mat-form-field>
+        <input matInput id="description"
+               class="form-control text-line"
+               name="description"
+               formControlName="description"
+               placeholder="Description"
+               onfocus="select();"
+               value="item!async?.description"
+               tabindex="0">
+        <app-control-messages [control]="itemForm.controls['description']"
+                              [expando]="'description'"></app-control-messages>
+      </mat-form-field>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <mat-form-field>
+        <input matInput id="price"
+               class="form-control"
+               name="price"
+               onfocus="select();"
+               formControlName="price"
+               placeholder="Price"
+               tabindex="0">
+        <app-control-messages [control]="itemForm.controls['price']" [expando]="'price'"></app-control-messages>
+      </mat-form-field>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <mat-form-field>
+        <input matInput class="form-control"
+               id="quantity"
+               name="quantity"
+               onfocus="select();"
+               placeholder="Qty." formControlName="quantity"
+               tabindex="0">
+        <app-control-messages [control]="itemForm.controls['quantity']" [expando]="'quantity'">
+        </app-control-messages>
+      </mat-form-field>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <mat-form-field>
+        <input matInput class="form-control"
+               id="instructions"
+               name="instructions"
+               onfocus="select();"
+               formControlName="instructions"
+               placeholder="Instructions"
+               tabindex="0">
+      </mat-form-field>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <button mat-icon-button class="save"
+              [disabled]="itemForm.invalid"
+              title="Save"
+              (click)="onSave()" tabindex="0">
+        <mat-icon>done</mat-icon>
+      </button>
+      <button mat-icon-button class="undo"
+              title="Undo" (click)="onUndo()"
+              [disabled]="!itemForm.dirty">
+        <mat-icon>undo</mat-icon>
+      </button>
+      <button mat-icon-button class="add"
+              tabindex="0" title="Add"
+              [disabled]="itemForm.invalid"
+              (keydown.Space)="onAdd()" (click)="onAdd()">
+        <mat-icon>add_circle</mat-icon>
+      </button>
+    </mat-grid-tile>
+  </mat-grid-list>
+</form>

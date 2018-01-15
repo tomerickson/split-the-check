@@ -3,7 +3,7 @@
 */
 import { TipBasis } from './tip-basis';
 import 'rxjs/add/operator/defaultIfEmpty';
-import { IItem } from './IItem';
+import { ItemBase } from './itembase';
 import { Observable } from 'rxjs/Observable';
 import { Settings } from './settings';
 import { ChangeBasis } from './change-basis';
@@ -30,10 +30,10 @@ export class Helpers implements OnDestroy {
 
   /**
    * Subtotals
-   * @param {IItem[]} items
+   * @param {ItemBase[]} items
    * @returns {number}
    */
-  public subtotal(items: IItem[]): number {
+  public subtotal(items: ItemBase[]): number {
     return items.map(item => item.price * item.quantity).reduce((sum, vlu) => sum + vlu, 0);
   }
 

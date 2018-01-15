@@ -67,7 +67,7 @@ export class DataProviderService implements OnDestroy {
     return new type();
   }
 
-  getItem<T>(path: string): AngularFireObject<T> {
+  getObject<T>(path: string): AngularFireObject<T> {
     const result: AngularFireObject<T> =  this.db.object<T>(path);
     this.logSuccess(this.MSG_OBJECT, path, result);
     return result;

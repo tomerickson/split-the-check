@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2 } from '@angular/core';
-import { Item } from '../model/item';
+import { Item } from '../model';
 import { DataStoreService } from '../data-store/data-store.service';
 import { Subscription } from 'rxjs/Subscription';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import 'rxjs/add/operator/map';
 
 import { DialogsService } from '../dialogs/dialogs.service';
+import { ItemBase } from '../model';
 
 @Component({
   selector: 'app-item-outlet',
@@ -73,7 +74,9 @@ export class ItemComponent implements OnInit, OnDestroy {
   }
 
   onAdd() {
-    this.service.addItem(this.orderId);
+    const item = new ItemBase();
+    item.orderId = this.orderId;
+    this.service.addItem(item);
   }
 
   onSave() {

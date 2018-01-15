@@ -1,14 +1,11 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
-import { ChangeBasis, IOrder, Order } from '../model';
-import { Session } from '../model';
-import { Settings } from '../model';
-import { IItem } from '../model';
-import { Helpers } from '../model';
+import { Session, Settings, ItemBase, Helpers, OrderBase, Order, ChangeBasis, TipBasis } from '../model';
 import 'rxjs/add/operator/defaultIfEmpty';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-order-outlet',
@@ -19,25 +16,31 @@ import { Subscription } from 'rxjs/Subscription';
 export class OrderComponent implements OnInit, OnDestroy, OnChanges {
 
   @Input() orderId: string;
+  @Input() order: Order;
   @Input() index: number;
   @Input() session: Session;
   @Input() settings: Settings;
   @Output() onRemove = new EventEmitter<Order>();
   @Output() changeTrigger = new EventEmitter();
 
+  builder: FormBuilder;
+  orderForm: FormGroup;
+  numberPattern = '^\\d+(\\.\\d+)?$';
   name: string;
   paid: number;
-  order: Order;
-  items: IItem[];
   count: number;
   total: number;
   overShort: number;
   positive: boolean;
+  helpers: Helpers;
+  service: DataStoreService;
   changeBasis: ChangeBasis;
   subscriptions: Subscription[] = [];
 
-  constructor(public service: DataStoreService) {
-    this.order = null;
+  constructor(private svc: DataStoreService, private hlp: Helpers, private fb: FormBuilder) {
+    this.service = svc;
+    this.helpers = hlp;
+    this.builder = fb;
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -45,20 +48,21 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
 
 
   ngOnInit() {
+    this.buildForm();
     const promise: Promise<number> = new Promise<number>(() =>
-      this.subscriptions.push(this.service.getOrder(this.orderId).subscribe(obs => {
-        this.order.name = obs.name;
-        this.order.paid = obs.paid;
-        this.order.key = obs.key;
-      })))
-      .then(() =>
-        this.subscriptions.push(this.service.getItems(this.orderId).subscribe(obs => {
-          this.order.items = obs;
-        })))
-      .then(() =>
-        this.subscriptions.push(this.service.changeOption.subscribe(obs => this.changeBasis = obs)));
+      this.subscriptions.push(this.service.getItems(this.orderId)
+        .subscribe(obs => {
+          this.fillOrder(obs);
+        })));
+    /*.then(() =>
+      this.subscriptions.push(this.service.getItems(this.orderId).subscribe(obs => {
+        this.order.items = obs;
+      })))*/
     promise
-      .then(() => console.log('order ngOnInit succeeded'))
+      .then(() => {
+        this.subscriptions.push(this.service.changeOption.subscribe(obs => this.changeBasis = obs));
+        console.log('order ngOnInit succeeded');
+      })
       .catch(err => console.error('order ngOnInit failed with error ' + err));
   }
 
@@ -66,15 +70,24 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
     this.subscriptions.forEach((subscription => subscription.unsubscribe()));
   }
 
-  buildOrder(order) {
+  buildForm() {
+    this.orderForm = this.fb.group({
+      name: [this.order.name, [Validators.required]],
+      paid: [this.order.paid, [Validators.required, Validators.pattern(this.numberPattern)]]
+    }, { updateOn: 'change' });
+}
+
+/*  buildOrder(order) {
     this.order = order;
     this.paid = order.paid;
   }
+*/
 
-  fillOrder(items) {
+  fillOrder(items: ItemBase[]) {
     if (!items) {
-      return
+      this.order.items = [];
     }
+    this.order.items = items;
   }
 
   removeOrder() {
@@ -84,12 +97,12 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
 
   updateName(event) {
     this.name = (<HTMLInputElement>event.target).value;
-    this.service.updateOrder(this.orderId, {name: this.name, paid: this.paid});
+    this.service.updateOrder(this.orderId, { name: this.name, paid: this.paid });
   }
 
   updatePaid(event) {
     this.paid = +(<HTMLInputElement>event.target).value;
-    this.service.updateOrder(this.orderId, {name: this.name, paid: this.paid});
+    this.service.updateOrder(this.orderId, { name: this.name, paid: this.paid });
   }
 
   selectPaid(event: Event) {
@@ -100,6 +113,8 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   addItem() {
-    this.service.addItem(this.orderId);
+    const item = new ItemBase();
+    item.orderId = this.orderId;
+    this.service.addItem(item);
   }
 }

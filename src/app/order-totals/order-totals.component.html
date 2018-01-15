@@ -1,5 +1,5 @@
 <!-- Running totals -->
-<div id="totals">
+<div id="totals" *ngIf="session.items">
   <table>
   <thead>
   <tr>
@@ -9,45 +9,45 @@
   <tbody>
   <tr>
     <td>Orders:</td>
-    <td><span>{{orders}}</span></td>
+    <td><span>{{session.orders.length}}</span></td>
   </tr>
   <tr>
     <td>Subtotal:</td>
     <td>
-      <span>{{subtotal | number:'1.2-2'}}</span>
+      <span>{{session.subtotal | number:'1.2-2'}}</span>
     </td>
   </tr>
   <tr>
     <td>Sales Tax:</td>
     <td>
-      <span>{{tax | number:'1.2-2'}}</span>
+      <span>{{session.tax | number:'1.2-2'}}</span>
     </td>
   </tr>
   <tr>
     <td>Tip:</td>
     <td>
-      <span>{{tip | number:'1.2-2'}}</span>
+      <span>{{session.tip | number:'1.2-2'}}</span>
     </td>
   </tr>
   <tr>
     <td>Delivery:</td>
     <td>
-      <span>{{delivery | number:'1.2-2'}}</span>
+      <span>{{session.delivery | number:'1.2-2'}}</span>
     </td>
   </tr>
   <tr>
     <td>Total:</td>
-    <td><span>{{total | number:'1.2-2'}}</span>
+    <td><span>{{session.total | number:'1.2-2'}}</span>
     </td>
   </tr>
   <tr>
     <td>Paid:</td>
-    <td><span>{{paid | number:'1.2-2'}}</span></td>
+    <td><span>{{session.paid | number:'1.2-2'}}</span></td>
   </tr>
   <tr>
     <td>Over / Short:</td>
     <td><span [class.short]="underPaid">
-      {{overShort | number:'1.2-2'}}
+      {{session.overShort | number:'1.2-2'}}
     </span></td>
   </tr>
   </tbody>

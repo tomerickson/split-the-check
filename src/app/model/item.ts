@@ -1,10 +1,8 @@
-import { IItem } from './IItem';
+import { ItemBase } from 'app/model/itembase';
 
-export class Item implements IItem {
-  orderId: string;
-  description: string;
-  quantity: number;
-  price: number;
-  instructions: string;
-  key: string;
+export class Item extends ItemBase {
+
+  constructor() {
+    super();
   }
+}

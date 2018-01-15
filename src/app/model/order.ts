@@ -1,9 +1,9 @@
 import { DataStoreService } from '../data-store/data-store.service';
-import { IOrder} from './IOrder';
+import { OrderBase} from './orderbase';
 import { Item } from './item';
 import { Helpers } from './helpers';
 
-export class Order implements IOrder {
+export class Order implements OrderBase {
   key: string;
   name: string;
   paid: number;

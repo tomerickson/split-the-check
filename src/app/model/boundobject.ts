@@ -1,3 +1,4 @@
-export interface IDomainObject {
+
+export class BoundObject {
   key: string; // Key auto-assigned by firebase
 }

@@ -21,8 +21,18 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(svc: DataStoreService, private hlp: Helpers) {
     this.service = svc;
     this.helpers = hlp;
+    const promise: Promise<any> = new Promise<any>(() => {
+      this.buildComponent();
+    });
+    promise.then(() => {
+    })
+      .catch(err => console.log(err.toJSON()))
+  }
+
+  buildComponent() {
     this.session = new Session(this.service, this.helpers);
     this.settings = new Settings(this.service);
+    console.log('home: buildComponent: ' + isNullOrUndefined(this.session));
   }
 
   ngOnInit() {

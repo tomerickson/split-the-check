@@ -22,7 +22,7 @@ export class TestComponent implements AfterContentInit, OnDestroy {
 
   constructor (public service: DataProviderService) {
 
-    this.taxPercent = this.service.getItem<number>('/settings/taxPercent').valueChanges();
+    this.taxPercent = this.service.getObject<number>('/settings/taxPercent').valueChanges();
   }
 
   ngAfterContentInit() {

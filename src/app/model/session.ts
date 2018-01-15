@@ -1,8 +1,8 @@
 import { OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { DataStoreService } from '../data-store/data-store.service';
-import { IItem } from './iitem';
-import { IOrder } from './iorder';
+import { ItemBase } from './itembase';
+import { OrderBase } from '../model';
 import { Helpers } from './helpers';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Settings } from './settings';
@@ -11,25 +11,20 @@ export class Session implements OnDestroy {
 
   public title = 'Split the Check';
   public ready: BehaviorSubject<boolean>;
-  public orders: IOrder[];
+  public orders: OrderBase[];
   public service: DataStoreService;
-
+  public items: ItemBase[];
   private helpers: Helpers;
   private settings: Settings;
-  private items: IItem[];
   private subscriptions: Subscription[] = [];
- // private tipOptionSubscription: Subscription;
+
+  // private tipOptionSubscription: Subscription;
 
   constructor(private svc: DataStoreService, private hlp: Helpers) {
     this.service = svc;
     this.helpers = hlp;
-    new Promise<void>(() => this.subscriptions.push(this.service.settings.subscribe(obs => {
-      this.settings = obs;
-    })))
-      .then(() => this.subscriptions.push(this.service.allOrders.subscribe(obs => this.orders = obs)))
-      .then(() => this.subscriptions.push(this.service.allItems.subscribe(obs => this.items = obs)))
-      .then(() => this.ready = new BehaviorSubject<boolean>(true))
-      .catch(err => console.error('Session constructor failed: ' + JSON.stringify(err)));
+    const promise: Promise<any> = this.buildSession();
+    promise.catch(err => console.error('Session constructor failed: ' + err.toJSON()));
   }
 
   public get subtotal(): number {
@@ -67,5 +62,14 @@ export class Session implements OnDestroy {
 
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  private buildSession(): Promise<any> {
+    return new Promise(() => {
+      this.subscriptions.push(this.service.settings.subscribe(obs => this.settings = obs));
+      this.subscriptions.push(this.service.allOrders.subscribe(obs => this.orders = obs));
+      this.subscriptions.push(this.service.allItems.subscribe(obs => this.items = obs));
+      this.ready = new BehaviorSubject<boolean>(true);
+    });
   }
 }

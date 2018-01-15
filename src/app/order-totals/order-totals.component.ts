@@ -6,7 +6,6 @@ import 'rxjs/add/observable/of'
 import 'rxjs/add/observable/zip'
 import { DataStoreService } from '../data-store/data-store.service';
 import { Subscription } from 'rxjs/Subscription';
-import { isNullOrUndefined } from 'util';
 
 
 @Component({
@@ -19,8 +18,6 @@ export class OrderTotalsComponent implements OnInit, AfterContentInit, AfterView
 
   service: DataStoreService;
   @Input() session: Session;
-  orders: number;
-  subtotal: number;
   tax: number;
   tip: number;
   delivery: number;
@@ -34,23 +31,12 @@ export class OrderTotalsComponent implements OnInit, AfterContentInit, AfterView
     this.service = svc;
   }
 
-//     this.sessionSub = this.service.session.subscribe(obj => this.session}
-
   clearOrder(e: Event) {
     this.service.wrapUp();
     e.preventDefault();
   }
 
   ngOnInit() {
-    /*this.subscriptions.push(this.session.orders.subscribe(obs => this.orders = obs.length));
-    this.subscriptions.push(this.session.subtotal.subscribe(obs => this.subtotal = obs));
-    this.subscriptions.push(this.session.tax.subscribe(obs => this.tax = obs));
-    this.subscriptions.push(this.session.tip.subscribe(obs => this.tip = obs));
-    this.subscriptions.push(this.session.delivery.subscribe(obs => this.delivery = obs));
-    this.subscriptions.push(this.session.total.subscribe(obs => this.total = obs));
-    this.subscriptions.push(this.session.paid.subscribe(obs => this.paid = obs));
-    this.subscriptions.push(this.session.overShort.subscribe(obs => this.overShort = obs));
-    this.subscriptions.push(this.session.underPaid.subscribe(obs => this.underPaid = obs));*/
   }
 
   ngOnDestroy() {

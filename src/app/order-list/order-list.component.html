@@ -6,32 +6,29 @@
     <ul>
       <li>
         Click this symbol&nbsp;
-        <mat-icon
-          class="add"
-          aria-hidden="true" (click)="addOrder()">add_circle
-        </mat-icon>&nbsp;
-        or use the spacebar to add an order or an item.
+        <mat-icon class="add" aria-hidden="true" (click)="addOrder()">add_circle
+        </mat-icon>&nbsp; or use the spacebar to add an order or an item.
       </li>
       <li>
-        Click on this symbol
-        &nbsp;<mat-icon
-        class="remove"
-        aria-hidden="true">remove_circle
-      </mat-icon>&nbsp;below to remove an order
-        or item.
+        Click on this symbol &nbsp;
+        <mat-icon class="remove" aria-hidden="true">remove_circle
+        </mat-icon>&nbsp;below to remove an order or item.
       </li>
       <li>
         Use the tab key and shift-tab key to navigate forward and backward.
       </li>
     </ul>
   </section>
-  <mat-list *ngIf="orders">
-    <app-order-outlet *ngFor="let order of orders;let i = index"
-                      [session]="session"
-                      [settings]="settings"
-                      [orderId]="order.key"
-                      [index]="i"
-                      (onRemove)="onRemove($event, i)">
-    </app-order-outlet>
-  </mat-list>
+  <ul id="orders" *ngIf="orders">
+    <li>
+      <app-order-outlet *ngFor="let order of orders;let i = index"
+                        [session]="session"
+                        [settings]="settings"
+                        [orderId]="order.key"
+                        [index]="i"
+                        [order]="order"
+                        (onRemove)="onRemove($event, i)">
+      </app-order-outlet>
+    </li>
+  </ul>
 </mat-card>

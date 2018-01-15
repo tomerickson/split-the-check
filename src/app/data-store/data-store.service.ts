@@ -13,11 +13,13 @@ import 'rxjs/add/operator/reduce';
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/observable/ConnectableObservable'
-import { ChangeBasis, IDomainObject, IItem, IOrder, Item, Order, Settings, TipBasis } from '../model';
+import { ChangeBasis, ItemBase, OrderBase, Item, Order, Settings, TipBasis } from '../model';
 import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/observable/from';
 import * as firebase from 'firebase';
-import { AngularFireList } from 'angularfire2/database';
+import { AngularFireList, AngularFireObject } from 'angularfire2/database';
+import { SnapshotAction } from 'angularfire2/database/interfaces';
+import ThenableReference = firebase.database.ThenableReference;
 
 const PATH_ORDERS = '/orders';
 const PATH_ITEMS = '/items';
@@ -55,32 +57,43 @@ export class DataStoreService implements OnDestroy {
     this.initialize();
   }
 
+  buildPath = function (...x): string {
+    // const args: string[] = [].concat.call(arguments);
+    let result = '';
+    for (let i = 0; i < arguments.length; i++) {
+      if (!(result === '')) {
+        result = result + '/';
+      }
+      result = result + arguments[i];
+    }
+    return result;
+  }
+
   get settings(): Observable<Settings> {
-    return this.service.getItem<Settings>(PATH_SETTINGS).valueChanges();
+    return this.service.getObject<Settings>(PATH_SETTINGS).valueChanges();
   }
-  get allItems(): Observable<IItem[]> {
+  get allItems(): Observable<ItemBase[]> {
 
-    const it: AngularFireList<IItem> = this.service.getList<IItem>(PATH_ITEMS);
-    // let items: Observable<IItem[]> = it.valueChanges();
-    // items.forEach(item => , i){
-    // };
-    it.snapshotChanges().map(actions => actions.map(action => {
-      console.log(JSON.stringify(action.payload.key + ' ' + action.payload.val()));
-    }));
-    return it.valueChanges();
+    let result: Observable<ItemBase[]>;
+    return this.service.getList<ItemBase>(PATH_ITEMS).snapshotChanges()
+      .map(snapshots => snapshots.map(action => result = {key: action.key, ...action.payload.val()}));
   }
 
-  get allOrders(): Observable<IOrder[]> {
-    return this.ExtractIDomainObjectsFromSnapshot(this.service.getList<IOrder>(PATH_ORDERS));
+  get allOrders(): Observable<OrderBase[]> {
+    /*return this.ExtractIDomainListFromSnapshot(this.service.getList<OrderBase>(PATH_ORDERS));*/
+
+    let result: Observable<OrderBase[]>;
+    return this.service.getList<OrderBase>(PATH_ORDERS).snapshotChanges()
+    .map(snapshots => snapshots.map(action => result = {key: action.key, ...action.payload.val()}));
   }
 
   get changeOption(): BehaviorSubject<ChangeBasis> {
-    return <BehaviorSubject<ChangeBasis>>this.service.getItem<ChangeBasis>(PATH_DEFAULT_CHANGE_OPTION)
+    return <BehaviorSubject<ChangeBasis>>this.service.getObject<ChangeBasis>(PATH_DEFAULT_CHANGE_OPTION)
       .valueChanges();
   }
 
   get tipOption(): BehaviorSubject<TipBasis> {
-    return <BehaviorSubject<TipBasis>>this.service.getItem<TipBasis>(PATH_DEFAULT_TIP_OPTION)
+    return <BehaviorSubject<TipBasis>>this.service.getObject<TipBasis>(PATH_DEFAULT_TIP_OPTION)
       .valueChanges();
   }
 
@@ -93,19 +106,19 @@ export class DataStoreService implements OnDestroy {
   }
 
   get taxPercent(): Observable<number> {
-    return this.service.getItem<number>(PATH_SETTINGS_TAX_PERCENT).valueChanges();
+    return this.service.getObject<number>(PATH_SETTINGS_TAX_PERCENT).valueChanges();
   }
 
   get tipPercent(): Observable<number> {
-    return this.service.getItem<number>(PATH_SETTINGS_TIP_PERCENT).valueChanges();
+    return this.service.getObject<number>(PATH_SETTINGS_TIP_PERCENT).valueChanges();
   }
 
   get delivery(): Observable<number> {
-    return this.service.getItem<number>(PATH_SETTINGS_DELIVERY).valueChanges();
+    return this.service.getObject<number>(PATH_SETTINGS_DELIVERY).valueChanges();
   }
 
   get showIntro(): Observable<boolean> {
-    return this.service.getItem<boolean>(PATH_SETTINGS_SHOW_INTRO).valueChanges();
+    return this.service.getObject<boolean>(PATH_SETTINGS_SHOW_INTRO).valueChanges();
   }
 
   get subtotal(): Observable<number> {
@@ -177,53 +190,55 @@ export class DataStoreService implements OnDestroy {
    * Push a new on PATH_ORDERS
    * @returns {string}
    */
-  addOrder(): string {
-    const ref: firebase.database.ThenableReference = this.service
-      .push<IOrder>(PATH_ORDERS, { key: null, name: null, paid: 0, items: null });
-    return ref.key;
+  addOrder(order: OrderBase): ThenableReference {
+    delete order.key;
+    return this.service.push<OrderBase>(PATH_ORDERS, order);
   }
 
   removeOrder(key: string) {
-    this.service.remove(PATH_ORDERS + key);
+    this.service.remove(this.buildPath(PATH_ORDERS, key));
   }
 
-  getOrder(key: string): Observable<IOrder> {
-    return this.service.getItem<IOrder>(PATH_ORDERS + key)
-      .valueChanges();
+  getOrder(key: string): Observable<OrderBase> {
+    /*
+    const result: AngularFireObject<OrderBase> = this.service.getObject<OrderBase>(this.buildPath(PATH_ORDERS, key));
+    const result2 = this.ExtractIDomainObjectFromSnapshot(result);
+    return result2;*/
+    let result: Observable<OrderBase>;
+    return this.service.getObject<OrderBase>(this.buildPath(PATH_ORDERS, key))
+    .snapshotChanges()
+    .map(action => result = {key: action.key, ...action.payload.val()});
   }
 
   getPaid(key: string): Observable<number> {
-    return this.service.getItem<number>(PATH_ORDERS + key + '/paid').valueChanges();
+    return this.service.getObject<number>(this.buildPath(PATH_ORDERS, key, 'paid')).valueChanges();
   }
 
   //
-  getItems(orderId: string): Observable<IItem[]> {
+  getItems(orderId: string): Observable<ItemBase[]> {
 
-    // const filter: QueryFn = this.service.db.database.ref(PATH_ITEMS).orderByChild('orderId').equalTo(orderId)};
-    const list = this.service.query<IItem>(PATH_ITEMS, ref => ref.orderByChild('orderId').equalTo(orderId));
-    return this.ExtractIDomainObjectsFromSnapshot(list);
+    let result: Observable<ItemBase[]>;
+    return this.service.query<ItemBase>(PATH_ITEMS, ref => ref.orderByChild('orderId').equalTo(orderId)).snapshotChanges()
+    .map(snapshots => snapshots.map(action => result = {key: action.key, ...action.payload.val()}));
   }
 
   // Order level queries
 
   updateOrder(key: string, updates) {
-    this.service.updateObject<Order>(PATH_ORDERS + key, updates);
+    return this.service.updateObject<Order>(this.buildPath(PATH_ORDERS, key), updates);
   }
 
-  //
-  addItem(orderId: string) {
-    this.service.push<IItem>(PATH_ITEMS, {
-      orderId: orderId,
-      description: null, quantity: null, price: null, instructions: null, key: null
-    });
+  addItem(item: ItemBase): ThenableReference {
+    delete item.key;
+    return this.service.push<ItemBase>(PATH_ITEMS, item);
   }
 
   removeItem(itemId: string) {
-    this.service.remove(PATH_ITEMS + itemId);
+    return this.service.remove(this.buildPath(PATH_ITEMS, itemId));
   }
 
-  updateItem(item: Item) {
-    return this.service.updateObject<Item>(PATH_ITEMS + item.key, item);
+  updateItem(item: ItemBase) {
+    return this.service.updateObject<Item>(this.buildPath(PATH_ITEMS, item.key), item);
   }
 
   // Return items attached to an order,
@@ -239,44 +254,25 @@ export class DataStoreService implements OnDestroy {
     /**
      * Push the default settings into the /settings node
      */
-    const promise = new Promise<any>(() => {})
+    return new Promise<void>(() => { })
       .then(() =>
-        this.subscriptions.push(this.service.getItem<number>(PATH_DEFAULT_TAX_PERCENT).valueChanges()
+        this.subscriptions.push(this.service.getObject<number>(PATH_DEFAULT_TAX_PERCENT).valueChanges()
           .subscribe(tax => this.service.set(PATH_SETTINGS_TAX_PERCENT, tax))))
       .then(() =>
-        this.subscriptions.push(this.service.getItem<number>(PATH_DEFAULT_TIP_PERCENT).valueChanges()
+        this.subscriptions.push(this.service.getObject<number>(PATH_DEFAULT_TIP_PERCENT).valueChanges()
           .subscribe(tip => this.service.set(PATH_SETTINGS_TIP_PERCENT, tip))))
       .then(() =>
-        this.subscriptions.push(this.service.getItem<number>(PATH_DEFAULT_DELIVERY).valueChanges()
+        this.subscriptions.push(this.service.getObject<number>(PATH_DEFAULT_DELIVERY).valueChanges()
           .subscribe(delivery => this.service.set(PATH_SETTINGS_DELIVERY, delivery))))
       .then(() =>
-        this.subscriptions.push(this.service.getItem<boolean>(PATH_DEFAULT_SHOW_INTRO).valueChanges()
+        this.subscriptions.push(this.service.getObject<boolean>(PATH_DEFAULT_SHOW_INTRO).valueChanges()
           .subscribe(show => this.service.set(PATH_SETTINGS_SHOW_INTRO, show))))
       .then(() =>
-        this.subscriptions.push(this.service.getItem<TipBasis>(PATH_DEFAULT_TIP_OPTION).valueChanges()
+        this.subscriptions.push(this.service.getObject<TipBasis>(PATH_DEFAULT_TIP_OPTION).valueChanges()
           .subscribe(option => this.service.set(PATH_SETTINGS_TIP_OPTION, option))))
       .then(() =>
-        this.subscriptions.push(this.service.getItem<ChangeBasis>(PATH_DEFAULT_CHANGE_OPTION).valueChanges()
+        this.subscriptions.push(this.service.getObject<ChangeBasis>(PATH_DEFAULT_CHANGE_OPTION).valueChanges()
           .subscribe(option => this.service.set(PATH_SETTINGS_CHANGE_OPTION, option))))
-      .catch((err) => console.error('iniitialize error: ' + err));
-    return promise;
-  }
-
-  /**
-   *
-   * @param {AngularFireList<T>} list
-   * @returns {Observable<T[]>}
-   *
-   * Combines dataSnapshot keys and val()s to list of IDomain objects
-   */
-  private ExtractIDomainObjectsFromSnapshot<T extends IDomainObject>(list: AngularFireList<T>): Observable<T[]> {
-
-    // Use snapshotChanges().map() to store the key
-    const result = list.snapshotChanges().map(changes => {
-      return changes.map(c => ({
-         key: c.payload.key, ...c.payload.val()
-        }));
-    });
-    return result;
+      .catch((err) => console.error('initialize error: ' + err));
   }
 }
