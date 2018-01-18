@@ -55,12 +55,12 @@ export class ItemComponent implements OnInit, OnDestroy {
   }
   createForm() {
     this.itemForm = this.formBuilder.group({
-      description: [null, Validators.required],
-      quantity: [null, [Validators.required, Validators.pattern(this.quantityPattern)]],
-      price: [null, [Validators.required, Validators.pattern(this.pricePattern)]],
-      instructions: null
+      description: [this.item.description, Validators.required],
+      quantity: [this.item.quantity, [Validators.required, Validators.pattern(this.quantityPattern)]],
+      price: [this.item.price, [Validators.required, Validators.pattern(this.pricePattern)]],
+      instructions: [this.item.instructions]
     });
-    this.itemForm.patchValue(this.item);
+    // this.itemForm.patchValue(this.item);
     console.log('item=' + JSON.stringify(this.item));
   }
 

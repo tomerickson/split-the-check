@@ -1,39 +1,39 @@
 <mat-card *ngIf="(order.items && order.items.length > 0)">
-  <mat-table [dataSource]="listDataSource">
+  <mat-table #table [dataSource]="listDataSource">
     <ng-container matColumnDef="description">
       <mat-header-cell *matHeaderCellDef>
         Description
       </mat-header-cell>
-      <mat-cell *matCellDef="let row">
-        {{row.description}}
+      <mat-cell *matCellDef="let element">
+        {{element.description}}
       </mat-cell>
     </ng-container>
     <ng-container matColumnDef="quantity">
       <mat-header-cell *matHeaderCellDef>
         Quantity
       </mat-header-cell>
-      <mat-cell *matCellDef="let row">
-        {{row.quantity}}
+      <mat-cell *matCellDef="let element">
+        {{element.quantity}}
       </mat-cell>
     </ng-container>
     <ng-container matColumnDef="price">
       <mat-header-cell *matHeaderCellDef>
         Price
       </mat-header-cell>
-      <mat-cell *matCellDef="let row">
-        {{row.price | number:'1.2-2'}}
+      <mat-cell *matCellDef="let element">
+        {{element.price | number:'1.2-2'}}
       </mat-cell>
     </ng-container>
       <ng-container matColumnDef="instructions">
         <mat-header-cell *matHeaderCellDef>
           Instructions
         </mat-header-cell>
-        <mat-cell *matCellDef="let row">
-          {{row.instructions}}
+        <mat-cell *matCellDef="let element">
+          {{element.instructions}}
         </mat-cell>
       </ng-container>
-    <mat-header-row *matHeaderRowDef="['description', 'quantity', 'price', 'instructions']"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: ['description', 'quantity', 'price', 'instructions']"></mat-row>
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
   </mat-table>
   <mat-grid-list cols="7" rowHeight="3:1">
     <mat-grid-tile>
@@ -86,4 +86,11 @@
                    [index]="i"
                    (removeItem)="removeItem($event)">
   </app-item-outlet>
+  <mat-card-actions>
+    <button mat-icon-button class="add"
+            tabindex="0" title="Add"
+            (keydown.Space)="addItem()" (click)="addItem()">
+      <mat-icon>add_circle</mat-icon>
+    </button>
+  </mat-card-actions>
 </mat-card>

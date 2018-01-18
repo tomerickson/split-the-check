@@ -69,6 +69,10 @@ export class DataStoreService implements OnDestroy {
     return result;
   }
 
+  set settings(settings: Observable<Settings>) {
+    this.service.db.database.ref(PATH_SETTINGS).set(settings);
+  }
+
   get settings(): Observable<Settings> {
     return this.service.getObject<Settings>(PATH_SETTINGS).valueChanges();
   }

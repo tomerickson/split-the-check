@@ -1,8 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
-  MatButtonModule,
-  MatCardModule,
+  MatButtonModule,  MatCardModule,
   MatChipsModule, MatDialogModule, MatExpansionModule, MatGridListModule,
   MatIconModule, MatListModule, MatTableModule,
 } from '@angular/material';

@@ -20,27 +20,38 @@ export class Session implements OnDestroy {
 
   // private tipOptionSubscription: Subscription;
 
-  constructor(private svc: DataStoreService, private hlp: Helpers) {
+  constructor(private ord: OrderBase[], private itm: ItemBase[], private set: Settings, private hlp: Helpers) {
+    this.orders = ord;
+    this.items = itm;
+    this.helpers = hlp;
+    this.settings = set;
+  }
+  /*constructor(private svc: DataStoreService, private set: Settings, private hlp: Helpers) {
     this.service = svc;
     this.helpers = hlp;
-    const promise: Promise<any> = this.buildSession();
-    promise.catch(err => console.error('Session constructor failed: ' + err.toJSON()));
-  }
+    this.settings = set;
+    this.buildSession().then(() => {})
+      .catch(err => console.error('Session constructor failed: ' + err.toJSON()));
+  }*/
 
   public get subtotal(): number {
-    return this.helpers.subtotal(this.items);
+    if (this.items && this.items.length > 0) {
+      return this.helpers.subtotal(this.items);
+    } else {
+      return 0;
+    }
   }
 
   public get tax(): number {
-    return this.helpers.tax(this.subtotal);
+    return this.helpers.tax(this.subtotal, this.settings);
   }
 
   public get tip(): number {
-    return this.helpers.tip(this.subtotal, this.tax);
+    return this.helpers.tip(this.subtotal, this.tax, this.settings);
   }
 
   public get delivery(): number {
-    return this.helpers.delivery(this.subtotal, this.subtotal);
+    return this.helpers.delivery(this.subtotal, this.subtotal, this.settings);
   }
 
   public get total(): number {
@@ -53,7 +64,7 @@ export class Session implements OnDestroy {
   }
 
   public get overShort(): number {
-    return this.helpers.overShort(this.total, this.paid, false);
+    return this.helpers.overShort(this.total, this.paid, this.settings, false);
   }
 
   public get underPaid(): boolean {
@@ -64,9 +75,8 @@ export class Session implements OnDestroy {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  private buildSession(): Promise<any> {
+  private buildSession(): Promise<void> {
     return new Promise(() => {
-      this.subscriptions.push(this.service.settings.subscribe(obs => this.settings = obs));
       this.subscriptions.push(this.service.allOrders.subscribe(obs => this.orders = obs));
       this.subscriptions.push(this.service.allItems.subscribe(obs => this.items = obs));
       this.ready = new BehaviorSubject<boolean>(true);

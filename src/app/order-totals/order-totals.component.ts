@@ -1,5 +1,5 @@
 import { AfterContentInit, AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Session } from '../model';
+import { Session, Settings } from '../model';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/count';
 import 'rxjs/add/observable/of'
@@ -16,8 +16,8 @@ import { Subscription } from 'rxjs/Subscription';
 
 export class OrderTotalsComponent implements OnInit, AfterContentInit, AfterViewInit, OnDestroy {
 
-  service: DataStoreService;
   @Input() session: Session;
+  @Input() settings: Settings;
   tax: number;
   tip: number;
   delivery: number;
@@ -26,6 +26,7 @@ export class OrderTotalsComponent implements OnInit, AfterContentInit, AfterView
   overShort: number;
   underPaid: boolean;
   subscriptions: Subscription[] = [];
+  service: DataStoreService;
 
   constructor(svc: DataStoreService) {
     this.service = svc;
@@ -37,6 +38,8 @@ export class OrderTotalsComponent implements OnInit, AfterContentInit, AfterView
   }
 
   ngOnInit() {
+    console.log('order-totals onInit settings' + JSON.stringify(this.settings));
+    console.log('order-totals onInit session ' + JSON.stringify(this.session.items));
   }
 
   ngOnDestroy() {

@@ -10,6 +10,7 @@ import { ChangeBasis } from './change-basis';
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { DataStoreService } from '../data-store/data-store.service';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Injectable()
 
@@ -17,11 +18,12 @@ export class Helpers implements OnDestroy {
 
   private subscriptions: Subscription[] = [];
   private service: DataStoreService;
-  private settings: Settings;
+  // private settings: Settings;
+
 
   constructor(svc: DataStoreService) {
     this.service = svc;
-    this.subscriptions.push(this.service.settings.subscribe(obs => this.settings = obs));
+    // this.subscriptions.push(this.service.settings.subscribe(obs => this.settings));
   }
 
   ngOnDestroy() {
@@ -41,10 +43,11 @@ export class Helpers implements OnDestroy {
    * Calculate tax
    *
    * @param {number} subtotal
+   * @param {Settings} settings
    * @returns {number}
    */
-  public tax(subtotal: number): number {
-    return subtotal * this.settings.taxPercent / 100;
+  public tax(subtotal: number, settings: Settings): number {
+    return subtotal * settings.taxPercent / 100;
   }
 
   /**
@@ -52,15 +55,17 @@ export class Helpers implements OnDestroy {
    *
    * @param {number} subtotal
    * @param {number} taxAmount
+   * @param {Settings} settings
    * @returns {number}
    */
   public tip(subtotal: number,
-             taxAmount: number): number {
+             taxAmount: number,
+             settings: Settings): number {
     let result = 0;
-    if (this.settings.tipOption.description === 'Gross') {
-      result = (subtotal + taxAmount) * this.settings.tipPercent / 100;
+    if (settings.tipOption.description === 'Gross') {
+      result = (subtotal + taxAmount) * settings.tipPercent / 100;
     } else {
-      result = subtotal * this.settings.tipPercent / 100;
+      result = subtotal * settings.tipPercent / 100;
     }
     return result;
   }
@@ -70,10 +75,11 @@ export class Helpers implements OnDestroy {
    *
    * @param {number} thisTotal
    * @param {number} sessionTotal
+   * @param {Settings} settings
 \   * @returns {number}
    */
-  public delivery(thisTotal: number, sessionTotal: number): number {
-    return this.calcDelivery(thisTotal, sessionTotal, this.settings.delivery);
+  public delivery(thisTotal: number, sessionTotal: number, settings: Settings): number {
+    return this.calcDelivery(thisTotal, sessionTotal, settings.delivery);
   }
 
   /**?
@@ -94,13 +100,14 @@ export class Helpers implements OnDestroy {
    * to the denomination specified
    * @param {number} total
    * @param {number} paid
+   * @param {Settings} settings
    * @param {boolean?} round
    * @returns {number}
    */
-  public overShort(total: number, paid: number, round?: boolean) {
+  public overShort(total: number, paid: number, settings: Settings, round?: boolean) {
     let result = total - paid;
     if (round) {
-      result = result / this.settings.changeOption.value * this.settings.changeOption.value;
+      result = result / settings.changeOption.value * settings.changeOption.value;
     }
     return result;
   }

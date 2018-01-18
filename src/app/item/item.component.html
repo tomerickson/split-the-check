@@ -1,5 +1,5 @@
 <form [formGroup]="itemForm">
-  <mat-grid-list cols="6" rowHeight="3:1">
+  <mat-grid-list cols="6" rowHeight="5:1">
     <mat-grid-tile>
       <button mat-icon-button class="remove"
               title="Remove this item."
@@ -15,7 +15,6 @@
                formControlName="description"
                placeholder="Description"
                onfocus="select();"
-               value="item!async?.description"
                tabindex="0">
         <app-control-messages [control]="itemForm.controls['description']"
                               [expando]="'description'"></app-control-messages>
@@ -39,7 +38,8 @@
                id="quantity"
                name="quantity"
                onfocus="select();"
-               placeholder="Qty." formControlName="quantity"
+               placeholder="Qty."
+               formControlName="quantity"
                tabindex="0">
         <app-control-messages [control]="itemForm.controls['quantity']" [expando]="'quantity'">
         </app-control-messages>

@@ -2,6 +2,7 @@ import { DataStoreService } from '../data-store/data-store.service';
 import { OrderBase} from './orderbase';
 import { Item } from './item';
 import { Helpers } from './helpers';
+import { Settings } from './settings';
 
 export class Order implements OrderBase {
   key: string;
@@ -11,11 +12,14 @@ export class Order implements OrderBase {
   helpers: Helpers;
 
   private service: DataStoreService;
+  private settings: Settings;
 
   constructor(public orderId: string,
                private svc: DataStoreService,
+              private set: Settings,
               private hlp: Helpers) {
     this.service = svc;
+    this.settings = set;
     this.helpers = hlp;
   }
 
@@ -25,16 +29,16 @@ export class Order implements OrderBase {
   }
 
   get tax(): number {
-    return this.helpers.tax(this.subtotal);
+    return this.helpers.tax(this.subtotal, this.settings);
   }
 
   get tip(): number {
     // return Helpers.tip(this.subtotal, this.tax, Helpers.unwrap(this.service.settings));
-    return this.helpers.tip(this.subtotal, this.tax);
+    return this.helpers.tip(this.subtotal, this.tax, this.settings);
   }
 
   get delivery(): number {
-    return this.helpers.delivery(this.subtotal, this.helpers.unwrap(this.service.subtotal));
+    return this.helpers.delivery(this.subtotal, this.helpers.unwrap(this.service.subtotal), this.settings);
     }
 
   get total(): number {
@@ -42,6 +46,6 @@ export class Order implements OrderBase {
   }
 
   get overShort(): number {
-    return this.helpers.overShort(this.total, this.paid, true);
+    return this.helpers.overShort(this.total, this.paid, this.settings, true);
   }
 }

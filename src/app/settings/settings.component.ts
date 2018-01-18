@@ -47,7 +47,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   buildSubscriptionsAndFillForm() {
     return new Promise<any>(() => {
       this.subscriptions.push(this.service.settings.subscribe(obs => {
-        this.settings = obs;
         this.taxPercent = this.settings.taxPercent;
         this.tipPercent = this.settings.tipPercent;
         this.delivery = this.settings.delivery;
@@ -89,8 +88,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * @param formValue
    */
   postIt(formValue) {
-    this.service.setSettings(formValue)
-      .then(() =>  alert(JSON.stringify(formValue)));
+    this.service.setSettings(formValue);
   }
 
   /**

@@ -3,11 +3,12 @@
  */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { DataSource } from '@angular/cdk/collections';
-import { Item, Order } from '../model';
+import { Item, ItemBase, Order } from '../model';
 import { DataStoreService } from '../data-store/data-store.service';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { MatTableDataSource } from '@angular/material';
 
 @Component({
   selector: 'app-item-list-outlet',
@@ -19,6 +20,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
   @Input() orderId: string;
   @Input() order: Order;
   items: Item[] = [];
+  displayedColumns = ['description', 'quantity', 'price', 'instructions'];
   itemSubscription: Subscription;
   listData: GenericData<Item>;
   listDataSource: GenericDataSource<Item>;
@@ -50,6 +52,12 @@ export class ItemListComponent implements OnInit, OnDestroy {
 
   removeItem(item) {
     // debugger;
+  }
+
+  addItem() {
+    const item = new ItemBase();
+    item.orderId = this.orderId;
+    this.service.addItem(item);
   }
 }
 
