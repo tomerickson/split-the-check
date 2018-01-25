@@ -37,7 +37,7 @@ export class ItemComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    console.log('item.key=' + this.item.key);
+    // console.log('item.key=' + this.item.key);
     this.createForm();
   }
 
@@ -61,7 +61,7 @@ export class ItemComponent implements OnInit, OnDestroy {
       instructions: [this.item.instructions]
     });
     // this.itemForm.patchValue(this.item);
-    console.log('item=' + JSON.stringify(this.item));
+    // console.log('item=' + JSON.stringify(this.item));
   }
 
   onUndo() {

@@ -22,6 +22,7 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
   @Input() settings: Settings;
   @Output() onRemove = new EventEmitter<Order>();
   @Output() changeTrigger = new EventEmitter();
+  @Output() addTrigger = new EventEmitter<string>();
 
   builder: FormBuilder;
   orderForm: FormGroup;
@@ -116,5 +117,9 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
     const item = new ItemBase();
     item.orderId = this.orderId;
     this.service.addItem(item);
+  }
+
+  addOrder() {
+    this.addTrigger.emit('add');
   }
 }

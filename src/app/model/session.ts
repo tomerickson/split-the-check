@@ -1,4 +1,4 @@
-import { OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { DataStoreService } from '../data-store/data-store.service';
 import { ItemBase } from './itembase';
@@ -14,25 +14,14 @@ export class Session implements OnDestroy {
   public orders: OrderBase[];
   public service: DataStoreService;
   public items: ItemBase[];
-  private helpers: Helpers;
-  private settings: Settings;
+  public helpers: Helpers;
+  public settings: Settings;
   private subscriptions: Subscription[] = [];
 
   // private tipOptionSubscription: Subscription;
 
-  constructor(private ord: OrderBase[], private itm: ItemBase[], private set: Settings, private hlp: Helpers) {
-    this.orders = ord;
-    this.items = itm;
-    this.helpers = hlp;
-    this.settings = set;
+  constructor() {
   }
-  /*constructor(private svc: DataStoreService, private set: Settings, private hlp: Helpers) {
-    this.service = svc;
-    this.helpers = hlp;
-    this.settings = set;
-    this.buildSession().then(() => {})
-      .catch(err => console.error('Session constructor failed: ' + err.toJSON()));
-  }*/
 
   public get subtotal(): number {
     if (this.items && this.items.length > 0) {

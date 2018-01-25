@@ -30,7 +30,7 @@ export class DataProviderService implements OnDestroy {
   private MSG_DISCONNECT = 'goOffline';
   private MSG_CONNECT = 'goOnline';
 
-  private LOG = false;
+  private LOG = true;
   db: AngularFireDatabase;
 
   constructor(@Inject(AngularFireDatabase) fb: AngularFireDatabase) {
@@ -58,9 +58,7 @@ export class DataProviderService implements OnDestroy {
   }
 
   getList<T>(path: string): AngularFireList<T> {
-    const result = this.db.list<T>(path);
-    this.logSuccess(this.MSG_LIST, path, null, result);
-    return result;
+    return this.db.list<T>(path);
   }
 
   activator<T>(type: { new(): T; }): T {
@@ -68,9 +66,9 @@ export class DataProviderService implements OnDestroy {
   }
 
   getObject<T>(path: string): AngularFireObject<T> {
-    const result: AngularFireObject<T> =  this.db.object<T>(path);
-    this.logSuccess(this.MSG_OBJECT, path, result);
-    return result;
+    return this.db.object<T>(path);
+    // this.logSuccess(this.MSG_OBJECT, path, result);
+    // return result;
   }
 
   push<T>(path: string, value: T): firebase.database.ThenableReference {

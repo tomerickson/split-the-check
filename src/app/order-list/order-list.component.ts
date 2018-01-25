@@ -16,25 +16,21 @@ export class OrderListComponent implements OnInit, OnDestroy {
   @Input() session: Session;
   service: DataStoreService;
   subscriptions: Subscription[] = [];
-  orders: OrderBase[];
 
   constructor(svc: DataStoreService) {
     this.service = svc;
   }
 
   ngOnInit() {
-    const promise: Promise<void> = new Promise<void>(() =>
-      this.subscriptions.push(this.service.allOrders.subscribe(obs => this.orders = obs)));
-    promise
-      .catch(err => console.error(err))
-    }
+  }
 
   ngOnDestroy() {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    this.subscriptions = [];
   }
 
   addOrder() {
-    this.service.addOrder(new OrderStub());
+    this.service.addOrder(new OrderBase());
   }
 
   onRemove(event: Event, index: number) {
@@ -42,10 +38,3 @@ export class OrderListComponent implements OnInit, OnDestroy {
   }
 }
 
-class OrderStub implements OrderBase {
-  key: string;
-  orderId: string;
-  name: string;
-  paid: number;
-  items: null
-}

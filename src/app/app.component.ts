@@ -1,9 +1,8 @@
-import {Component, OnDestroy, OnInit, Output} from '@angular/core';
+import { Component, OnDestroy, OnInit} from '@angular/core';
 import {DataStoreService} from './data-store/data-store.service';
-import {Settings} from './model';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-root',
@@ -12,13 +11,14 @@ import { Router } from '@angular/router';
 
 export class AppComponent implements OnInit, OnDestroy {
 
-  showIntro: Observable<boolean>;
+  show: boolean;
+  subIntro: Subscription;
   service: DataStoreService;
   // @Output() settings: BehaviorSubject<Settings>;
 
   constructor(svc: DataStoreService) {
     this.service = svc;
-    this.showIntro = this.service.showIntro;
+    this.subIntro = this.service.showIntro.subscribe((show) => this.show = show);
   }
 
   ngOnInit() {
@@ -26,7 +26,15 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // this.settings.unsubscribe();
+    this.subIntro.unsubscribe();
+  }
+
+  toggleIntro(value: boolean) {
+
+    this.service.setShowIntro(value).then(
+      () => console.log('exiting app.toggleIntro with value: ' + value),
+      err => console.error('app.toggleIntro failed with ' + err.toJSON()));
+
   }
 }
 

@@ -1,5 +1,5 @@
 <!--<app-test></app-test>-->
-<app-header></app-header>
+<app-header [showIntro]="show" (toggle)="toggleIntro($event)"></app-header>
 <div class="container mat-app-background">
-  <app-home></app-home>
+    <app-home [showIntro]="show"></app-home>
 </div>

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ChangeBasis, TipBasis, Settings, Helpers } from '../model';
@@ -14,6 +14,8 @@ import { Subscription } from 'rxjs/Subscription';
 export class SettingsComponent implements OnInit, OnDestroy {
 
   @Input() settings: Settings;
+  @Output() pushSettings = new EventEmitter<boolean>();
+
   fb: FormBuilder;
   changeForm: FormGroup;
   taxPercent: number;
@@ -27,7 +29,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private helpers: Helpers;
   numberPattern = '^\\d+(\\.\\d+)?$';
 
-  errorMessages: {[key: string]: string} = {
+  errorMessages: { [key: string]: string } = {
     required: 'Required entry.',
     pattern: 'Numeric required.'
   };
@@ -46,6 +48,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   buildSubscriptionsAndFillForm() {
     return new Promise<any>(() => {
+      this.subscriptions.push(this.service.tipOptions.subscribe((obs) => this.tipOptions = obs));
+      this.subscriptions.push(this.service.changeOptions.subscribe((obs) => this.changeOptions = obs));
       this.subscriptions.push(this.service.settings.subscribe(obs => {
         this.taxPercent = this.settings.taxPercent;
         this.tipPercent = this.settings.tipPercent;
@@ -58,8 +62,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.changeForm.controls['tipOption'].setValue(this.tipOption);
         this.changeForm.controls['changeOption'].setValue(this.changeOption);
       }));
-      this.subscriptions.push(this.service.tipOptions.subscribe((obs) => this.tipOptions = obs));
-      this.subscriptions.push(this.service.changeOptions.subscribe((obs) => this.changeOptions = obs));
     });
   }
 
@@ -74,9 +76,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       taxPercent: [null, [Validators.required, Validators.pattern(this.numberPattern)]],
       tipPercent: [null, [Validators.required, Validators.pattern(this.numberPattern)]],
       delivery: [null, [Validators.required, Validators.pattern(this.numberPattern)]],
-      changeOption: [null, Validators.required],
+      changeOption: [this.changeOption, Validators.required],
       tipOption: [this.tipOption, Validators.required]
-    }, {updateOn: 'change'});
+    }, { updateOn: 'change' });
   }
 
   ngOnDestroy() {
@@ -88,7 +90,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * @param formValue
    */
   postIt(formValue) {
-    this.service.setSettings(formValue);
+    this.service.setSettings(formValue).then(() =>
+      this.pushSettings.emit(true));
   }
 
   /**

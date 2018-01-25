@@ -26,7 +26,7 @@ import { TestComponent } from './test.component';
 import { HeaderComponent } from './header/header.component';
 import { HomeComponent } from './home/home.component';
 import { TobeTestedComponent } from './tobe-tested/tobe-tested.component';
-import { Helpers } from './model';
+import { Helpers, Session } from './model';
 
 export const appRoutes: Routes = [
   {

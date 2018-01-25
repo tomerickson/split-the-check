@@ -1,5 +1,5 @@
 <!-- Running totals -->
-<div id="totals" *ngIf="session.items">
+<div id="totals" *ngIf="session">
   <table>
   <thead>
   <tr>
@@ -25,8 +25,7 @@
   </tr>
   <tr>
     <td>Tip:</td>
-    <td>
-      <span>{{session.tip | number:'1.2-2'}}</span>
+    <td><span>{{session.tip | number:'1.2-2'}}</span>
     </td>
   </tr>
   <tr>

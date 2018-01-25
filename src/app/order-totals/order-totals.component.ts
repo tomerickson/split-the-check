@@ -1,11 +1,12 @@
 import { AfterContentInit, AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Session, Settings } from '../model';
+import { Helpers, Session, Settings } from '../model';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/count';
 import 'rxjs/add/observable/of'
 import 'rxjs/add/observable/zip'
 import { DataStoreService } from '../data-store/data-store.service';
 import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
 
 
 @Component({
@@ -18,6 +19,7 @@ export class OrderTotalsComponent implements OnInit, AfterContentInit, AfterView
 
   @Input() session: Session;
   @Input() settings: Settings;
+
   tax: number;
   tip: number;
   delivery: number;
@@ -27,9 +29,30 @@ export class OrderTotalsComponent implements OnInit, AfterContentInit, AfterView
   underPaid: boolean;
   subscriptions: Subscription[] = [];
   service: DataStoreService;
+  helpers: Helpers;
+  subSession: Subscription;
+  subSettings: Subscription;
 
-  constructor(svc: DataStoreService) {
+  constructor(svc: DataStoreService, hlp: Helpers) {
     this.service = svc;
+    this.helpers = hlp;
+  }
+
+  subscribeAll(): Promise<void> {
+
+    const promise = new Promise<void>(() => {});
+    // this.subSettings = this.service.settings.subscribe(() => this.settings);
+    /*this.session = Observable.zip(this.service.allOrders, this.service.allItems,
+      this.service.settings, (ord, itm, settings) =>
+        new Session(ord, itm, settings, this.helpers));*/
+      /*this.subSettings = this.service.settings.subscribe(() => this.settings);
+      const promise: Promise<void> = new Promise(() => {});
+    promise.then(() =>
+          this.subSession = Observable.zip(this.service.allOrders, this.service.allItems,
+            this.service.settings, (ord, itm, settings) => {
+              return Observable.of( new Session(ord, itm, settings, this.helpers));
+            }).subscribe(obs => this.session);*/
+    return promise;
   }
 
   clearOrder(e: Event) {
@@ -38,15 +61,19 @@ export class OrderTotalsComponent implements OnInit, AfterContentInit, AfterView
   }
 
   ngOnInit() {
-    console.log('order-totals onInit settings' + JSON.stringify(this.settings));
-    console.log('order-totals onInit session ' + JSON.stringify(this.session.items));
+
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions = [];
+    this.subSession.unsubscribe();
+    this.subSettings.unsubscribe();
   }
 
   ngAfterContentInit() {
+    this.subscribeAll().then(() =>
+      console.log('order-totals onInit settings' + JSON.stringify(this.settings)), err => console.log('order-totals failed ' + err.toJSON()));
     // console.log('order-totals.AfterContentInit session: ' + JSON.stringify(this.session.items));
   }
 

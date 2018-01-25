@@ -1,3 +1,4 @@
+///<reference path="../../../node_modules/rxjs/add/operator/map.d.ts"/>
 import { Injectable, OnDestroy } from '@angular/core';
 import { DataProviderService } from '../data-provider/data-provider.service';
 import { Observable } from 'rxjs/Observable';
@@ -75,7 +76,10 @@ export class DataStoreService implements OnDestroy {
 
   get settings(): Observable<Settings> {
     return this.service.getObject<Settings>(PATH_SETTINGS).valueChanges();
+    // .snapshotChanges()
+      // .map(snapshot => snapshot.payload.val());
   }
+
   get allItems(): Observable<ItemBase[]> {
 
     let result: Observable<ItemBase[]>;
@@ -86,9 +90,10 @@ export class DataStoreService implements OnDestroy {
   get allOrders(): Observable<OrderBase[]> {
     /*return this.ExtractIDomainListFromSnapshot(this.service.getList<OrderBase>(PATH_ORDERS));*/
 
-    let result: Observable<OrderBase[]>;
-    return this.service.getList<OrderBase>(PATH_ORDERS).snapshotChanges()
-    .map(snapshots => snapshots.map(action => result = {key: action.key, ...action.payload.val()}));
+    const result: Observable<OrderBase[]>
+    = this.service.getList<OrderBase>(PATH_ORDERS).snapshotChanges()
+    .map(snapshots => snapshots.map(action => ({key: action.key, ...action.payload.val()})));
+    return result;
   }
 
   get changeOption(): BehaviorSubject<ChangeBasis> {
@@ -158,7 +163,7 @@ export class DataStoreService implements OnDestroy {
   }
 
   setShowIntro(choice: boolean) {
-    this.service.set(PATH_SETTINGS_SHOW_INTRO, choice);
+    return this.service.set(PATH_SETTINGS_SHOW_INTRO, choice);
   }
 
   setTaxPercent(value: number) {
@@ -196,7 +201,7 @@ export class DataStoreService implements OnDestroy {
    */
   addOrder(order: OrderBase): ThenableReference {
     delete order.key;
-    return this.service.push<OrderBase>(PATH_ORDERS, order);
+    return this.service.getList<OrderBase>(PATH_ORDERS).push(order);
   }
 
   removeOrder(key: string) {
@@ -234,7 +239,8 @@ export class DataStoreService implements OnDestroy {
 
   addItem(item: ItemBase): ThenableReference {
     delete item.key;
-    return this.service.push<ItemBase>(PATH_ITEMS, item);
+    return this.service.query<ItemBase>(PATH_ITEMS, ref => ref.orderByChild('orderId')
+      .equalTo(item.orderId)).push(item);
   }
 
   removeItem(itemId: string) {

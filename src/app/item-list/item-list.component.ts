@@ -21,7 +21,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
   @Input() order: Order;
   items: Item[] = [];
   displayedColumns = ['description', 'quantity', 'price', 'instructions'];
-  itemSubscription: Subscription;
+  subItems: Subscription;
   listData: GenericData<Item>;
   listDataSource: GenericDataSource<Item>;
   filterFunction = (item: Item) => {
@@ -42,12 +42,12 @@ export class ItemListComponent implements OnInit, OnDestroy {
     this.listDataSource = new GenericDataSource<Item>(this.listData, this.filterFunction, false);
 //    this.listData = new GenericData<Item>(this.order.items);
 //    this.listDataSource = new GenericDataSource<Item>(this.listData, this.filterFunction, false);
-    this.itemSubscription = this.service.getItems(this.orderId)
+    this.subItems = this.service.getItems(this.orderId)
       .subscribe(list => this.fillItemList(list));
   }
 
   ngOnDestroy() {
-    this.itemSubscription.unsubscribe();
+    this.subItems.unsubscribe();
   }
 
   removeItem(item) {
