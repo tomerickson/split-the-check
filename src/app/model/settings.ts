@@ -20,15 +20,7 @@ export class Settings implements OnDestroy {
 
   private subscriptions: Subscription[] = [];
 
-  constructor(svc: DataStoreService) {
-    this.service = svc;
-    this.subscriptions.push(this.service.settings.subscribe(obs => {
-      this.taxPercent = obs.taxPercent;
-      this.tipPercent = obs.tipPercent;
-      this.delivery = obs.delivery;
-      this.changeOption = obs.changeOption;
-      this.showIntro = obs.showIntro;
-    }));
+  constructor() {
   }
 
   ngOnDestroy() {

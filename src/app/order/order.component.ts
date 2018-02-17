@@ -1,11 +1,10 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
-import { Session, Settings, ItemBase, Helpers, OrderBase, Order, ChangeBasis, TipBasis } from '../model';
+import { ChangeBasis, Helpers, ItemBase, Order, OrderBase, Session, Settings } from '../model';
 import 'rxjs/add/operator/defaultIfEmpty';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Component({
   selector: 'app-order-outlet',
@@ -16,11 +15,12 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 export class OrderComponent implements OnInit, OnDestroy, OnChanges {
 
   @Input() orderId: string;
-  @Input() order: Order;
+ //  @Input() orderSubject: BehaviorSubject<Order>;
   @Input() index: number;
   @Input() session: Session;
   @Input() settings: Settings;
-  @Output() onRemove = new EventEmitter<Order>();
+  @Input() order: Order;
+  @Output() removeTrigger: EventEmitter<number> = new EventEmitter();
   @Output() changeTrigger = new EventEmitter();
   @Output() addTrigger = new EventEmitter<string>();
 
@@ -42,47 +42,72 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
     this.service = svc;
     this.helpers = hlp;
     this.builder = fb;
+    this.buildForm();
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    for (const propName in changes) {
+      if (changes.hasOwnProperty(propName)) {
+        const change: SimpleChange = changes[propName];
+        // console.log(`order OnChanges: propName: ${propName} value: ${JSON.stringify(change.currentValue)}`);
+        if (change.currentValue === change.previousValue) {
+          continue;
+        }
+        switch (propName) {
+          case 'settings':
+            // debugger;
+            this.setChangeBasis();
+            break;
+          case 'order':
+            this.getItems(this.orderId);
+            this.orderForm.patchValue({
+              name: change.currentValue.name,
+              paid: change.currentValue.paid.toFixed(2)
+            });
+            break;
+          case 'orderId':
+            this.orderId = change.currentValue;
+            break;
+          default:
+            break;
+        }
+      }
+    }
   }
 
-
   ngOnInit() {
-    this.buildForm();
-    const promise: Promise<number> = new Promise<number>(() =>
-      this.subscriptions.push(this.service.getItems(this.orderId)
-        .subscribe(obs => {
-          this.fillOrder(obs);
-        })));
-    /*.then(() =>
-      this.subscriptions.push(this.service.getItems(this.orderId).subscribe(obs => {
-        this.order.items = obs;
-      })))*/
-    promise
-      .then(() => {
-        this.subscriptions.push(this.service.changeOption.subscribe(obs => this.changeBasis = obs));
-        console.log('order ngOnInit succeeded');
-      })
-      .catch(err => console.error('order ngOnInit failed with error ' + err));
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach((subscription => subscription.unsubscribe()));
+    this.subscriptions = [];
+  }
+
+  getItems(orderId: string) {
+    this.subscriptions
+      .push(this.service.getItems(orderId)
+        .subscribe(obs => {
+          this.fillOrder(obs);
+        }));
+  }
+
+  setChangeBasis() {
+    this.subscriptions.push(this.service.changeOption
+        .subscribe(obs => this.changeBasis = obs));
   }
 
   buildForm() {
     this.orderForm = this.fb.group({
-      name: [this.order.name, [Validators.required]],
-      paid: [this.order.paid, [Validators.required, Validators.pattern(this.numberPattern)]]
-    }, { updateOn: 'change' });
-}
-
-/*  buildOrder(order) {
-    this.order = order;
-    this.paid = order.paid;
+      name: ['', [Validators.required], [], {updateOn: 'change'}],
+      paid: ['', [Validators.required, Validators.pattern(this.numberPattern)], [], {updateOn: 'change'}]
+    });
   }
-*/
+
+  /*  buildOrder(order) {
+      this.order = order;
+      this.paid = order.paid;
+    }
+  */
 
   fillOrder(items: ItemBase[]) {
     if (!items) {
@@ -98,15 +123,26 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
 
   updateName(event) {
     this.name = (<HTMLInputElement>event.target).value;
-    this.service.updateOrder(this.orderId, { name: this.name, paid: this.paid });
+    this.service.updateOrder(this.orderId, {name: this.name, paid: this.paid});
   }
 
   updatePaid(event) {
-    this.paid = +(<HTMLInputElement>event.target).value;
-    this.service.updateOrder(this.orderId, { name: this.name, paid: this.paid });
+    const element = <HTMLInputElement>event.target;
+    this.paid = +element.value;
+    this.service.updateOrder(this.orderId, {name: this.name, paid: this.paid});
+    element.value = this.paid.toFixed(2);
   }
 
-  selectPaid(event: Event) {
+  padIt(event: Event) {
+    const element = <HTMLInputElement>event.target;
+    try {
+      element.value = (+element.value).toFixed(2);
+    } catch (err) {
+      // ignore this error
+    }
+  }
+
+  selectIt(event: Event) {
     const element = <HTMLInputElement>event.target;
     /*const paid: number = +element.value;
     element.value = paid.toFixed(2);*/

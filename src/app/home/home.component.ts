@@ -1,8 +1,9 @@
-import { Component, Input, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
-import { Helpers, Session, Settings } from '../model';
+import { ChangeBasis, Helpers, ItemBase, Order, OrderBase, Session, Settings, TipBasis } from '../model';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Component({
   selector: 'app-home',
@@ -13,37 +14,67 @@ import { Observable } from 'rxjs/Observable';
 export class HomeComponent implements OnInit, OnDestroy {
   service: DataStoreService;
   @Input() showIntro: boolean;
-  session: Session;
+  session: BehaviorSubject<Session>;
   settings: Settings;
-  private subscriptions: Subscription[] = [];
+  tipOptions: BehaviorSubject<TipBasis[]>;
+  changeOptions: BehaviorSubject<ChangeBasis[]>;
+  orders: BehaviorSubject<Order[]>;
+  items: BehaviorSubject<ItemBase[]>;
+  subSession: Subscription;
+  subSettings: Subscription;
+  subChangeOptions: Subscription;
+  subTipOptions: Subscription;
+  subOrders: Subscription;
+  subItems: Subscription;
+  zone: NgZone;
+  ref: ChangeDetectorRef;
+  subscriptions: Subscription[] = [];
   private helpers: Helpers;
 
-  constructor(private zone: NgZone, private svc: DataStoreService, private hlp: Helpers) {
+  constructor(private zn: NgZone,
+              private rf: ChangeDetectorRef,
+              private svc: DataStoreService,
+              private hlp: Helpers) {
     this.service = svc;
     this.helpers = hlp;
+    this.zone = zn;
+    this.ref = rf;
+    this.session = new BehaviorSubject<Session>(null);
+    this.changeOptions = new BehaviorSubject<ChangeBasis[]>(null);
+    this.tipOptions = new BehaviorSubject<TipBasis[]>(null);
+    this.orders = new BehaviorSubject<Order[]>([]);
+    this.items = new BehaviorSubject<ItemBase[]>([]);
+    this.subSettings = new Subscription();
+    this.subSession = new Subscription();
+    this.subOrders = new Subscription();
+    this.subItems = new Subscription();
+    this.settings = this.service.settings;
   }
 
-  subscribeAll(): Promise<void> {
-    // this.subShowIntro = this.service.showIntro.subscribe(show => this.showIntro);
+  subscribeAll() {
+
     const promise: Promise<any> = new Promise<void>(() => {
-      this.subscriptions.push(this.service.settings.subscribe(obs => this.settings = obs));
-      this.buildSession();
+
+      this.subChangeOptions = this.service.changeOptions.subscribe(obs => this.changeOptions.next(obs));
+      this.subTipOptions = this.service.tipOptions.subscribe(obs => this.tipOptions.next(obs));
+      this.subSession = Observable.zip(
+        this.service.allOrders,
+        this.service.allItems,
+        // this.service.settings,
+        (orders, items) => {
+          const session = new Session(this.service);
+          session.orders = orders || [];
+          session.items = items || [];
+          session.settings = this.service.settings;
+          session.helpers = this.helpers;
+          // this.settings = this.service.settings;
+          return session;
+        })
+        .subscribe(session => this.session.next(session));
+      this.subOrders = this.service.allOrders.subscribe(obs => this.orders.next(obs));
+      this.subItems = this.service.allItems.subscribe(obs => this.items.next(obs));
     });
-    return promise;
-  }
-
-  buildSession() {
-
-    this.subscriptions.push(Observable.zip(this.service.allOrders, this.service.allItems,
-      this.service.settings, (ord, itm, settings) => {
-      const session = new Session();
-      session.orders = ord || [];
-      session.items = itm || [];
-      session.settings = settings;
-      session.helpers = this.helpers;
-      return session;
-      })
-      .subscribe(session => this.session = session))
+    promise.catch(err => console.log(`home subscribeAll err: ${err}`));
   }
 
   ngOnInit() {
@@ -55,6 +86,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   unsubscribeAll() {
+    this.subSettings.unsubscribe();
+     this.subSession.unsubscribe();
+    this.subChangeOptions.unsubscribe();
+    this.subTipOptions.unsubscribe();
+    this.subOrders.unsubscribe();
+    this.subItems.unsubscribe();
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.subscriptions = [];
   }
@@ -62,10 +99,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   reset(event: Event) {
     this.zone.run(() => {
       this.unsubscribeAll();
-      this.subscribeAll()
-        .then(
-          () => console.log('home reset'),
-          err => console.error('home reset failed: ' + err.toJSON()));
+      this.subscribeAll();
     });
   }
 }

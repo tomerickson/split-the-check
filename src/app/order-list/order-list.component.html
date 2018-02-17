@@ -1,28 +1,35 @@
 <mat-card>
-    <mat-card-title>
-        Orders
-    </mat-card-title>
-    <section (addTrigger)="addOrder()">
-        <ul>
-            <li>
-                Click this symbol&nbsp;
-                <mat-icon class="add" aria-hidden="true" (click)="addOrder()">add_circle
-                </mat-icon>&nbsp; or use the spacebar to add an order or an item.
-            </li>
-            <li>
-                Click on this symbol &nbsp;
-                <mat-icon class="remove" aria-hidden="true">remove_circle
-                </mat-icon>&nbsp;below to remove an order or item.
-            </li>
-            <li>
-                Use the tab key and shift-tab key to navigate forward and backward.
-            </li>
-        </ul>
-    </section>
-    <ul id="orders" *ngIf="session">
-        <li>
-            <app-order-outlet *ngFor="let order of session.orders;let i = index" [session]="session" [settings]="settings" [orderId]="order.key" [index]="i" [order]="order" (onRemove)="onRemove($event, i)">
-            </app-order-outlet>
-        </li>
+  <mat-card-title>
+    Orders
+  </mat-card-title>
+  <section>
+    <ul>
+      <li>
+        Click this symbol&nbsp;
+        <mat-icon class="add" aria-hidden="true" (click)="addOrder()">add_circle
+        </mat-icon>&nbsp; or use the spacebar to add an order or an item.
+      </li>
+      <li>
+        Click on this symbol &nbsp;
+        <mat-icon class="remove" aria-hidden="true">remove_circle
+        </mat-icon>&nbsp;below to remove an order or item.
+      </li>
+      <li>
+        Use the tab key and shift-tab key to navigate forward and backward.
+      </li>
     </ul>
+  </section>
+  <ul id="orders" *ngIf="orders">
+    <li>
+      <app-order-outlet *ngFor="let order of orders | async;let i = index"
+                        [session]="session"
+                        [settings]="settings"
+                        [orderId]="order.key"
+                        [index]="i"
+                        [order]="order"
+                        (removeTrigger)="onRemove($event)"
+                        (addTrigger)="addOrder($event)">
+      </app-order-outlet>
+    </li>
+  </ul>
 </mat-card>

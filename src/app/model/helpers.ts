@@ -1,42 +1,28 @@
 /*
 * Commonly used re-entrant methods.
 */
-import { TipBasis } from './tip-basis';
 import 'rxjs/add/operator/defaultIfEmpty';
 import { ItemBase } from './itembase';
 import { Observable } from 'rxjs/Observable';
 import { Settings } from './settings';
-import { ChangeBasis } from './change-basis';
-import { Injectable, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs/Subscription';
-import { DataStoreService } from '../data-store/data-store.service';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Injectable } from '@angular/core';
+
 
 @Injectable()
 
-export class Helpers implements OnDestroy {
-
-  private subscriptions: Subscription[] = [];
-  private service: DataStoreService;
-  // private settings: Settings;
-
-
-  constructor(svc: DataStoreService) {
-    this.service = svc;
-    // this.subscriptions.push(this.service.settings.subscribe(obs => this.settings));
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
-  }
+export class Helpers {
 
   /**
    * Subtotals
    * @param {ItemBase[]} items
    * @returns {number}
    */
-  public subtotal(items: ItemBase[]): number {
-    return items.map(item => item.price * item.quantity).reduce((sum, vlu) => sum + vlu, 0);
+  public static subtotal(items: ItemBase[]): number {
+    if (items && items.length) {
+      return items.map(item => (item.price || 0) * (item.quantity || 0))
+        .reduce((sum, vlu) => sum + vlu, 0);
+    }
+    return 0;
   }
 
   /**
@@ -46,7 +32,7 @@ export class Helpers implements OnDestroy {
    * @param {Settings} settings
    * @returns {number}
    */
-  public tax(subtotal: number, settings: Settings): number {
+  public static tax(subtotal: number, settings: Settings): number {
     return subtotal * settings.taxPercent / 100;
   }
 
@@ -58,7 +44,7 @@ export class Helpers implements OnDestroy {
    * @param {Settings} settings
    * @returns {number}
    */
-  public tip(subtotal: number,
+  public static tip(subtotal: number,
              taxAmount: number,
              settings: Settings): number {
     let result = 0;
@@ -78,8 +64,8 @@ export class Helpers implements OnDestroy {
    * @param {Settings} settings
 \   * @returns {number}
    */
-  public delivery(thisTotal: number, sessionTotal: number, settings: Settings): number {
-    return this.calcDelivery(thisTotal, sessionTotal, settings.delivery);
+  public static delivery(thisTotal: number, sessionTotal: number, settings: Settings): number {
+    return Helpers.calcDelivery(thisTotal, sessionTotal, settings.delivery);
   }
 
   /**?
@@ -91,7 +77,7 @@ export class Helpers implements OnDestroy {
    * @param {number} delivery
    * @returns {number}
    */
-  public total(subtotal: number, tax: number, tip: number, delivery: number): number {
+  public static total(subtotal: number, tax: number, tip: number, delivery: number): number {
     return subtotal + tax + tip + delivery;
   }
 
@@ -104,7 +90,7 @@ export class Helpers implements OnDestroy {
    * @param {boolean?} round
    * @returns {number}
    */
-  public overShort(total: number, paid: number, settings: Settings, round?: boolean) {
+  public static overShort(total: number, paid: number, settings: Settings, round?: boolean) {
     let result = total - paid;
     if (round) {
       result = result / settings.changeOption.value * settings.changeOption.value;
@@ -112,19 +98,19 @@ export class Helpers implements OnDestroy {
     return result;
   }
 
-  public unwrap(observable: Observable<any>): any {
-    let result: any;
-    const subscription = observable.subscribe(obs => result = obs);
-    subscription.unsubscribe();
-    return result;
-  }
 
-  private calcDelivery(subtotal: number, sessionTotal: number, delivery: number): number {
+  static calcDelivery(subtotal: number, sessionTotal: number, delivery: number): number {
     let result = 0;
     if (delivery > 0 && sessionTotal > 0) {
       result = delivery * (subtotal / sessionTotal);
     }
     return result;
   }
-}
 
+  static unwrap(observable: Observable<any>): any {
+    let result: any;
+    const subscription = observable.subscribe(obs => result = obs);
+    subscription.unsubscribe();
+    return result;
+  }
+}

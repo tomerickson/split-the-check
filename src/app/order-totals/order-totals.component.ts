@@ -1,13 +1,11 @@
-import { AfterContentInit, AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Helpers, Session, Settings } from '../model';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Helpers, ItemBase, OrderBase, Settings } from '../model';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/count';
 import 'rxjs/add/observable/of'
 import 'rxjs/add/observable/zip'
 import { DataStoreService } from '../data-store/data-store.service';
 import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
-
 
 @Component({
   selector: 'app-order-totals',
@@ -15,11 +13,16 @@ import { Observable } from 'rxjs/Observable';
   styleUrls: ['./order-totals.component.scss']
 })
 
-export class OrderTotalsComponent implements OnInit, AfterContentInit, AfterViewInit, OnDestroy {
+export class OrderTotalsComponent implements OnInit, OnDestroy {
 
-  @Input() session: Session;
-  @Input() settings: Settings;
-
+  settings: Settings;
+  helpers: Helpers;
+  subscriptions: Subscription[] = [];
+  service: DataStoreService;
+  subSettings: Subscription;
+  orders: OrderBase[];
+  items: ItemBase[];
+  subtotal: number;
   tax: number;
   tip: number;
   delivery: number;
@@ -27,57 +30,67 @@ export class OrderTotalsComponent implements OnInit, AfterContentInit, AfterView
   paid: number;
   overShort: number;
   underPaid: boolean;
-  subscriptions: Subscription[] = [];
-  service: DataStoreService;
-  helpers: Helpers;
-  subSession: Subscription;
-  subSettings: Subscription;
 
   constructor(svc: DataStoreService, hlp: Helpers) {
     this.service = svc;
     this.helpers = hlp;
+    this.initialize();
   }
 
-  subscribeAll(): Promise<void> {
-
-    const promise = new Promise<void>(() => {});
-    // this.subSettings = this.service.settings.subscribe(() => this.settings);
-    /*this.session = Observable.zip(this.service.allOrders, this.service.allItems,
-      this.service.settings, (ord, itm, settings) =>
-        new Session(ord, itm, settings, this.helpers));*/
-      /*this.subSettings = this.service.settings.subscribe(() => this.settings);
-      const promise: Promise<void> = new Promise(() => {});
-    promise.then(() =>
-          this.subSession = Observable.zip(this.service.allOrders, this.service.allItems,
-            this.service.settings, (ord, itm, settings) => {
-              return Observable.of( new Session(ord, itm, settings, this.helpers));
-            }).subscribe(obs => this.session);*/
-    return promise;
+  ngOnInit() {
+    this.initialize();
   }
+
+  ngOnDestroy() {
+    this.unsubscribeAll();
+  }
+
+  initialize() {
+    this.subscribeAll();
+  }
+
+  subscribeAll() {
+    this.subscriptions.push(this.service.allOrders.subscribe(obs => {
+      this.orders = obs;
+      let amt = 0;
+      this.orders.forEach(ord => amt += ord.paid);
+      this.paid = amt;
+    }));
+    this.subscriptions.push(this.service.allItems
+      .subscribe(obs => {
+        this.items = obs;
+        this.subtotal = Helpers.subtotal(this.items);
+        this.tax = Helpers.tax(this.subtotal, this.service.settings);
+        this.tip = Helpers.tip(this.subtotal, this.tax, this.service.settings);
+        this.delivery = Helpers.delivery(this.subtotal, this.subtotal, this.service.settings);
+        this.total = Helpers.total(this.subtotal, this.tax, this.tip, this.delivery);
+        this.overShort = Helpers.overShort(this.total, this.paid, this.service.settings, false);
+        this.underPaid = this.overShort > 0;
+      }));
+  }
+
+  unsubscribeAll() {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    this.subscriptions = [];
+  }
+
+  // const promise = new Promise<void>(() => {});
+  // this.subSettings = this.service.settings.subscribe(() => this.settings);
+  /*this.session = Observable.zip(this.service.allOrders, this.service.allItems,
+    this.service.settings, (ord, itm, settings) =>
+      new Session(ord, itm, settings, this.helpers));*/
+  /*this.subSettings = this.service.settings.subscribe(() => this.settings);
+  const promise: Promise<void> = new Promise(() => {});
+promise.then(() =>
+      this.subSession = Observable.zip(this.service.allOrders, this.service.allItems,
+        this.service.settings, (ord, itm, settings) => {
+          return Observable.of( new Session(ord, itm, settings, this.helpers));
+        }).subscribe(obs => this.session);*/
+
+  // return promise;
 
   clearOrder(e: Event) {
     this.service.wrapUp();
     e.preventDefault();
-  }
-
-  ngOnInit() {
-
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
-    this.subscriptions = [];
-    this.subSession.unsubscribe();
-    this.subSettings.unsubscribe();
-  }
-
-  ngAfterContentInit() {
-    this.subscribeAll().then(() =>
-      console.log('order-totals onInit settings' + JSON.stringify(this.settings)), err => console.log('order-totals failed ' + err.toJSON()));
-    // console.log('order-totals.AfterContentInit session: ' + JSON.stringify(this.session.items));
-  }
-
-  ngAfterViewInit() {
-    // console.log('order-totals.AfterViewInit session: ' + JSON.stringify(this.session.orders));
   }
 }

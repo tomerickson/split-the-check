@@ -25,7 +25,6 @@ import { InputComponent } from './input/input.component';
 import { TestComponent } from './test.component';
 import { HeaderComponent } from './header/header.component';
 import { HomeComponent } from './home/home.component';
-import { TobeTestedComponent } from './tobe-tested/tobe-tested.component';
 import { Helpers, Session } from './model';
 
 export const appRoutes: Routes = [
@@ -60,8 +59,7 @@ export function initializer(service: DataStoreService) {
     ControlMessagesComponent,
     InputComponent,
     HeaderComponent,
-    HomeComponent,
-    TobeTestedComponent
+    HomeComponent
   ],
 
   imports: [

@@ -24,6 +24,8 @@ export class ItemListComponent implements OnInit, OnDestroy {
   subItems: Subscription;
   listData: GenericData<Item>;
   listDataSource: GenericDataSource<Item>;
+  positive: boolean;
+
   filterFunction = (item: Item) => {
     return;
   };

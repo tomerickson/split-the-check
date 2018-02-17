@@ -6,34 +6,32 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/observable/fromPromise';
 import 'rxjs/add/operator/defaultIfEmpty';
+import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/first';
 import 'rxjs/add/operator/materialize'
-import 'rxjs/add/operator/publish';
+import 'rxjs/add/operator/publishReplay';
 import 'rxjs/add/operator/reduce';
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/observable/ConnectableObservable'
-import { ChangeBasis, ItemBase, OrderBase, Item, Order, Settings, TipBasis } from '../model';
+import { ChangeBasis, Helpers, Item, ItemBase, Order, OrderBase, Settings, TipBasis } from '../model';
 import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/observable/from';
-import * as firebase from 'firebase';
-import { AngularFireList, AngularFireObject } from 'angularfire2/database';
-import { SnapshotAction } from 'angularfire2/database/interfaces';
+import { AngularFireDatabase } from 'angularfire2/database';
 import ThenableReference = firebase.database.ThenableReference;
 
 const PATH_ORDERS = '/orders';
 const PATH_ITEMS = '/items';
 const PATH_SETTINGS = '/settings';
-const PATH_SESSION = '/orderSummary';
 const PATH_DEFAULTS = '/defaults';
-const PATH_DEFAULT_TAX_PERCENT = '/defaults/taxPercent';
+const PATH_DEFAULT_TAX_PERCENT = 'defaults/taxPercent';
 const PATH_DEFAULT_TIP_PERCENT = '/defaults/tipPercent';
 const PATH_DEFAULT_DELIVERY = '/defaults/delivery';
 const PATH_DEFAULT_SHOW_INTRO = '/defaults/showIntro';
 const PATH_DEFAULT_CHANGE_OPTION = '/enumerations/changeOptions/4';
 const PATH_DEFAULT_TIP_OPTION = '/enumerations/tipOptions/0';
-const PATH_SETTINGS_TAX_PERCENT = '/settings/taxPercent';
+const PATH_SETTINGS_TAX_PERCENT = 'settings/taxPercent';
 const PATH_SETTINGS_TIP_PERCENT = '/settings/tipPercent';
 const PATH_SETTINGS_DELIVERY = '/settings/delivery';
 const PATH_SETTINGS_SHOW_INTRO = '/settings/showIntro';
@@ -42,8 +40,8 @@ const PATH_SETTINGS_CHANGE_OPTION = '/settings/changeOption';
 const PATH_ENUM_CHANGE_OPTIONS = '/enumerations/changeOptions';
 const PATH_ENUM_TIP_OPTIONS = '/enumerations/tipOptions';
 const PATH_ITEM = '/items/[key]/[value]';
-const FILTER_DEFAULT_OPTION = { orderByChild: 'isDefault', equalTo: true, limitToFirst: 1 };
-const CHANGE_OPTIONS_SORT = { orderByChild: 'value' };
+const FILTER_DEFAULT_OPTION = {orderByChild: 'isDefault', equalTo: true, limitToFirst: 1};
+const CHANGE_OPTIONS_SORT = {orderByChild: 'value'};
 
 
 @Injectable()
@@ -51,12 +49,10 @@ export class DataStoreService implements OnDestroy {
 
   private service: DataProviderService;
   private subscriptions: Array<Subscription>;
+  private helpers: Helpers;
 
-  constructor(private svc: DataProviderService) {
-    this.service = svc;
-    this.subscriptions = [];
-    this.initialize();
-  }
+  db: AngularFireDatabase;
+  settings: Settings = null;
 
   buildPath = function (...x): string {
     // const args: string[] = [].concat.call(arguments);
@@ -68,32 +64,38 @@ export class DataStoreService implements OnDestroy {
       result = result + arguments[i];
     }
     return result;
-  }
+  };
 
-  set settings(settings: Observable<Settings>) {
-    this.service.db.database.ref(PATH_SETTINGS).set(settings);
-  }
-
-  get settings(): Observable<Settings> {
-    return this.service.getObject<Settings>(PATH_SETTINGS).valueChanges();
-    // .snapshotChanges()
-      // .map(snapshot => snapshot.payload.val());
+  constructor(private svc: DataProviderService) {
+    this.service = svc;
+    this.db = this.service.db;
+    this.subscriptions = [];
+    this.helpers = new Helpers();
+    this.initialize()
+      .then(() => {
+        console.log(`datastore initialize succeeded.`);
+      }, err => console.error(`datastore initialize failed: ${err}`));
   }
 
   get allItems(): Observable<ItemBase[]> {
-
-    let result: Observable<ItemBase[]>;
-    return this.service.getList<ItemBase>(PATH_ITEMS).snapshotChanges()
-      .map(snapshots => snapshots.map(action => result = {key: action.key, ...action.payload.val()}));
+    return this.db.list<ItemBase>(PATH_ITEMS).snapshotChanges()
+      .map(snapshots => snapshots.map(action => ({key: action.key, ...action.payload.val()})));
   }
 
-  get allOrders(): Observable<OrderBase[]> {
-    /*return this.ExtractIDomainListFromSnapshot(this.service.getList<OrderBase>(PATH_ORDERS));*/
+  get orderCount(): Observable<number> {
+    return this.db.list<OrderBase>(PATH_ORDERS).valueChanges().map(obs => obs.length);
+  }
 
-    const result: Observable<OrderBase[]>
-    = this.service.getList<OrderBase>(PATH_ORDERS).snapshotChanges()
-    .map(snapshots => snapshots.map(action => ({key: action.key, ...action.payload.val()})));
-    return result;
+  get allOrders(): Observable<Order[]> {
+
+    return this.db.list<Order>(PATH_ORDERS)
+      .snapshotChanges()
+      .map(snapshots => snapshots.map(action => {
+        const order: Order = new Order(action.key, this, this.subtotal, this.helpers);
+        order.name = action.payload.val().name;
+        order.paid = action.payload.val().paid;
+        return order;
+      }));
   }
 
   get changeOption(): BehaviorSubject<ChangeBasis> {
@@ -135,13 +137,27 @@ export class DataStoreService implements OnDestroy {
       .reduce((sum, vlu) => sum + vlu, 0));
   }
 
-  tax(subtotal: Observable<number>): Observable<number> {
-    return Observable.combineLatest(subtotal, this.taxPercent, ((amt, pct) => amt * pct / 100));
+  get tax(): Observable<number> {
+    return Observable.combineLatest(this.subtotal, this.taxPercent, ((amt, pct) => amt * pct / 100));
   }
 
-  tip(subtotal: Observable<number>, taxAmount: Observable<number>): Observable<number> {
-    return Observable.combineLatest(subtotal, taxAmount, this.tipOption, this.tipPercent,
+  get tip(): Observable<number> {
+    return Observable.combineLatest(this.subtotal, this.tax, this.tipOption, this.tipPercent,
       ((amt, tax, basis, pct) => (amt + ((basis.description === 'Gross') ? tax : 0)) * pct / 100))
+  }
+
+  get total(): Observable<number> {
+    return Observable.combineLatest(this.subtotal, this.tax, this.tip, this.delivery,
+      ((amt, tax, tip, del) => amt + tax + tip + del));
+  }
+
+  get paid(): Observable<number> {
+    return this.allOrders.map(orders => orders.map(order => order.paid || 0)
+      .reduce((sum, vlu) => sum + vlu, 0));
+  }
+
+  get overShort(): Observable<number> {
+    return Observable.combineLatest(this.total, this.paid, ((t, p) => t - p));
   }
 
   deliveryShare(amt: Observable<number>): Observable<number> {
@@ -149,21 +165,17 @@ export class DataStoreService implements OnDestroy {
       ((a, t, delivery) => delivery * a / t));
   }
 
-  total(subtotal: Observable<number>, taxAmount: Observable<number>, tipAmount: Observable<number>, delivery: Observable<number>) {
-    return Observable.combineLatest(subtotal, taxAmount, tipAmount, delivery,
-      ((amt, tax, tip, del) => amt + tax + tip + del))
-  }
-
-  overShort(total: Observable<number>, paid: Observable<number>): Observable<number> {
-    return Observable.combineLatest(total, paid, ((t, p) => t - p));
-  }
-
   ngOnDestroy() {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    this.subscriptions = [];
   }
 
   setShowIntro(choice: boolean) {
     return this.service.set(PATH_SETTINGS_SHOW_INTRO, choice);
+  }
+
+  setSettings(value: Settings) {
+    return this.service.set(PATH_SETTINGS, value);
   }
 
   setTaxPercent(value: number) {
@@ -186,10 +198,6 @@ export class DataStoreService implements OnDestroy {
     this.service.set(PATH_SETTINGS_TIP_OPTION, tipBasis);
   }
 
-  setSettings(settings: Settings): Promise<void> {
-    return this.service.set(PATH_SETTINGS, settings);
-  }
-
   wrapUp() {
     this.service.remove(PATH_ORDERS);
     this.service.remove(PATH_ITEMS);
@@ -199,9 +207,11 @@ export class DataStoreService implements OnDestroy {
    * Push a new on PATH_ORDERS
    * @returns {string}
    */
-  addOrder(order: OrderBase): ThenableReference {
+  addOrder(): ThenableReference {
+    const order = new OrderBase();
     delete order.key;
-    return this.service.getList<OrderBase>(PATH_ORDERS).push(order);
+    // return this.service.getList<OrderBase>(PATH_ORDERS).push(order);
+    return this.service.db.list(PATH_ORDERS).push(order);
   }
 
   removeOrder(key: string) {
@@ -215,8 +225,8 @@ export class DataStoreService implements OnDestroy {
     return result2;*/
     let result: Observable<OrderBase>;
     return this.service.getObject<OrderBase>(this.buildPath(PATH_ORDERS, key))
-    .snapshotChanges()
-    .map(action => result = {key: action.key, ...action.payload.val()});
+      .snapshotChanges()
+      .map(action => result = {key: action.key, ...action.payload.val()});
   }
 
   getPaid(key: string): Observable<number> {
@@ -228,7 +238,7 @@ export class DataStoreService implements OnDestroy {
 
     let result: Observable<ItemBase[]>;
     return this.service.query<ItemBase>(PATH_ITEMS, ref => ref.orderByChild('orderId').equalTo(orderId)).snapshotChanges()
-    .map(snapshots => snapshots.map(action => result = {key: action.key, ...action.payload.val()}));
+      .map(snapshots => snapshots.map(action => result = {key: action.key, ...action.payload.val()}));
   }
 
   // Order level queries
@@ -251,8 +261,18 @@ export class DataStoreService implements OnDestroy {
     return this.service.updateObject<Item>(this.buildPath(PATH_ITEMS, item.key), item);
   }
 
-  // Return items attached to an order,
-  // update item.key with the firebase key
+  /**
+   * Copy a setting from the /defaults node to the /settings node
+   *
+   * @param {string} fromPath
+   * @param {string} toPath
+   * @returns {Promise<any>}
+   */
+  initializeSetting<T>(fromPath: string, toPath: string): Promise<any> {
+
+    return new Promise<T>(() => this.db.object<T>(fromPath)
+      .valueChanges().map(obs => this.db.object<T>(toPath).set(obs)).toPromise());
+  }
 
   /**
    * Initialize state
@@ -261,28 +281,14 @@ export class DataStoreService implements OnDestroy {
    */
   initialize(): Promise<any> {
 
-    /**
-     * Push the default settings into the /settings node
-     */
-    return new Promise<void>(() => { })
-      .then(() =>
-        this.subscriptions.push(this.service.getObject<number>(PATH_DEFAULT_TAX_PERCENT).valueChanges()
-          .subscribe(tax => this.service.set(PATH_SETTINGS_TAX_PERCENT, tax))))
-      .then(() =>
-        this.subscriptions.push(this.service.getObject<number>(PATH_DEFAULT_TIP_PERCENT).valueChanges()
-          .subscribe(tip => this.service.set(PATH_SETTINGS_TIP_PERCENT, tip))))
-      .then(() =>
-        this.subscriptions.push(this.service.getObject<number>(PATH_DEFAULT_DELIVERY).valueChanges()
-          .subscribe(delivery => this.service.set(PATH_SETTINGS_DELIVERY, delivery))))
-      .then(() =>
-        this.subscriptions.push(this.service.getObject<boolean>(PATH_DEFAULT_SHOW_INTRO).valueChanges()
-          .subscribe(show => this.service.set(PATH_SETTINGS_SHOW_INTRO, show))))
-      .then(() =>
-        this.subscriptions.push(this.service.getObject<TipBasis>(PATH_DEFAULT_TIP_OPTION).valueChanges()
-          .subscribe(option => this.service.set(PATH_SETTINGS_TIP_OPTION, option))))
-      .then(() =>
-        this.subscriptions.push(this.service.getObject<ChangeBasis>(PATH_DEFAULT_CHANGE_OPTION).valueChanges()
-          .subscribe(option => this.service.set(PATH_SETTINGS_CHANGE_OPTION, option))))
-      .catch((err) => console.error('initialize error: ' + err));
+    return new Promise<void>(() => {
+      this.initializeSetting<number>(PATH_DEFAULT_TAX_PERCENT, PATH_SETTINGS_TAX_PERCENT);
+      this.initializeSetting<number>(PATH_DEFAULT_TIP_PERCENT, PATH_SETTINGS_TIP_PERCENT);
+      this.initializeSetting<number>(PATH_DEFAULT_DELIVERY, PATH_SETTINGS_DELIVERY);
+      this.initializeSetting<boolean>(PATH_DEFAULT_SHOW_INTRO, PATH_SETTINGS_SHOW_INTRO);
+      this.initializeSetting<TipBasis>(PATH_DEFAULT_TIP_OPTION, PATH_SETTINGS_TIP_OPTION);
+      this.initializeSetting<ChangeBasis>(PATH_DEFAULT_CHANGE_OPTION, PATH_SETTINGS_CHANGE_OPTION);
+      this.subscriptions.push(this.db.object<Settings>(PATH_SETTINGS).valueChanges().subscribe(obs => this.settings = obs));
+    });
   }
 }

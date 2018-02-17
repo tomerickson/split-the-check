@@ -137,57 +137,6 @@ export class DataProviderService implements OnDestroy {
       });
   }
 
-  copyNode(oldPath: string, newPath: string): Promise<void> {
-    let success = false;
-    let node;
-    const oldRef = this.db.object(oldPath).valueChanges().map(obj => node = obj.valueOf());
-    // debugger;
-    const newRef = this.db.object(newPath);
-    const promise = newRef.set(oldRef);
-      promise.then((oldOutcome) => {
-        success = true;
-        this.logSuccess(this.MSG_COPY, oldPath, newPath, oldOutcome);
-        return true;
-      })
-      .catch((oldOutcome) => {
-        this.logFailure(this.MSG_COPY, oldPath, newPath, oldOutcome);
-        return false;
-      });
-    return promise;
-  }
-
-  moveNode(oldPath, newPath): boolean {
-    let success = false;
-    const newRef = this.db.object(newPath);
-    newRef.set(this.db.object(oldPath))
-      .then((newOutcome) => {
-        success = true;
-        this.db.object(oldPath).remove()
-          .then((oldOutcome) => {
-            this.logSuccess(this.MSG_MOVE, oldPath, newPath, oldOutcome);
-            return true;
-          })
-          .catch((oldOutcome) => {
-            success = false;
-            this.logFailure(this.MSG_MOVE, oldPath, newPath, oldOutcome);
-            return false;
-          });
-      })
-      .catch((newOutcome) => {
-        success = false;
-        this.logFailure(this.MSG_MOVE, oldPath, newPath, newOutcome);
-        return false;
-      });
-
-    if (success) {
-      if (this.LOG) {
-        this.logTask(this.MSG_MOVE, oldPath, newPath, true, null);
-      }
-      return true;
-    }
-    return success;
-  }
-
   identity<T>(arg?: T): T {
     return arg as T;
   }

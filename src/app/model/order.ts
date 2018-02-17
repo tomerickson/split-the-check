@@ -3,49 +3,60 @@ import { OrderBase} from './orderbase';
 import { Item } from './item';
 import { Helpers } from './helpers';
 import { Settings } from './settings';
+import { Session } from './session';
+import { Observable } from 'rxjs/Observable';
 
 export class Order implements OrderBase {
+  private _items: Item[] = [];
+  private _session: Session;
+  private readonly service: DataStoreService;
+  private settings: Settings;
+
   key: string;
   name: string;
   paid: number;
-  items: Item[];
   helpers: Helpers;
+  subtotal: number;
+  tax: number;
+  tip: number;
+  delivery: number;
+  total: number;
+  overShort: number;
+  grandTotal: number;
 
-  private service: DataStoreService;
-  private settings: Settings;
+  get session(): Session {
+    return this._session;
+  }
 
-  constructor(public orderId: string,
+  set session(value: Session) {
+    this._session = value;
+  }
+
+  get items(): Item[] {
+    return this._items;
+  }
+
+  set items(value: Item[]) {
+    this._items = value;
+    this.subtotal = Helpers.subtotal(this._items);
+    this.tax = Helpers.tax(this.subtotal, this.settings);
+    this.tip = Helpers.tip(this.subtotal, this.tax, this.settings);
+    this.delivery = Helpers.delivery(this.subtotal, this.grandTotal, this.settings);
+    this.total = Helpers.total(this.subtotal, this.tax, this.tip, this.delivery);
+    this.overShort = Helpers.overShort(this.total, this.paid, this.settings, true);
+  }
+
+  constructor(private orderId: string,
                private svc: DataStoreService,
-              private set: Settings,
+              private tot: Observable<number>,
               private hlp: Helpers) {
+    this.key = orderId;
     this.service = svc;
-    this.settings = set;
     this.helpers = hlp;
-  }
+    this.settings = svc.settings;
+    tot.map(obs => this.grandTotal = obs);
+    this.service.getItems(this.key).map(items => this.items = items);
 
-  get subtotal(): number {
-    return this.items.map(item => item.quantity * item.price)
-      .reduce((sum, vlu) => sum + vlu, 0);
-  }
-
-  get tax(): number {
-    return this.helpers.tax(this.subtotal, this.settings);
-  }
-
-  get tip(): number {
-    // return Helpers.tip(this.subtotal, this.tax, Helpers.unwrap(this.service.settings));
-    return this.helpers.tip(this.subtotal, this.tax, this.settings);
-  }
-
-  get delivery(): number {
-    return this.helpers.delivery(this.subtotal, this.helpers.unwrap(this.service.subtotal), this.settings);
-    }
-
-  get total(): number {
-    return this.helpers.total(this.subtotal, this.tax, this.tip, this.delivery);
-  }
-
-  get overShort(): number {
-    return this.helpers.overShort(this.total, this.paid, this.settings, true);
+    // this.service.settings.map(vlu => vlu).then(vlu => this.settings = vlu);
   }
 }

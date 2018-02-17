@@ -12,7 +12,7 @@ export class Session implements OnDestroy {
   public title = 'Split the Check';
   public ready: BehaviorSubject<boolean>;
   public orders: OrderBase[];
-  public service: DataStoreService;
+  private service: DataStoreService;
   public items: ItemBase[];
   public helpers: Helpers;
   public settings: Settings;
@@ -20,31 +20,33 @@ export class Session implements OnDestroy {
 
   // private tipOptionSubscription: Subscription;
 
-  constructor() {
+  constructor(private svc: DataStoreService) {
+    this.service = svc;
+    this.buildSession();
   }
 
   public get subtotal(): number {
     if (this.items && this.items.length > 0) {
-      return this.helpers.subtotal(this.items);
+      return Helpers.subtotal(this.items);
     } else {
       return 0;
     }
   }
 
   public get tax(): number {
-    return this.helpers.tax(this.subtotal, this.settings);
+    return Helpers.tax(this.subtotal, this.settings);
   }
 
   public get tip(): number {
-    return this.helpers.tip(this.subtotal, this.tax, this.settings);
+    return Helpers.tip(this.subtotal, this.tax, this.settings);
   }
 
   public get delivery(): number {
-    return this.helpers.delivery(this.subtotal, this.subtotal, this.settings);
+    return Helpers.delivery(this.subtotal, this.subtotal, this.settings);
   }
 
   public get total(): number {
-    return this.helpers.total(this.subtotal, this.tax, this.tip, this.delivery);
+    return Helpers.total(this.subtotal, this.tax, this.tip, this.delivery);
   }
 
   public get paid(): number {
@@ -53,7 +55,7 @@ export class Session implements OnDestroy {
   }
 
   public get overShort(): number {
-    return this.helpers.overShort(this.total, this.paid, this.settings, false);
+    return Helpers.overShort(this.total, this.paid, this.settings, false);
   }
 
   public get underPaid(): boolean {

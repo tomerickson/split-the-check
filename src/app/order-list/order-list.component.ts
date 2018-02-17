@@ -1,9 +1,8 @@
-import { Component, Input, OnDestroy, OnInit} from '@angular/core';
-import { DataStoreService} from '../data-store/data-store.service';
-import { Observable} from 'rxjs/Observable';
-import { Subscription} from 'rxjs/Subscription';
-import { OrderBase, Order, Settings, Session} from '../model';
-import { isNullOrUndefined } from 'util';
+import { Component, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChange, SimpleChanges } from '@angular/core';
+import { DataStoreService } from '../data-store/data-store.service';
+import { Subscription } from 'rxjs/Subscription';
+import { OrderBase, Session, Settings } from '../model';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Component({
   selector: 'app-order-list-outlet',
@@ -11,30 +10,58 @@ import { isNullOrUndefined } from 'util';
   templateUrl: 'order-list.component.html'
 })
 
-export class OrderListComponent implements OnInit, OnDestroy {
+export class OrderListComponent implements OnChanges, OnInit, OnDestroy {
   @Input() settings: Settings;
   @Input() session: Session;
+  @Input() orders: OrderBase;
   service: DataStoreService;
+  zone: NgZone;
   subscriptions: Subscription[] = [];
 
-  constructor(svc: DataStoreService) {
+  constructor(svc: DataStoreService, zone: NgZone) {
     this.service = svc;
+    this.zone = zone;
+    this.session = new Session(this.service);
+    this.subscribeAll();
   }
 
   ngOnInit() {
+    // this.subscribeAll();
   }
 
-  ngOnDestroy() {
+  ngOnChanges(changes: SimpleChanges) {
+    for (const propName in changes) {
+      if (changes.hasOwnProperty(propName)) {
+        const change: SimpleChange = changes[propName];
+        if (change.currentValue && change.currentValue !== change.previousValue) {
+        }
+      }
+    }
+  }
+
+  subscribeAll() {
+  }
+
+  unsubscribeAll() {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
     this.subscriptions = [];
   }
 
-  addOrder() {
-    this.service.addOrder(new OrderBase());
+  ngOnDestroy() {
+    this.unsubscribeAll();
   }
 
   onRemove(event: Event, index: number) {
     this.service.removeOrder(this.service.allOrders[index].key);
+  }
+
+  addOrder() {
+    const result = this.service.addOrder();
+    console.log(`order-list.addOrder result = ${result.toJSON()}`);
+  }
+
+  removeOrder(order) {
+
   }
 }
 
