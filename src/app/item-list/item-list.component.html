@@ -1,12 +1,12 @@
 <mat-card>
   <mat-card-title>Items</mat-card-title>
-  <app-item-outlet *ngFor="let item of order.items; let i = index;"
-                   [orderId]="item.orderId"
-                   [itemId]="item.key"
-                   [item] = "item"
-                   [index]="i"
-                   (removeItem)="removeItem($event)">
-  </app-item-outlet>
+  <mat-card-content>
+    <app-item-outlet *ngFor="let item of order.items; let i = index;"
+                     [item]="item"
+                     [index]="i"
+                     (removeItem)="removeItem($event)">
+    </app-item-outlet>
+  </mat-card-content>
   <mat-card-actions>
     <button mat-icon-button class="add"
             tabindex="0" title="Add"

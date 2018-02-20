@@ -1,16 +1,19 @@
 import { DataStoreService } from '../data-store/data-store.service';
-import { OrderBase} from './orderbase';
+import { OrderBase } from './orderbase';
 import { Item } from './item';
 import { Helpers } from './helpers';
 import { Settings } from './settings';
 import { Session } from './session';
 import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
+import { OnDestroy } from '@angular/core';
 
-export class Order implements OrderBase {
+export class Order implements OnDestroy, OrderBase {
   private _items: Item[] = [];
   private _session: Session;
   private readonly service: DataStoreService;
   private settings: Settings;
+  private subscriptions: Subscription[] = [];
 
   key: string;
   name: string;
@@ -47,16 +50,29 @@ export class Order implements OrderBase {
   }
 
   constructor(private orderId: string,
-               private svc: DataStoreService,
+              private set: Settings,
+              private svc: DataStoreService,
               private tot: Observable<number>,
               private hlp: Helpers) {
-    this.key = orderId;
+    this.orderId = orderId;
     this.service = svc;
     this.helpers = hlp;
-    this.settings = svc.settings;
+    this.settings = set;
     tot.map(obs => this.grandTotal = obs);
-    this.service.getItems(this.key).map(items => this.items = items);
+    this.subscribeAll();
+  }
 
-    // this.service.settings.map(vlu => vlu).then(vlu => this.settings = vlu);
+  ngOnDestroy() {
+    this.unsubscribeAll();
+  }
+
+  subscribeAll() {
+    this.subscriptions.push(this.service.getItems(this.orderId)
+      .subscribe(items => this.items = items));
+  }
+
+  unsubscribeAll() {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    this.subscriptions = [];
   }
 }

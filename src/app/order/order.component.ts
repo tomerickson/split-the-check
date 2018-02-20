@@ -59,14 +59,19 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
             this.setChangeBasis();
             break;
           case 'order':
-            this.getItems(this.orderId);
+            // this.order.items = this.getItems(this.orderId);
+            if (this.order) {
+              this.getItems(this.order.key);
+            }
             this.orderForm.patchValue({
               name: change.currentValue.name,
               paid: change.currentValue.paid.toFixed(2)
             });
             break;
           case 'orderId':
-            this.orderId = change.currentValue;
+            if (change.currentValue) {
+              this.orderId = change.currentValue;
+            }
             break;
           default:
             break;
@@ -86,9 +91,11 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
   getItems(orderId: string) {
     this.subscriptions
       .push(this.service.getItems(orderId)
-        .subscribe(obs => {
-          this.fillOrder(obs);
-        }));
+        .subscribe((obs: ItemBase[]) => this.setItems(obs)));
+  }
+
+  setItems(items: ItemBase[]) {
+    this.order.items = items;
   }
 
   setChangeBasis() {
@@ -101,19 +108,6 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
       name: ['', [Validators.required], [], {updateOn: 'change'}],
       paid: ['', [Validators.required, Validators.pattern(this.numberPattern)], [], {updateOn: 'change'}]
     });
-  }
-
-  /*  buildOrder(order) {
-      this.order = order;
-      this.paid = order.paid;
-    }
-  */
-
-  fillOrder(items: ItemBase[]) {
-    if (!items) {
-      this.order.items = [];
-    }
-    this.order.items = items;
   }
 
   removeOrder() {

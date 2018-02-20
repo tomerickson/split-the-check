@@ -1,3 +1,9 @@
+mat-form-field#formfield_quantity {
+  width: 3em;
+}
+mat-form-field#formfield_price {
+  width: 6em;
+}
 .add {
   &:hover {
     color: rgba(0, 192, 0, 1);
@@ -8,7 +14,7 @@
   &:hover {
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.08);
   }
- }
+}
 
 .remove {
   &:hover {
@@ -17,6 +23,6 @@
 }
 
 label {
-  margin:0;
+  margin: 0;
 }
 

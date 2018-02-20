@@ -93,7 +93,7 @@ export class Helpers {
   public static overShort(total: number, paid: number, settings: Settings, round?: boolean) {
     let result = total - paid;
     if (round) {
-      result = result / settings.changeOption.value * settings.changeOption.value;
+      result = Math.round(result / settings.changeOption.value) * settings.changeOption.value;
     }
     return result;
   }

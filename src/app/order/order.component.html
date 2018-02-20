@@ -76,7 +76,8 @@
               {{(0-order.overShort) | number:'1.2-2'}}
             </mat-grid-tile>
           </mat-grid-list>
-            <app-item-list-outlet *ngIf="order" [orderId]="orderId" [order]="order">
+            <app-item-list-outlet *ngIf="order"
+                                  [order]="order">
             </app-item-list-outlet>
         </mat-card>
         <mat-action-row>

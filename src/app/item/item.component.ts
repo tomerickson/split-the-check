@@ -1,12 +1,21 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2 } from '@angular/core';
-import { Item } from '../model';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChange,
+  SimpleChanges
+} from '@angular/core';
+import { Item, ItemBase } from '../model';
 import { DataStoreService } from '../data-store/data-store.service';
-import { Subscription } from 'rxjs/Subscription';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import 'rxjs/add/operator/map';
 
 import { DialogsService } from '../dialogs/dialogs.service';
-import { ItemBase } from '../model';
 
 @Component({
   selector: 'app-item-outlet',
@@ -14,11 +23,9 @@ import { ItemBase } from '../model';
   styleUrls: ['./item.component.scss']
 })
 
-export class ItemComponent implements OnInit, OnDestroy {
-  @Input() itemId: string;
+export class ItemComponent implements OnChanges, OnInit, OnDestroy {
   @Input() item: Item;
   @Input() index: number;
-  @Input() orderId: string;
   @Output() focusit: EventEmitter<any>;
   public amount: number;
   public itemForm: FormGroup;
@@ -27,18 +34,44 @@ export class ItemComponent implements OnInit, OnDestroy {
   public result: any;
 
   private priorValue: number;
-  private itemSubscription: Subscription;
+  private fb: FormBuilder;
+  private ref: ChangeDetectorRef;
 
   constructor(private service: DataStoreService,
               private formBuilder: FormBuilder,
               public dialog: DialogsService,
-              public renderer: Renderer2) {
-    this.priorValue = 0;
+              private detector: ChangeDetectorRef) {
+    this.fb = this.formBuilder;
+    this.ref = detector;
+    this.createForm();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    for (const propName in changes) {
+      if (changes.hasOwnProperty(propName)) {
+        const change: SimpleChange = changes[propName];
+        // console.log(`item.onchanges change: ${propName} value: ${JSON.stringify(change.currentValue)}`);
+        if (change.currentValue === change.previousValue) {
+          continue;
+        }
+        switch (propName) {
+          case 'item':
+          {
+            this.itemForm.setValue({
+              description: this.item.description,
+              quantity: this.item.quantity || 0,
+              price: (+this.item.price).toFixed(2),
+              instructions: this.item.instructions || ''
+            });
+            // this.ref.detectChanges();
+            break;
+          }
+        }
+      }
+    }
   }
 
   ngOnInit() {
-    // console.log('item.key=' + this.item.key);
-    this.createForm();
   }
 
   ngOnDestroy() {
@@ -53,12 +86,13 @@ export class ItemComponent implements OnInit, OnDestroy {
         console.log(JSON.stringify(this.result));
       });
   }
+
   createForm() {
-    this.itemForm = this.formBuilder.group({
-      description: [this.item.description, Validators.required],
-      quantity: [this.item.quantity, [Validators.required, Validators.pattern(this.quantityPattern)]],
-      price: [this.item.price, [Validators.required, Validators.pattern(this.pricePattern)]],
-      instructions: [this.item.instructions]
+    this.itemForm = this.fb.group({
+      description: ['', Validators.required],
+      quantity: ['', [Validators.required, Validators.pattern(this.quantityPattern)]],
+      price: ['', [Validators.required, Validators.pattern(this.pricePattern)]],
+      instructions: ['']
     });
     // this.itemForm.patchValue(this.item);
     // console.log('item=' + JSON.stringify(this.item));
@@ -75,7 +109,6 @@ export class ItemComponent implements OnInit, OnDestroy {
 
   onAdd() {
     const item = new ItemBase();
-    item.orderId = this.orderId;
     this.service.addItem(item);
   }
 

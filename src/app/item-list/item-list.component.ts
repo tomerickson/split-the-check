@@ -1,7 +1,7 @@
 /**
  * Created by Erick on 2/6/2017.
  */
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChange, SimpleChanges } from '@angular/core';
 import { DataSource } from '@angular/cdk/collections';
 import { Item, ItemBase, Order } from '../model';
 import { DataStoreService } from '../data-store/data-store.service';
@@ -16,12 +16,11 @@ import { MatTableDataSource } from '@angular/material';
   styleUrls: ['item-list.component.scss']
 })
 
-export class ItemListComponent implements OnInit, OnDestroy {
-  @Input() orderId: string;
+export class ItemListComponent implements OnChanges, OnInit, OnDestroy {
   @Input() order: Order;
   items: Item[] = [];
   displayedColumns = ['description', 'quantity', 'price', 'instructions'];
-  subItems: Subscription;
+  subscriptions: Subscription[] = [];
   listData: GenericData<Item>;
   listDataSource: GenericDataSource<Item>;
   positive: boolean;
@@ -39,17 +38,30 @@ export class ItemListComponent implements OnInit, OnDestroy {
   constructor(public service: DataStoreService) {
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    for (const propName in changes) {
+      if (changes.hasOwnProperty(propName)) {
+        switch (propName) {
+          case 'order':
+            this.items = this.order.items;
+            break;
+        }
+      }
+    }
+  }
+
   ngOnInit() {
-    this.listData = new GenericData<Item>([]);
+    this.listData = new GenericData<Item>(this.items);
     this.listDataSource = new GenericDataSource<Item>(this.listData, this.filterFunction, false);
 //    this.listData = new GenericData<Item>(this.order.items);
 //    this.listDataSource = new GenericDataSource<Item>(this.listData, this.filterFunction, false);
-    this.subItems = this.service.getItems(this.orderId)
-      .subscribe(list => this.fillItemList(list));
+//     this.subscriptions.push(this.service.getItems(this.order.key)
+//       .subscribe(list => this.fillItemList(list)));
   }
 
   ngOnDestroy() {
-    this.subItems.unsubscribe();
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    this.subscriptions = [];
   }
 
   removeItem(item) {
@@ -58,7 +70,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
 
   addItem() {
     const item = new ItemBase();
-    item.orderId = this.orderId;
+    item.orderId = this.order.key;
     this.service.addItem(item);
   }
 }

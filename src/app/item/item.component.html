@@ -1,79 +1,72 @@
-<form [formGroup]="itemForm">
-  <mat-grid-list cols="6" rowHeight="4:1">
-    <mat-grid-tile>
-      <button mat-icon-button class="remove"
-              title="Remove this item."
-              (click)="openDialog()">
-        <mat-icon>remove_circle</mat-icon>
-      </button>
-    </mat-grid-tile>
-    <mat-grid-tile>
-      <mat-form-field>
-        <input matInput id="description"
-               class="form-control text-line"
-               name="description"
-               formControlName="description"
-               placeholder="Description"
-               onfocus="select();"
-               tabindex="0">
-        <app-control-messages [control]="itemForm.controls['description']"
-                              [expando]="'description'"></app-control-messages>
-      </mat-form-field>
-    </mat-grid-tile>
-    <mat-grid-tile>
-      <mat-form-field>
-        <input matInput id="price"
-               class="form-control"
-               name="price"
-               onfocus="select();"
-               formControlName="price"
-               placeholder="Price"
-               tabindex="0">
-        <app-control-messages [control]="itemForm.controls['price']" [expando]="'price'"></app-control-messages>
-      </mat-form-field>
-    </mat-grid-tile>
-    <mat-grid-tile>
-      <mat-form-field>
-        <input matInput class="form-control"
-               id="quantity"
-               name="quantity"
-               onfocus="select();"
-               placeholder="Qty."
-               formControlName="quantity"
-               tabindex="0">
-        <app-control-messages [control]="itemForm.controls['quantity']" [expando]="'quantity'">
-        </app-control-messages>
-      </mat-form-field>
-    </mat-grid-tile>
-    <mat-grid-tile>
-      <mat-form-field>
-        <input matInput class="form-control"
-               id="instructions"
-               name="instructions"
-               onfocus="select();"
-               formControlName="instructions"
-               placeholder="Instructions"
-               tabindex="0">
-      </mat-form-field>
-    </mat-grid-tile>
-    <mat-grid-tile>
-      <button mat-icon-button class="save"
-              [disabled]="itemForm.invalid"
-              title="Save"
-              (click)="onSave()" tabindex="0">
-        <mat-icon>done</mat-icon>
-      </button>
-      <button mat-icon-button class="undo"
-              title="Undo" (click)="onUndo()"
-              [disabled]="!itemForm.dirty">
-        <mat-icon>undo</mat-icon>
-      </button>
-      <button mat-icon-button class="add"
-              tabindex="0" title="Add"
-              [disabled]="itemForm.invalid"
-              (keydown.Space)="onAdd()" (click)="onAdd()">
-        <mat-icon>add_circle</mat-icon>
-      </button>
-    </mat-grid-tile>
-  </mat-grid-list>
+<!--
+Six columns: 1 for the 'remove' button on the left,
+4 columns for data, and a column for the action
+buttons on the right
+-->
+<form name="itemForm" [formGroup]="itemForm">
+  <div>
+    <button mat-icon-button class="remove"
+            title="Remove this item."
+            (click)="openDialog()">
+      <mat-icon>remove_circle</mat-icon>
+    </button>
+
+    <mat-form-field id="formfield_description">
+      <input matInput id="description"
+             class="form-control text-line"
+             name="description"
+             formControlName="description"
+             placeholder="Description"
+             onfocus="select();"
+             tabindex="0">
+    </mat-form-field>
+
+    <mat-form-field id="formfield_price">
+      <input matInput id="price"
+             class="form-control"
+             name="price"
+             onfocus="select();"
+             formControlName="price"
+             placeholder="Price"
+             tabindex="0">
+    </mat-form-field>
+
+    <mat-form-field id="formfield_quantity">
+      <input matInput class="form-control"
+             id="quantity"
+             name="quantity"
+             onfocus="select();"
+             placeholder="Qty."
+             formControlName="quantity"
+             tabindex="0">
+    </mat-form-field>
+
+    <mat-form-field id="formfield_instructions">
+      <input matInput class="form-control"
+             id="instructions"
+             name="instructions"
+             onfocus="select();"
+             formControlName="instructions"
+             placeholder="Instructions"
+             tabindex="0">
+    </mat-form-field>
+
+    <button mat-icon-button class="save"
+            [disabled]="itemForm.invalid"
+            title="Save"
+            (click)="onSave()" tabindex="0">
+      <mat-icon>done</mat-icon>
+    </button>
+    <button mat-icon-button class="undo"
+            title="Undo" (click)="onUndo()"
+            [disabled]="!itemForm.dirty">
+      <mat-icon>undo</mat-icon>
+    </button>
+    <button mat-icon-button class="add"
+            tabindex="0" title="Add"
+            [disabled]="itemForm.invalid"
+            (keydown.Space)="onAdd()" (click)="onAdd()">
+      <mat-icon>add_circle</mat-icon>
+    </button>
+  </div>
 </form>

@@ -47,12 +47,13 @@ const CHANGE_OPTIONS_SORT = {orderByChild: 'value'};
 @Injectable()
 export class DataStoreService implements OnDestroy {
 
+  private unwrappedSettings: Settings;
   private service: DataProviderService;
   private subscriptions: Array<Subscription>;
-  private helpers: Helpers;
+  private readonly helpers: Helpers;
 
   db: AngularFireDatabase;
-  settings: Settings = null;
+  // settings: Settings = null;
 
   buildPath = function (...x): string {
     // const args: string[] = [].concat.call(arguments);
@@ -71,10 +72,15 @@ export class DataStoreService implements OnDestroy {
     this.db = this.service.db;
     this.subscriptions = [];
     this.helpers = new Helpers();
+    this.subscriptions.push(this.settings.subscribe(obs => this.unwrappedSettings = obs));
     this.initialize()
       .then(() => {
         console.log(`datastore initialize succeeded.`);
       }, err => console.error(`datastore initialize failed: ${err}`));
+  }
+
+  get settings(): Observable<Settings> {
+    return this.db.object<Settings>(PATH_SETTINGS).valueChanges();
   }
 
   get allItems(): Observable<ItemBase[]> {
@@ -88,14 +94,16 @@ export class DataStoreService implements OnDestroy {
 
   get allOrders(): Observable<Order[]> {
 
-    return this.db.list<Order>(PATH_ORDERS)
+    const orders = this.db.list<Order>(PATH_ORDERS)
       .snapshotChanges()
       .map(snapshots => snapshots.map(action => {
-        const order: Order = new Order(action.key, this, this.subtotal, this.helpers);
+        const order: Order = new Order(action.key, this.unwrappedSettings, this, this.subtotal, this.helpers);
+        order.key = action.key;
         order.name = action.payload.val().name;
         order.paid = action.payload.val().paid;
         return order;
       }));
+    return orders;
   }
 
   get changeOption(): BehaviorSubject<ChangeBasis> {
@@ -288,7 +296,6 @@ export class DataStoreService implements OnDestroy {
       this.initializeSetting<boolean>(PATH_DEFAULT_SHOW_INTRO, PATH_SETTINGS_SHOW_INTRO);
       this.initializeSetting<TipBasis>(PATH_DEFAULT_TIP_OPTION, PATH_SETTINGS_TIP_OPTION);
       this.initializeSetting<ChangeBasis>(PATH_DEFAULT_CHANGE_OPTION, PATH_SETTINGS_CHANGE_OPTION);
-      this.subscriptions.push(this.db.object<Settings>(PATH_SETTINGS).valueChanges().subscribe(obs => this.settings = obs));
     });
   }
 }

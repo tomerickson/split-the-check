@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Helpers, ItemBase, OrderBase, Settings } from '../model';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Helpers, ItemBase, Order, Settings } from '../model';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/count';
 import 'rxjs/add/observable/of'
@@ -13,14 +13,15 @@ import { Subscription } from 'rxjs/Subscription';
   styleUrls: ['./order-totals.component.scss']
 })
 
-export class OrderTotalsComponent implements OnInit, OnDestroy {
+export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
 
-  settings: Settings;
+  @Input() settings: Settings;
+  @Input() orders: Order[];
   helpers: Helpers;
   subscriptions: Subscription[] = [];
   service: DataStoreService;
   subSettings: Subscription;
-  orders: OrderBase[];
+  // orders: OrderBase[];
   items: ItemBase[];
   subtotal: number;
   tax: number;
@@ -34,7 +35,28 @@ export class OrderTotalsComponent implements OnInit, OnDestroy {
   constructor(svc: DataStoreService, hlp: Helpers) {
     this.service = svc;
     this.helpers = hlp;
-    this.initialize();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+
+    for (const propName in changes) {
+      if (changes.hasOwnProperty(propName)) {
+        const change = changes[propName];
+
+        switch (propName) {
+          case 'orders':
+            if (change.currentValue) {
+              let amt = 0;
+              this.orders.forEach(ord => amt += ord.paid);
+              this.paid = amt;
+            }
+            break;
+          case 'settings':
+            const set: Settings = change.currentValue;
+            break;
+        }
+      }
+    }
   }
 
   ngOnInit() {
@@ -50,21 +72,16 @@ export class OrderTotalsComponent implements OnInit, OnDestroy {
   }
 
   subscribeAll() {
-    this.subscriptions.push(this.service.allOrders.subscribe(obs => {
-      this.orders = obs;
-      let amt = 0;
-      this.orders.forEach(ord => amt += ord.paid);
-      this.paid = amt;
-    }));
+
     this.subscriptions.push(this.service.allItems
       .subscribe(obs => {
         this.items = obs;
         this.subtotal = Helpers.subtotal(this.items);
-        this.tax = Helpers.tax(this.subtotal, this.service.settings);
-        this.tip = Helpers.tip(this.subtotal, this.tax, this.service.settings);
-        this.delivery = Helpers.delivery(this.subtotal, this.subtotal, this.service.settings);
+        this.tax = Helpers.tax(this.subtotal, this.settings);
+        this.tip = Helpers.tip(this.subtotal, this.tax, this.settings);
+        this.delivery = Helpers.delivery(this.subtotal, this.subtotal, this.settings);
         this.total = Helpers.total(this.subtotal, this.tax, this.tip, this.delivery);
-        this.overShort = Helpers.overShort(this.total, this.paid, this.service.settings, false);
+        this.overShort = Helpers.overShort(this.total, this.paid, this.settings, false);
         this.underPaid = this.overShort > 0;
       }));
   }

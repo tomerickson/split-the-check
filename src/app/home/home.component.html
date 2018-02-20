@@ -41,19 +41,21 @@
       <app-settings [settings]="settings"
                     [tipOptions]="tipOptions"
                     [changeOptions]="changeOptions"
-                    (change)="reset($event)">
+                    (pushSettings)="reset($event)">
       </app-settings>
     </section>
     <section>
-      <app-order-list-outlet
-        [settings]="service.settings"
-        [session]="session"
-      [orders]="orders">
+      <app-order-list-outlet *ngIf="settings"
+                             [settings]="settings"
+                             [session]="session"
+                             [orders]="orders">
       </app-order-list-outlet>
     </section>
   </mat-card>
   <div>
-    <app-order-totals>
+    <app-order-totals *ngIf="settings && orders"
+                      [settings]="settings"
+                      [orders]="orders">
     </app-order-totals>
   </div>
 </div>

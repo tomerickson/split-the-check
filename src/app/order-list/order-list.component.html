@@ -19,9 +19,9 @@
       </li>
     </ul>
   </section>
-  <ul id="orders" *ngIf="orders">
+  <ul id="orders" *ngIf="orders && settings">
     <li>
-      <app-order-outlet *ngFor="let order of orders | async;let i = index"
+      <app-order-outlet *ngFor="let order of orders;let i = index"
                         [session]="session"
                         [settings]="settings"
                         [orderId]="order.key"

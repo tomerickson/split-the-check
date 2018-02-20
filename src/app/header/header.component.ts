@@ -28,7 +28,7 @@ export class HeaderComponent implements OnInit, OnDestroy, OnChanges {
         const chng = changes[propName];
         const cur = JSON.stringify(chng.currentValue);
         const prev = JSON.stringify(chng.previousValue);
-        console.log(`header ${propName}: currentValue = ${cur}, previousValue = ${prev}`);
+        // console.log(`header ${propName}: currentValue = ${cur}, previousValue = ${prev}`);
       }
     }
   }
