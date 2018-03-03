@@ -4,13 +4,11 @@ import {
   EventEmitter,
   Input,
   OnChanges,
-  OnDestroy,
-  OnInit,
   Output,
   SimpleChange,
   SimpleChanges
 } from '@angular/core';
-import { Item, ItemBase } from '../model';
+import { Item } from '../model';
 import { DataStoreService } from '../data-store/data-store.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import 'rxjs/add/operator/map';
@@ -23,17 +21,17 @@ import { DialogsService } from '../dialogs/dialogs.service';
   styleUrls: ['./item.component.scss']
 })
 
-export class ItemComponent implements OnChanges, OnInit, OnDestroy {
+export class ItemComponent implements OnChanges {
   @Input() item: Item;
   @Input() index: number;
-  @Output() focusit: EventEmitter<any>;
-  public amount: number;
+  @Output() focusIt: EventEmitter<any>;
+  @Output() addTrigger: EventEmitter<string>;
+
   public itemForm: FormGroup;
   public quantityPattern = '^[0-9]+$';
   public pricePattern = `^[0-9]+$|^[0-9]+\\.[0-9]{0,3}$`;
   public result: any;
 
-  private priorValue: number;
   private fb: FormBuilder;
   private ref: ChangeDetectorRef;
 
@@ -43,6 +41,7 @@ export class ItemComponent implements OnChanges, OnInit, OnDestroy {
               private detector: ChangeDetectorRef) {
     this.fb = this.formBuilder;
     this.ref = detector;
+    this.addTrigger = new EventEmitter<string>();
     this.createForm();
   }
 
@@ -57,24 +56,18 @@ export class ItemComponent implements OnChanges, OnInit, OnDestroy {
         switch (propName) {
           case 'item':
           {
+            const price = isNaN(this.item.price) ? 0 : +this.item.price;
             this.itemForm.setValue({
-              description: this.item.description,
+              description: this.item.description || '',
               quantity: this.item.quantity || 0,
-              price: (+this.item.price).toFixed(2),
+              price: price.toFixed(2),
               instructions: this.item.instructions || ''
             });
-            // this.ref.detectChanges();
             break;
           }
         }
       }
     }
-  }
-
-  ngOnInit() {
-  }
-
-  ngOnDestroy() {
   }
 
   public openDialog() {
@@ -108,8 +101,9 @@ export class ItemComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   onAdd() {
-    const item = new ItemBase();
-    this.service.addItem(item);
+    console.log('item.onAdd()');
+   // this.addTrigger.emit(this.item.orderId);
+    this.addTrigger.next(this.item.orderId);
   }
 
   onSave() {

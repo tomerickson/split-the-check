@@ -1,92 +1,98 @@
 <mat-list-item id="order" *ngIf="order">
-    <mat-expansion-panel [hideToggle]="false" expanded="true">
-        <mat-card class="mat-elevation-z0" *ngIf="orderForm">
-            <form name="orderForm" [formGroup]="orderForm">
-                <mat-grid-list cols="3" rowHeight="4:1">
-                  <mat-grid-tile>
-                    <label>{{"Order " + (index+1)}}</label>
-                  </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-placeholder>Ordered by:</mat-placeholder>
-                            <input matInput type="text"
-                                   id="input-name"
-                                   name="name"
-                                   formControlName="name"
-                                   title="Ordered by"
-                            (focus)="selectIt($event)">
-                        </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-placeholder>Payment:</mat-placeholder>
-                            <input matInput id="input-paid"
-                                   type="text"
-                                   name="paid"
-                                   formControlName="paid"
-                                   title="Paid"
-                                   (focus)="padIt($event);selectIt($event)"
-                                   (change)="updatePaid($event)"
-                                    (blur)="padIt($event)">
-                        </mat-form-field>
-                    </mat-grid-tile>
-                </mat-grid-list>
-            </form>
-          <mat-grid-list cols="7" rowHeight="3:1">
-            <mat-grid-tile>
-              Subtotal
-            </mat-grid-tile>
-            <mat-grid-tile>
-              Tax
-            </mat-grid-tile>
-            <mat-grid-tile>
-              Tip
-            </mat-grid-tile>
-            <mat-grid-tile>
-              Delivery
-            </mat-grid-tile>
-            <mat-grid-tile>
-              Total
-            </mat-grid-tile>
-            <mat-grid-tile>
-              Paid
-            </mat-grid-tile>
-            <mat-grid-tile>
-              Over / Short
-            </mat-grid-tile>
-            <mat-grid-tile>
-              {{order.subtotal | number:'1.2-2'}}
-            </mat-grid-tile>
-            <mat-grid-tile>
-              {{order.tax | number:'1.2-2'}}
-            </mat-grid-tile>
-            <mat-grid-tile>
-              {{order.tip | number:'1.2-2'}}
-            </mat-grid-tile>
-            <mat-grid-tile>
-              {{order.delivery | number:'1.2-2'}}
-            </mat-grid-tile>
-            <mat-grid-tile>
-              {{order.total | number:'1.2-2'}}
-            </mat-grid-tile>
-            <mat-grid-tile>
-              {{order.paid | number:'1.2-2'}}
-            </mat-grid-tile>
-            <mat-grid-tile [class.short]="positive">
-              {{(0-order.overShort) | number:'1.2-2'}}
-            </mat-grid-tile>
-          </mat-grid-list>
-            <app-item-list-outlet *ngIf="order"
-                                  [order]="order">
-            </app-item-list-outlet>
-        </mat-card>
-        <mat-action-row>
-            <button mat-icon-button>
-        <mat-icon class="add" (click)="addOrder()" title="Add a new order.">add circle outline</mat-icon>
+  <mat-expansion-panel [hideToggle]="false" expanded="true">
+    <mat-card class="mat-elevation-z0" *ngIf="orderForm">
+      <form name="orderForm" [formGroup]="orderForm">
+        <mat-grid-list cols="3" rowHeight="4:1">
+          <mat-grid-tile>
+            <label>{{"Order " + (index+1)}}</label>
+          </mat-grid-tile>
+          <mat-grid-tile>
+            <mat-form-field>
+              <mat-placeholder>Ordered by:</mat-placeholder>
+              <input matInput type="text"
+                     id="input-name"
+                     name="name"
+                     formControlName="name"
+                     title="Ordered by"
+                     (focus)="selectIt($event)">
+            </mat-form-field>
+          </mat-grid-tile>
+          <mat-grid-tile>
+            <mat-form-field>
+              <mat-placeholder>Payment:</mat-placeholder>
+              <input matInput id="input-paid"
+                     type="text"
+                     name="paid"
+                     formControlName="paid"
+                     title="Paid"
+                     (focus)="padIt($event);selectIt($event)"
+                     (change)="updatePaid($event)"
+                     (blur)="padIt($event)">
+            </mat-form-field>
+          </mat-grid-tile>
+        </mat-grid-list>
+      </form>
+      <mat-grid-list cols="7" rowHeight="3:1">
+        <mat-grid-tile>
+          Subtotal
+        </mat-grid-tile>
+        <mat-grid-tile>
+          Tax
+        </mat-grid-tile>
+        <mat-grid-tile>
+          Tip
+        </mat-grid-tile>
+        <mat-grid-tile>
+          Delivery
+        </mat-grid-tile>
+        <mat-grid-tile>
+          Total
+        </mat-grid-tile>
+        <mat-grid-tile>
+          Paid
+        </mat-grid-tile>
+        <mat-grid-tile>
+          Over / Short
+        </mat-grid-tile>
+        <mat-grid-tile>
+          {{order.subtotal | number:'1.2-2'}}
+        </mat-grid-tile>
+        <mat-grid-tile>
+          {{order.tax | number:'1.2-2'}}
+        </mat-grid-tile>
+        <mat-grid-tile>
+          {{order.tip | number:'1.2-2'}}
+        </mat-grid-tile>
+        <mat-grid-tile>
+          {{order.delivery | number:'1.2-2'}}
+        </mat-grid-tile>
+        <mat-grid-tile>
+          {{order.total | number:'1.2-2'}}
+        </mat-grid-tile>
+        <mat-grid-tile>
+          {{order.paid | number:'1.2-2'}}
+        </mat-grid-tile>
+        <mat-grid-tile [class.short]="positive">
+          {{(0-order.overShort) | number:'1.2-2'}}
+        </mat-grid-tile>
+      </mat-grid-list>
+      <app-item-list-outlet *ngIf="order"
+                            [order]="order">
+      </app-item-list-outlet>
+    </mat-card>
+    <mat-action-row>
+      <button mat-icon-button>
+        <mat-icon class="add"
+                  (click)="addOrder()"
+                  title="Add a new order.">add circle outline
+        </mat-icon>
       </button>
-            <button mat-icon-button>
-        <mat-icon class="remove" (click)="removeOrder()" title="Remove this order.">remove circle outline</mat-icon>
+      <button mat-icon-button>
+        <mat-icon class="remove"
+                  (click)="removeOrder()"
+                  title="Remove this order.">remove circle outline
+        </mat-icon>
       </button>
-        </mat-action-row>
-    </mat-expansion-panel>
+    </mat-action-row>
+  </mat-expansion-panel>
 </mat-list-item>
