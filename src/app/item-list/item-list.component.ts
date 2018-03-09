@@ -64,7 +64,8 @@ export class ItemListComponent implements OnChanges, OnInit, OnDestroy {
     this.subscriptions = [];
   }
 
-  removeItem(item) {
+  removeItem(itemId) {
+    this.service.removeItem(itemId);
     // debugger;
   }
 

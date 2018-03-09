@@ -3,7 +3,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Routes } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http'
 import { MaterialDesignModule } from './material-design.module';
 import { AppComponent } from './app.component';
@@ -30,7 +30,7 @@ import { Helpers, Session } from './model';
 export const appRoutes: Routes = [
   {
     path: 'home',
-    component: HomeComponent,
+    component: HomeComponent
   },
   {
     path: 'test',
@@ -38,6 +38,9 @@ export const appRoutes: Routes = [
   },
   {
     path: '', redirectTo: '/home', pathMatch: 'full'
+  },
+  {
+    path: '**', redirectTo: '/unknown'
   }
 ];
 
@@ -69,7 +72,7 @@ export function initializer(service: DataStoreService) {
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    // RouterModule.forRoot(appRoutes, {enableTracing: true}),
+    RouterModule.forRoot(appRoutes, {enableTracing: true}),
     MaterialDesignModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,

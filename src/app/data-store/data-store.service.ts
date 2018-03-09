@@ -137,8 +137,10 @@ export class DataStoreService implements OnDestroy {
   }
 
   get showIntro(): Observable<boolean> {
-    return this.service.getObject<boolean>(PATH_SETTINGS_SHOW_INTRO).valueChanges();
+    return this.service.getObject<boolean>(PATH_SETTINGS_SHOW_INTRO)
+      .valueChanges();
   }
+
 
   get subtotal(): Observable<number> {
     return this.allItems.map(each => each.map(item => item.price * item.quantity)
@@ -178,12 +180,12 @@ export class DataStoreService implements OnDestroy {
     this.subscriptions = [];
   }
 
-  setShowIntro(choice: boolean) {
-    return this.service.set(PATH_SETTINGS_SHOW_INTRO, choice);
-  }
-
   setSettings(value: Settings) {
     return this.service.set(PATH_SETTINGS, value);
+  }
+
+  setShowIntro(choice: boolean) {
+    this.service.set(PATH_SETTINGS_SHOW_INTRO, choice);
   }
 
   setTaxPercent(value: number) {

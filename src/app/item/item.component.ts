@@ -12,7 +12,6 @@ import { Item } from '../model';
 import { DataStoreService } from '../data-store/data-store.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import 'rxjs/add/operator/map';
-
 import { DialogsService } from '../dialogs/dialogs.service';
 
 @Component({
@@ -26,6 +25,7 @@ export class ItemComponent implements OnChanges {
   @Input() index: number;
   @Output() focusIt: EventEmitter<any>;
   @Output() addTrigger: EventEmitter<string>;
+  @Output() removeTrigger: EventEmitter<string>;
 
   public itemForm: FormGroup;
   public quantityPattern = '^[0-9]+$';
@@ -42,6 +42,7 @@ export class ItemComponent implements OnChanges {
     this.fb = this.formBuilder;
     this.ref = detector;
     this.addTrigger = new EventEmitter<string>();
+    this.removeTrigger = new EventEmitter<string>();
     this.createForm();
   }
 
@@ -75,8 +76,9 @@ export class ItemComponent implements OnChanges {
     this.dialog
       .confirm('Remove this item?', message)
       .subscribe(res => {
-        this.result = res;
-        console.log(JSON.stringify(this.result));
+        if (res === true) {
+          this.removeTrigger.next(this.item.key);
+        }
       });
   }
 
@@ -93,7 +95,10 @@ export class ItemComponent implements OnChanges {
 
   onUndo() {
     this.itemForm.reset();
-    if (this.item.price === 0 && this.item.description === '' && this.item.quantity === 0 && this.item.instructions === '') {
+    if (this.item.price === 0
+      && this.item.description === ''
+      && this.item.quantity === 0
+      && this.item.instructions === '') {
       this.service.removeItem(this.item.key);
     } else {
       this.itemForm.patchValue(this.item);
@@ -109,8 +114,8 @@ export class ItemComponent implements OnChanges {
   onSave() {
     if (this.itemForm.valid && this.itemForm.dirty) {
       Object.assign(this.item, this.itemForm.value);
-      this.service.updateItem(this.item);
-      console.log(JSON.stringify(this.item));
+      this.service.updateItem(this.item)
+        .then(() => {}, err => console.error(JSON.stringify(this.item)));
     }
   }
 

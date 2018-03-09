@@ -82,19 +82,6 @@ export class DataProviderService implements OnDestroy {
     return result;
   }
 
-  yadayada<T>(path, query) {}
-
-  updatePath(path: string, newObject: object): Promise<any> {
-    return this.db.object(path).update(newObject)
-      .then(() => {
-        this.logTask(this.MSG_UPDATE, path, newObject);
-      })
-      .catch(err => {
-        this.logFailure(this.MSG_UPDATE, path, newObject, err);
-        throw (err);
-      });
-  }
-
   // Update the object to reflect the content
   // of the 'changes' object.
   //
@@ -168,13 +155,17 @@ export class DataProviderService implements OnDestroy {
       }
 
       if (logFn) {
-        let msg = 'firebase.' + method + ' ';
-        msg += 'value: ' + ((isNullOrUndefined(value)) ? '' : JSON.stringify(value));
-        msg += ' path: ' + path;
-        msg += ' ';
-        msg += (success) ? this.MSG_SUCCESS : this.MSG_FAIL;
-        msg += (error) ? ' ' + JSON.stringify(error) : '';
-        logFn(msg);
+        // let msg = 'firebase.' + method + ' ';
+        const json = ((isNullOrUndefined(value)) ? '' : JSON.stringify(value));
+        const msg = (success) ? this.MSG_SUCCESS : this.MSG_FAIL;
+        const err = (error) ? ' ' + JSON.stringify(error) : '';
+        // msg += 'value: ' + ((isNullOrUndefined(value)) ? '' : JSON.stringify(value));
+        // msg += ' path: ' + path;
+        // msg += ' ';
+        // msg += (success) ? this.MSG_SUCCESS : this.MSG_FAIL;
+        // msg += (error) ? ' ' + JSON.stringify(error) : '';
+        // logFn(msg)
+        logFn(`firebase.${method} value: ${json} path: ${path} ${msg} ${err}`);
       }
     }
   }

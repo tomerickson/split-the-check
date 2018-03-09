@@ -13,7 +13,7 @@ export class HeaderComponent implements OnInit, OnDestroy, OnChanges {
 
   @Output() toggle: EventEmitter<boolean>;
   @Input() showIntro: boolean;
-  subShowIntro: Subscription;
+  // subShowIntro: Subscription;
   subscriptions: Subscription[] = [];
 
   constructor(public service: DataStoreService) {
@@ -39,13 +39,10 @@ export class HeaderComponent implements OnInit, OnDestroy, OnChanges {
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.subscriptions = [];
-    this.subShowIntro.unsubscribe();
+    // this.subShowIntro.unsubscribe();
   }
 
   toggleIntro(value) {
-    this.toggle.emit(value);
-    /*this.service.setShowIntro(value).then(
-      () => console.log('exiting header.toggleIntro with value: ' + value),
-    err => console.error('header.toggleIntro failed with ' + err.toJSON()));*/
+    this.service.setShowIntro(value);
   }
 }

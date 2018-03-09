@@ -6,6 +6,7 @@ import 'rxjs/add/observable/of'
 import 'rxjs/add/observable/zip'
 import { DataStoreService } from '../data-store/data-store.service';
 import { Subscription } from 'rxjs/Subscription';
+import { DialogsService } from '../dialogs/dialogs.service';
 
 @Component({
   selector: 'app-order-totals',
@@ -21,6 +22,7 @@ export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
   subscriptions: Subscription[] = [];
   service: DataStoreService;
   subSettings: Subscription;
+  dialogs: DialogsService;
   // orders: OrderBase[];
   items: ItemBase[];
   subtotal: number;
@@ -32,9 +34,10 @@ export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
   overShort: number;
   underPaid: boolean;
 
-  constructor(svc: DataStoreService, hlp: Helpers) {
+  constructor(svc: DataStoreService, hlp: Helpers, dlg: DialogsService) {
     this.service = svc;
     this.helpers = hlp;
+    this.dialogs = dlg;
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -91,23 +94,14 @@ export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
     this.subscriptions = [];
   }
 
-  // const promise = new Promise<void>(() => {});
-  // this.subSettings = this.service.settings.subscribe(() => this.settings);
-  /*this.session = Observable.zip(this.service.allOrders, this.service.allItems,
-    this.service.settings, (ord, itm, settings) =>
-      new Session(ord, itm, settings, this.helpers));*/
-  /*this.subSettings = this.service.settings.subscribe(() => this.settings);
-  const promise: Promise<void> = new Promise(() => {});
-promise.then(() =>
-      this.subSession = Observable.zip(this.service.allOrders, this.service.allItems,
-        this.service.settings, (ord, itm, settings) => {
-          return Observable.of( new Session(ord, itm, settings, this.helpers));
-        }).subscribe(obs => this.session);*/
-
-  // return promise;
-
   clearOrder(e: Event) {
-    this.service.wrapUp();
-    e.preventDefault();
+    const message = 'This action cannot be undone.<br>Are you sure you want to do this?';
+    this.dialogs.confirm('Remove all orders?', message)
+      .subscribe(res => {
+        if (res === true) {
+          this.service.wrapUp();
+          e.preventDefault();
+        }
+      });
   }
 }

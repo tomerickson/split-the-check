@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, Input, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
-import { ChangeBasis, Helpers, ItemBase, Order, OrderBase, Session, Settings, TipBasis } from '../model';
+import { ChangeBasis, Helpers, ItemBase, Order, Session, Settings, TipBasis } from '../model';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -12,8 +12,8 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 })
 
 export class HomeComponent implements OnInit, OnDestroy {
-  service: DataStoreService;
   @Input() showIntro: boolean;
+  service: DataStoreService;
   session: BehaviorSubject<Session>;
   settings: Settings;
   tipOptions: TipBasis[];
@@ -42,7 +42,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   subscribeAll() {
 
     const promise: Promise<any> = new Promise<void>(() => {
-
+      this.subscriptions.push(this.service.showIntro.subscribe(obs => this.showIntro = obs));
       this.subscriptions.push(this.service.changeOptions.subscribe(obs => this.changeOptions = obs));
       this.subscriptions.push(this.service.tipOptions.subscribe(obs => this.tipOptions = obs));
       this.subscriptions.push(this.service.settings.subscribe(obs => this.settings = obs));

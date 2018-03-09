@@ -5,7 +5,7 @@
                      [item]="item"
                      [index]="i"
                      (addTrigger)="addItem($event)"
-                     (removeItem)="removeItem($event)">
+                     (removeTrigger)="removeItem($event)">
     </app-item-outlet>
   </mat-card-content>
   <mat-card-actions *ngIf="order.items.length === 0">
