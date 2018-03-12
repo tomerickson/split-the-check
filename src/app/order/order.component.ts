@@ -3,7 +3,7 @@ import { DataStoreService } from '../data-store/data-store.service';
 import { ChangeBasis, Helpers, ItemBase, Order, OrderBase, Session, Settings } from '../model';
 import 'rxjs/add/operator/defaultIfEmpty';
 import { Subscription } from 'rxjs/Subscription';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Component({
@@ -65,7 +65,7 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
             }
             this.orderForm.patchValue({
               name: change.currentValue.name,
-              paid: change.currentValue.paid.toFixed(2)
+              paid: this.padIt(change.currentValue.paid)
             });
             break;
           case 'orderId':
@@ -96,6 +96,9 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
 
   setItems(items: ItemBase[]) {
     this.order.items = items;
+    // this.order.total = items.map(item => item.quantity * item.price).reduce((sum, vlu) => sum + vlu);
+    // this.order.overShort = this.order.total - this.order.paid;
+    this.positive = this.order.overShort >= 0;
   }
 
   setChangeBasis() {
@@ -104,10 +107,19 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   buildForm() {
-    this.orderForm = this.fb.group({
-      name: ['', [Validators.required], [], {updateOn: 'change'}],
-      paid: ['', [Validators.required, Validators.pattern(this.numberPattern)], [], {updateOn: 'change'}]
-    });
+    this.orderForm = new FormGroup({
+      'name': new FormControl('', {validators: Validators.required, updateOn: 'blur'}),
+      'paid': new FormControl('', {validators: [Validators.required, Validators.pattern(this.numberPattern)], updateOn: 'blur'})});
+    /*this.orderForm = this.fb.group({
+      name: ['', Validators.required, [], {updateOn: 'blur'}],
+      paid: ['', [Validators.required, Validators.pattern(this.numberPattern)], [], {updateOn: 'blur'}]
+    });*/
+    this.orderForm.valueChanges.filter(() => this.orderForm.valid && this.orderForm.dirty)
+      .subscribe((order: Order) => {
+        order.paid = +(order.paid);
+        console.log(JSON.stringify(order));
+        this.service.updateOrder(this.order.key, order);
+      })
   }
 
   removeOrder() {
@@ -127,14 +139,17 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
     element.value = this.paid.toFixed(2);
   }
 
-  padIt(event: Event) {
+  padIt(value: string) {
+    return (+value).toFixed(2);
+  }
+/*  padIt(event: Event) {
     const element = <HTMLInputElement>event.target;
     try {
       element.value = (+element.value).toFixed(2);
     } catch (err) {
       // ignore this error
     }
-  }
+  }*/
 
   selectIt(event: Event) {
     const element = <HTMLInputElement>event.target;

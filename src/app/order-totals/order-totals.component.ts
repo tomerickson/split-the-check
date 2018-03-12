@@ -84,8 +84,8 @@ export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
         this.tip = Helpers.tip(this.subtotal, this.tax, this.settings);
         this.delivery = Helpers.delivery(this.subtotal, this.subtotal, this.settings);
         this.total = Helpers.total(this.subtotal, this.tax, this.tip, this.delivery);
-        this.overShort = Helpers.overShort(this.total, this.paid, this.settings, false);
-        this.underPaid = this.overShort > 0;
+        this.overShort = Helpers.overShort(this.paid, this.total, this.settings, false);
+        this.underPaid = this.overShort < 0;
       }));
   }
 

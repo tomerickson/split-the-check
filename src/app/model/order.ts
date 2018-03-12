@@ -14,6 +14,8 @@ export class Order implements OnDestroy, OrderBase {
   private readonly service: DataStoreService;
   private settings: Settings;
   private subscriptions: Subscription[] = [];
+  private _total: number;
+  private _overShort: number;
 
   key: string;
   name: string;
@@ -23,8 +25,6 @@ export class Order implements OnDestroy, OrderBase {
   tax: number;
   tip: number;
   delivery: number;
-  total: number;
-  overShort: number;
   grandTotal: number;
 
   get session(): Session {
@@ -45,8 +45,16 @@ export class Order implements OnDestroy, OrderBase {
     this.tax = Helpers.tax(this.subtotal, this.settings);
     this.tip = Helpers.tip(this.subtotal, this.tax, this.settings);
     this.delivery = Helpers.delivery(this.subtotal, this.grandTotal, this.settings);
-    this.total = Helpers.total(this.subtotal, this.tax, this.tip, this.delivery);
-    this.overShort = Helpers.overShort(this.total, this.paid, this.settings, true);
+    this._total = Helpers.total(this.subtotal, this.tax, this.tip, this.delivery);
+    this._overShort = Helpers.overShort(this.total, this.paid, this.settings, true);
+  }
+
+  get total(): number {
+    return this._total;
+  }
+
+  get overShort(): number {
+    return this.total - this.paid;
   }
 
   constructor(private orderId: string,

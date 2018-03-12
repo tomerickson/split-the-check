@@ -1,6 +1,6 @@
 <app-header [showIntro]="showIntro"></app-header>
 <div id="wrapper">
-  <mat-card id="home-card">
+  <div id="home-card">
     <section id="intro" [hidden]="!showIntro">
       <div id="prairiedog">
         <img title="Prairie dog standing" src="/assets/images/prairiedog.jpg">
@@ -53,7 +53,7 @@
                              [orders]="orders">
       </app-order-list-outlet>
     </section>
-  </mat-card>
+  </div>
   <div>
     <app-order-totals *ngIf="settings && orders"
                       [settings]="settings"

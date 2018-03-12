@@ -15,7 +15,7 @@ import 'rxjs/add/operator/reduce';
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/observable/ConnectableObservable'
-import { ChangeBasis, Helpers, Item, ItemBase, Order, OrderBase, Settings, TipBasis } from '../model';
+import { BoundObject, ChangeBasis, Helpers, Item, ItemBase, Order, OrderBase, Settings, TipBasis } from '../model';
 import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/observable/from';
 import { AngularFireDatabase } from 'angularfire2/database';
@@ -239,10 +239,6 @@ export class DataStoreService implements OnDestroy {
       .map(action => result = {key: action.key, ...action.payload.val()});
   }
 
-  getPaid(key: string): Observable<number> {
-    return this.service.getObject<number>(this.buildPath(PATH_ORDERS, key, 'paid')).valueChanges();
-  }
-
   //
   getItems(orderId: string): Observable<ItemBase[]> {
 
@@ -268,7 +264,9 @@ export class DataStoreService implements OnDestroy {
   }
 
   updateItem(item: ItemBase) {
-    return this.service.updateObject<Item>(this.buildPath(PATH_ITEMS, item.key), item);
+    const itemKey = item.key;
+    delete item.key;
+    return this.service.updateObject<Item>(this.buildPath(PATH_ITEMS, itemKey), item);
   }
 
   /**
