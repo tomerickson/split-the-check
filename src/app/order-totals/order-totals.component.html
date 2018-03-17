@@ -1,4 +1,13 @@
 <!-- Running totals -->
+<mat-grid-list cols="2" rowHeight="4:1">
+  <mat-grid-tile colspan="2"><mat-label>Totals</mat-label></mat-grid-tile>
+  <mat-grid-tile><div class="app-label">Orders:</div></mat-grid-tile>
+  <mat-grid-tile><div class="app-label" *ngIf="session.orders">{{session.orders.length}}</div></mat-grid-tile>
+  <mat-grid-tile><mat-label>Subtotal:</mat-label></mat-grid-tile>
+  <mat-grid-tile><mat-label *ngIf="items">{{subtotal | number:'1.2-2'}}</mat-label></mat-grid-tile>
+  <mat-grid-tile><mat-label>Sales Tax:</mat-label></mat-grid-tile>
+  <mat-grid-tile><mat-label>{{tax | number:'1.2-2'}}</mat-label></mat-grid-tile>
+</mat-grid-list>
 <div id="totals">
   <table>
   <thead>
@@ -9,7 +18,7 @@
   <tbody>
   <tr>
     <td>Orders:</td>
-    <td><span *ngIf="orders">{{orders.length}}</span></td>
+    <td><span *ngIf="session.orders">{{session.orders.length}}</span></td>
   </tr>
   <tr>
     <td>Subtotal:</td>

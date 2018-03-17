@@ -1,5 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs/Subscription';
+
 import { DataStoreService } from '../data-store/data-store.service';
 import { ItemBase } from './itembase';
 import { OrderBase } from '../model';
@@ -7,22 +6,25 @@ import { Helpers } from './helpers';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Settings } from './settings';
 
-export class Session implements OnDestroy {
+export class Session {
 
+  private _totals: {name: string, value: number}[] = [];
+  private service: DataStoreService;
   public title = 'Split the Check';
   public ready: BehaviorSubject<boolean>;
-  public orders: OrderBase[];
-  private service: DataStoreService;
+  public orders: OrderBase[] = [];
   public items: ItemBase[];
   public helpers: Helpers;
   public settings: Settings;
-  private subscriptions: Subscription[] = [];
 
-  // private tipOptionSubscription: Subscription;
-
-  constructor(private svc: DataStoreService) {
+  constructor(private svc: DataStoreService, settings: Settings, orders: OrderBase[], items: ItemBase[], helpers: Helpers) {
     this.service = svc;
-    this.buildSession();
+    this.orders = orders;
+    this.items = items;
+    this.settings = settings;
+    this.helpers = helpers;
+    this.buildSession()
+      .then( () => {}, err => console.error(`session constructor failed: ${err}`));
   }
 
   public get subtotal(): number {
@@ -58,19 +60,34 @@ export class Session implements OnDestroy {
     return Helpers.overShort(this.total, this.paid, this.settings, false);
   }
 
-  public get underPaid(): boolean {
+  /* public get underPaid(): boolean {
     return this.overShort > 0;
-  }
+  }*/
 
-  ngOnDestroy() {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+  public get totals(): {name: string, value: number}[] {
+    return this._totals;
   }
 
   private buildSession(): Promise<void> {
     return new Promise(() => {
-      this.subscriptions.push(this.service.allOrders.subscribe(obs => this.orders = obs));
-      this.subscriptions.push(this.service.allItems.subscribe(obs => this.items = obs));
+      this.buildTotals();
       this.ready = new BehaviorSubject<boolean>(true);
     });
+  }
+
+  // Flatten the tallies so they can be presented
+  // in a tabular format
+  //
+  private buildTotals() {
+    const result = [];
+    result.push({name: 'Orders:', value: this.orders.length});
+    result.push({name: 'Subtotal:', value: this.subtotal});
+    result.push({name: 'Sales Tax:', value: this.tax});
+    result.push({name: 'Tip:', value: this.tip});
+    result.push({name: 'Delivery:', value: this.delivery});
+    result.push({name: 'Total:', value: this.total});
+    result.push({name: 'Paid:', value: this.paid});
+    result.push({name: 'Over / Short:', value: this.overShort});
+    this._totals = result;
   }
 }

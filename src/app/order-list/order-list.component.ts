@@ -1,8 +1,7 @@
-import { Component, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChange, SimpleChanges } from '@angular/core';
+import { Component, Input, NgZone } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
 import { Subscription } from 'rxjs/Subscription';
-import { OrderBase, Session, Settings } from '../model';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Session, Settings } from '../model';
 
 @Component({
   selector: 'app-order-list-outlet',
@@ -10,10 +9,10 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
   templateUrl: 'order-list.component.html'
 })
 
-export class OrderListComponent implements OnChanges, OnInit, OnDestroy {
+export class OrderListComponent {
   @Input() settings: Settings;
   @Input() session: Session;
-  @Input() orders: OrderBase;
+  // @Input() orders: OrderBase;
   service: DataStoreService;
   zone: NgZone;
   subscriptions: Subscription[] = [];
@@ -21,47 +20,15 @@ export class OrderListComponent implements OnChanges, OnInit, OnDestroy {
   constructor(svc: DataStoreService, zone: NgZone) {
     this.service = svc;
     this.zone = zone;
-    this.session = new Session(this.service);
-    this.subscribeAll();
   }
 
-  ngOnInit() {
-    // this.subscribeAll();
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    for (const propName in changes) {
-      if (changes.hasOwnProperty(propName)) {
-        const change: SimpleChange = changes[propName];
-        if (change.currentValue && change.currentValue !== change.previousValue) {
-        }
-      }
-    }
-  }
-
-  subscribeAll() {
-  }
-
-  unsubscribeAll() {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
-    this.subscriptions = [];
-  }
-
-  ngOnDestroy() {
-    this.unsubscribeAll();
-  }
-
-  onRemove(event: Event, index: number) {
+  onRemove(index: number) {
     this.service.removeOrder(this.service.allOrders[index].key);
   }
 
   addOrder() {
-    const result = this.service.addOrder();
-    console.log(`order-list.addOrder result = ${result.toJSON()}`);
-  }
-
-  removeOrder(order) {
-
+    this.service.addOrder()
+      .then(result => console.log(`order-list.addOrder result = ${result.toJSON()}`));
   }
 }
 

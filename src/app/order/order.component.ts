@@ -96,8 +96,6 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
 
   setItems(items: ItemBase[]) {
     this.order.items = items;
-    // this.order.total = items.map(item => item.quantity * item.price).reduce((sum, vlu) => sum + vlu);
-    // this.order.overShort = this.order.total - this.order.paid;
     this.positive = this.order.overShort >= 0;
   }
 
@@ -110,10 +108,7 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
     this.orderForm = new FormGroup({
       'name': new FormControl('', {validators: Validators.required, updateOn: 'blur'}),
       'paid': new FormControl('', {validators: [Validators.required, Validators.pattern(this.numberPattern)], updateOn: 'blur'})});
-    /*this.orderForm = this.fb.group({
-      name: ['', Validators.required, [], {updateOn: 'blur'}],
-      paid: ['', [Validators.required, Validators.pattern(this.numberPattern)], [], {updateOn: 'blur'}]
-    });*/
+
     this.orderForm.valueChanges.filter(() => this.orderForm.valid && this.orderForm.dirty)
       .subscribe((order: Order) => {
         order.paid = +(order.paid);
@@ -127,29 +122,9 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
     return this.service.getItems(this.orderId);
   }
 
-  updateName(event) {
-    this.name = (<HTMLInputElement>event.target).value;
-    this.service.updateOrder(this.orderId, {name: this.name, paid: this.paid});
-  }
-
-  updatePaid(event) {
-    const element = <HTMLInputElement>event.target;
-    this.paid = +element.value;
-    this.service.updateOrder(this.orderId, {name: this.name, paid: this.paid});
-    element.value = this.paid.toFixed(2);
-  }
-
   padIt(value: string) {
     return (+value).toFixed(2);
   }
-/*  padIt(event: Event) {
-    const element = <HTMLInputElement>event.target;
-    try {
-      element.value = (+element.value).toFixed(2);
-    } catch (err) {
-      // ignore this error
-    }
-  }*/
 
   selectIt(event: Event) {
     const element = <HTMLInputElement>event.target;

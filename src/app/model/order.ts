@@ -12,7 +12,7 @@ export class Order implements OnDestroy, OrderBase {
   private _items: Item[] = [];
   private _session: Session;
   private readonly service: DataStoreService;
-  private settings: Settings;
+  private readonly settings: Settings;
   private subscriptions: Subscription[] = [];
   private _total: number;
   private _overShort: number;
@@ -54,7 +54,7 @@ export class Order implements OnDestroy, OrderBase {
   }
 
   get overShort(): number {
-    return this.total - this.paid;
+    return this._overShort;
   }
 
   constructor(private orderId: string,

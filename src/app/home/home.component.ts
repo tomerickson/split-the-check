@@ -14,14 +14,13 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 export class HomeComponent implements OnInit, OnDestroy {
   @Input() showIntro: boolean;
   service: DataStoreService;
-  session: BehaviorSubject<Session>;
+  session: Session;
   settings: Settings;
   tipOptions: TipBasis[];
   changeOptions: ChangeBasis[];
-  orders: Order[] = [];
+  // orders: Order[] = [];
   items: BehaviorSubject<ItemBase[]>;
   // subSettings: Subscription;
-  subItems: Subscription;
   zone: NgZone;
   ref: ChangeDetectorRef;
   subscriptions: Subscription[] = [];
@@ -35,7 +34,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.helpers = hlp;
     this.zone = zn;
     this.ref = rf;
-    this.session = new BehaviorSubject<Session>(null);
     this.items = new BehaviorSubject<ItemBase[]>([]);
   }
 
@@ -49,19 +47,13 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.subscriptions.push(Observable.zip(
         this.service.allOrders,
         this.service.allItems,
+        this.service.settings,
         // this.service.settings,
-        (orders, items) => {
-          const session = new Session(this.service);
-          session.orders = orders || [];
-          session.items = items || [];
-          session.settings = this.settings;
-          session.helpers = this.helpers;
-          // this.settings = this.service.settings;
-          return session;
+        (orders, items, settings) => {
+          return new Session(this.service, settings, orders, items, this.helpers);
         })
-        .subscribe(session => this.session.next(session)));
-      this.subscriptions.push(this.service.allOrders.subscribe(obs => this.orders = obs));
-      // this.subscriptions.push(this.subItems = this.service.allItems.subscribe(obs => this.items.next(obs)));
+        .subscribe(session => this.session = session));
+      // this.subscriptions.push(this.service.allOrders.subscribe(obs => this.orders = obs));
     });
     promise.catch(err => console.log(`home subscribeAll err: ${err}`));
   }

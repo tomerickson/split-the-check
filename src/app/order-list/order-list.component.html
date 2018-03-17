@@ -19,15 +19,15 @@
       </li>
     </ul>
   </section>
-  <ul id="orders" *ngIf="orders && settings">
+  <ul id="orders" *ngIf="session.orders && settings">
     <li>
-      <app-order-outlet *ngFor="let order of orders;let i = index"
+      <app-order-outlet *ngFor="let order of session.orders;let i = index"
                         [session]="session"
                         [settings]="settings"
                         [orderId]="order.key"
                         [index]="i"
                         [order]="order"
-                        (removeTrigger)="onRemove($event)"
+                        (removeTrigger)="onRemove(i)"
                         (addTrigger)="addOrder($event)">
       </app-order-outlet>
     </li>

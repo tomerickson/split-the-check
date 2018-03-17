@@ -1,17 +1,20 @@
-mat-list-item {
+mat-card {
+  margin-top: 1em;
+  mat-list-item {
     box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
     .short {
-        color: red;
+      color: red;
     }
     .add {
-        &:hover {
-            color: rgba(0, 192, 0, 1);
-        }
+      &:hover {
+        color: rgba(0, 192, 0, 1);
+      }
     }
     .remove {
-        &:hover {
-            color: rgba(192, 0, 0, 1);
-        }
+      &:hover {
+        color: rgba(192, 0, 0, 1);
+      }
     }
-  margin-bottom: 1em;
+    margin-bottom: 1em;
+  }
 }

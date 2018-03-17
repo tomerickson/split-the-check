@@ -2,10 +2,6 @@ div#wrapper {
   display:flex;
 }
 
-p {
-
-}
-
 #home-card {
   margin-right: 1em;
   margin-top: 1ex;
@@ -18,13 +14,7 @@ section#intro {
 
 div#prairiedog {
   float: left;
-  margin: 1rem;
-  button {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 1em;
-  }
+  margin: .5rem 1rem;
 }
 
 #instructions {

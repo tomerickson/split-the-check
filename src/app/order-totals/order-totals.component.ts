@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { Helpers, ItemBase, Order, Settings } from '../model';
+import { Helpers, ItemBase, Session, Settings } from '../model';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/count';
 import 'rxjs/add/observable/of'
@@ -17,13 +17,13 @@ import { DialogsService } from '../dialogs/dialogs.service';
 export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
 
   @Input() settings: Settings;
-  @Input() orders: Order[];
+  // @Input() orders: Order[];
+  @Input() session: Session;
   helpers: Helpers;
   subscriptions: Subscription[] = [];
   service: DataStoreService;
   subSettings: Subscription;
   dialogs: DialogsService;
-  // orders: OrderBase[];
   items: ItemBase[];
   subtotal: number;
   tax: number;
@@ -47,15 +47,16 @@ export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
         const change = changes[propName];
 
         switch (propName) {
-          case 'orders':
+          case 'session':
             if (change.currentValue) {
+              this.session = change.currentValue;
               let amt = 0;
-              this.orders.forEach(ord => amt += ord.paid);
+              this.session.orders.forEach(ord => amt += ord.paid);
               this.paid = amt;
             }
             break;
           case 'settings':
-            const set: Settings = change.currentValue;
+            this.settings = change.currentValue;
             break;
         }
       }

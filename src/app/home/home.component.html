@@ -47,17 +47,16 @@
       </app-settings>
     </section>
     <section>
-      <app-order-list-outlet *ngIf="settings"
+      <app-order-list-outlet *ngIf="settings && session.orders"
                              [settings]="settings"
-                             [session]="session"
-                             [orders]="orders">
+                             [session]="session">
       </app-order-list-outlet>
     </section>
   </div>
   <div>
-    <app-order-totals *ngIf="settings && orders"
+    <app-order-totals *ngIf="settings && session"
                       [settings]="settings"
-                      [orders]="orders">
+                      [session]="session">
     </app-order-totals>
   </div>
 </div>
