@@ -6,9 +6,18 @@ import { Helpers } from './helpers';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Settings } from './settings';
 
+export class KeyValuePair {
+  name: string
+  value: string
+
+  constructor(name: string, value: string) {
+    this.name = name;
+    this.value = value;
+  }
+}
 export class Session {
 
-  private _totals: {name: string, value: number}[] = [];
+  private _totals: KeyValuePair[];
   private service: DataStoreService;
   public title = 'Split the Check';
   public ready: BehaviorSubject<boolean>;
@@ -64,13 +73,12 @@ export class Session {
     return this.overShort > 0;
   }*/
 
-  public get totals(): {name: string, value: number}[] {
-    return this._totals;
+  public get totals(): KeyValuePair[] {
+    return this.buildTotals();
   }
 
   private buildSession(): Promise<void> {
     return new Promise(() => {
-      this.buildTotals();
       this.ready = new BehaviorSubject<boolean>(true);
     });
   }
@@ -78,16 +86,16 @@ export class Session {
   // Flatten the tallies so they can be presented
   // in a tabular format
   //
-  private buildTotals() {
+  private buildTotals(): KeyValuePair[] {
     const result = [];
-    result.push({name: 'Orders:', value: this.orders.length});
-    result.push({name: 'Subtotal:', value: this.subtotal});
-    result.push({name: 'Sales Tax:', value: this.tax});
-    result.push({name: 'Tip:', value: this.tip});
-    result.push({name: 'Delivery:', value: this.delivery});
-    result.push({name: 'Total:', value: this.total});
-    result.push({name: 'Paid:', value: this.paid});
-    result.push({name: 'Over / Short:', value: this.overShort});
-    this._totals = result;
+    result.push(new KeyValuePair('Orders', this.orders.length.toFixed(0)));
+    result.push(new KeyValuePair('Subtotal', this.subtotal.toFixed(2)));
+    result.push(new KeyValuePair('Sales Tax', this.tax.toFixed(2)));
+    result.push(new KeyValuePair('Tip', this.tip.toFixed(2)));
+    result.push(new KeyValuePair('Delivery', this.delivery.toFixed(2)));
+    result.push(new KeyValuePair('Total', this.total.toFixed(2)));
+    result.push(new KeyValuePair('Paid', this.paid.toFixed(2)));
+    result.push(new KeyValuePair('Over / Short', this.overShort.toFixed(2)));
+    return result;
   }
 }

@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
@@ -25,7 +25,7 @@ import { InputComponent } from './input/input.component';
 import { TestComponent } from './test.component';
 import { HeaderComponent } from './header/header.component';
 import { HomeComponent } from './home/home.component';
-import { Helpers, Session } from './model';
+import { Helpers } from './model';
 
 export const appRoutes: Routes = [
   {
@@ -43,10 +43,6 @@ export const appRoutes: Routes = [
     path: '**', redirectTo: '/unknown'
   }
 ];
-
-export function initializer(service: DataStoreService) {
-  return () => service.initialize();
-}
 
 @NgModule({
 
@@ -82,6 +78,7 @@ export function initializer(service: DataStoreService) {
 
   bootstrap: [AppComponent]
 })
+
 export class AppModule {
 }
 

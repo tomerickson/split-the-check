@@ -39,15 +39,15 @@
         <li>You can give change to the nearest penny, nickel, dime, quarter or dollar.</li>
       </ul>
     </section>
-    <section *ngIf="showIntro">
+    <section *ngIf="showIntro && settings">
       <app-settings [settings]="settings"
                     [tipOptions]="tipOptions"
                     [changeOptions]="changeOptions"
                     (pushSettings)="reset($event)">
       </app-settings>
     </section>
-    <section>
-      <app-order-list-outlet *ngIf="settings && session.orders"
+    <section *ngIf="settings && session">
+      <app-order-list-outlet *ngIf="session.orders"
                              [settings]="settings"
                              [session]="session">
       </app-order-list-outlet>

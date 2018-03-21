@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit} from '@angular/core';
 import {DataStoreService} from './data-store/data-store.service';
-import { Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
 @Component({
@@ -27,5 +26,14 @@ export class AppComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
     this.subscriptions = [];
   }
+
+  /*
+  testit() {
+
+    let hnd = Http
+
+    let url = 'https://www.google.com/finance/historical?q=SPY&startdate=01+01+2018&output=csv';
+    let client = new HttpClient(url);
+  }*/
 }
 

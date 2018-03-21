@@ -1,4 +1,22 @@
 <!-- Running totals -->
+<mat-table [dataSource]="totals">
+  <ng-container matColumnDef="name">
+   <!--
+    <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+    -->
+    <mat-cell *matCellDef="let row">{{row.name}}</mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="value">
+    <!--
+    <mat-header-cell *matHeaderCellDef>Value</mat-header-cell>
+    -->
+    <mat-cell *matCellDef="let row">{{row.value}}</mat-cell>
+  </ng-container>
+  <!--
+  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+  -->
+  <mat-row *matRowDef="let data; columns: displayedColumns;"></mat-row>
+</mat-table>
 <mat-grid-list cols="2" rowHeight="4:1">
   <mat-grid-tile colspan="2"><mat-label>Totals</mat-label></mat-grid-tile>
   <mat-grid-tile><div class="app-label">Orders:</div></mat-grid-tile>

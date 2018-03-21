@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { Helpers, ItemBase, Session, Settings } from '../model';
+import { Helpers, ItemBase, KeyValuePair, Session, Settings } from '../model';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/count';
 import 'rxjs/add/observable/of'
@@ -7,6 +7,8 @@ import 'rxjs/add/observable/zip'
 import { DataStoreService } from '../data-store/data-store.service';
 import { Subscription } from 'rxjs/Subscription';
 import { DialogsService } from '../dialogs/dialogs.service';
+import { DataSource } from '@angular/cdk/collections';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'app-order-totals',
@@ -33,6 +35,8 @@ export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
   paid: number;
   overShort: number;
   underPaid: boolean;
+  totals: TotalsDataSource;
+  displayedColumns = ['name', 'value'];
 
   constructor(svc: DataStoreService, hlp: Helpers, dlg: DialogsService) {
     this.service = svc;
@@ -73,6 +77,7 @@ export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
 
   initialize() {
     this.subscribeAll();
+    this.totals = new TotalsDataSource(this.session.totals)
   }
 
   subscribeAll() {
@@ -105,4 +110,16 @@ export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
         }
       });
   }
+}
+
+class TotalsDataSource extends DataSource<any> {
+  constructor(private data: KeyValuePair[]) {
+    super();
+  }
+
+  connect(): Observable<any[]> {
+    return Observable.of(this.data);
+  }
+
+  disconnect() {}
 }
