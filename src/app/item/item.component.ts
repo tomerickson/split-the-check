@@ -29,7 +29,7 @@ export class ItemComponent implements OnChanges {
 
   public itemForm: FormGroup;
   public quantityPattern = '^[0-9]+$';
-  public pricePattern = `^[0-9]+$|^[0-9]+\\.[0-9]{0,3}$`;
+  public pricePattern = `^[0-9]+$|^[0-9]*\\.[0-9]{0,2}$`;
   public result: any;
 
   private fb: FormBuilder;
@@ -119,6 +119,22 @@ export class ItemComponent implements OnChanges {
     }
   }
 
+  onPriceBlur(event: Event) {
+    const element: HTMLInputElement = event.target as HTMLInputElement;
+    if (this.itemForm.valid) {
+      element.value = this.padIt(element.value);
+    }
+  }
+
+  selectIt(event: Event) {
+    const element = <HTMLInputElement>event.target;
+    element.select();
+  }
+
+  padIt(value: string): string {
+      return (+value).toFixed(2);
+  }
+
   detectChange(fieldName: string): boolean {
     let changed = false;
     if (this.itemForm.controls[fieldName].valid && this.itemForm.controls[fieldName].dirty) {
@@ -126,15 +142,6 @@ export class ItemComponent implements OnChanges {
       changed = true;
     }
     return changed;
-  }
-
-  onValueChanged(data?: any) {
-    if (!this.itemForm) {
-      return;
-    }
-    if (this.itemForm.dirty && this.itemForm.valid) {
-      this.service.updateItem(this.item);
-    }
   }
 
   onRemove() {

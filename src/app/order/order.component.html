@@ -1,9 +1,7 @@
 <mat-card class="mat-elevation-z0" *ngIf="orderForm">
+  <mat-card-content>
   <form name="orderForm" [formGroup]="orderForm">
-    <mat-grid-list cols="3" rowHeight="4:1">
-      <mat-grid-tile>
-        <label>{{"Order " + (index+1)}}</label>
-      </mat-grid-tile>
+    <mat-grid-list cols="2" rowHeight="5:1">
       <mat-grid-tile>
         <mat-form-field>
           <mat-placeholder>Ordered by:</mat-placeholder>
@@ -28,7 +26,10 @@
       </mat-grid-tile>
     </mat-grid-list>
   </form>
-  <mat-grid-list cols="7" rowHeight="4:1">
+  <app-item-list-outlet *ngIf="order"
+                        [order]="order">
+  </app-item-list-outlet>
+  <mat-grid-list class="subtotal-list" cols="7" rowHeight="4:1">
     <mat-grid-tile>
       Subtotal
     </mat-grid-tile>
@@ -68,13 +69,11 @@
     <mat-grid-tile>
       {{order.paid | number:'1.2-2'}}
     </mat-grid-tile>
-    <mat-grid-tile [class.short]="positive">
-      {{(0-order.overShort) | number:'1.2-2'}}
+    <mat-grid-tile>
+      <span [style.color]="positive ? 'red' : ''">{{(0-order.overShort) | number:'1.2-2'}}</span>
     </mat-grid-tile>
   </mat-grid-list>
-  <app-item-list-outlet *ngIf="order"
-                        [order]="order">
-  </app-item-list-outlet>
+  </mat-card-content>
   <mat-action-row>
     <button mat-icon-button>
       <mat-icon class="add"

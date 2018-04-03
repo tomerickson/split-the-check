@@ -1,9 +1,5 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { Helpers, ItemBase, KeyValuePair, Session, Settings } from '../model';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/count';
-import 'rxjs/add/observable/of'
-import 'rxjs/add/observable/zip'
 import { DataStoreService } from '../data-store/data-store.service';
 import { Subscription } from 'rxjs/Subscription';
 import { DialogsService } from '../dialogs/dialogs.service';
@@ -19,7 +15,6 @@ import { Observable } from 'rxjs/Observable';
 export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
 
   @Input() settings: Settings;
-  // @Input() orders: Order[];
   @Input() session: Session;
   helpers: Helpers;
   subscriptions: Subscription[] = [];
@@ -37,6 +32,8 @@ export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
   underPaid: boolean;
   totals: TotalsDataSource;
   displayedColumns = ['name', 'value'];
+  footer: FooterDataSource;
+  footerColumns = ['name'];
 
   constructor(svc: DataStoreService, hlp: Helpers, dlg: DialogsService) {
     this.service = svc;
@@ -54,6 +51,7 @@ export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
           case 'session':
             if (change.currentValue) {
               this.session = change.currentValue;
+              this.totals = new TotalsDataSource(this.session.totals);
               let amt = 0;
               this.session.orders.forEach(ord => amt += ord.paid);
               this.paid = amt;
@@ -77,7 +75,8 @@ export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
 
   initialize() {
     this.subscribeAll();
-    this.totals = new TotalsDataSource(this.session.totals)
+    // this.totals = new TotalsDataSource(this.session.totals);
+    this.footer = new FooterDataSource([new KeyValuePair('', 0)]);
   }
 
   subscribeAll() {
@@ -113,6 +112,18 @@ export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
 }
 
 class TotalsDataSource extends DataSource<any> {
+  constructor(private data: KeyValuePair[]) {
+    super();
+  }
+
+  connect(): Observable<any[]> {
+    return Observable.of(this.data);
+  }
+
+  disconnect() {}
+}
+
+class FooterDataSource extends DataSource<any> {
   constructor(private data: KeyValuePair[]) {
     super();
   }

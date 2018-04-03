@@ -17,7 +17,7 @@ buttons on the right
              name="description"
              formControlName="description"
              placeholder="Description"
-             onfocus="select();"
+             (ngFocus)="selectIt($event)"
              tabindex="0">
     </mat-form-field>
 
@@ -25,7 +25,8 @@ buttons on the right
       <input matInput id="price"
              class="form-control"
              name="price"
-             onfocus="select();"
+             (ngFocus)="selectIt($event)"
+             (ngBlur)="onPriceBlur($event)"
              formControlName="price"
              placeholder="Price"
              tabindex="0">
@@ -35,7 +36,7 @@ buttons on the right
       <input matInput class="form-control"
              id="quantity"
              name="quantity"
-             onfocus="select();"
+             (ngFocus)="selectIt($event)"
              placeholder="Qty."
              formControlName="quantity"
              tabindex="0">
@@ -45,7 +46,7 @@ buttons on the right
       <input matInput class="form-control"
              id="instructions"
              name="instructions"
-             onfocus="select();"
+             (ngFocus)="selectIt($event)"
              formControlName="instructions"
              placeholder="Instructions"
              tabindex="0">
@@ -57,11 +58,15 @@ buttons on the right
             (click)="onSave()" tabindex="0">
       <mat-icon>done</mat-icon>
     </button>
-    <button mat-icon-button class="undo"
-            title="Undo" (click)="onUndo()"
+
+    <button mat-icon-button
+            class="undo"
+            title="Undo"
+            (click)="onUndo()"
             [disabled]="!itemForm.dirty">
       <mat-icon>undo</mat-icon>
     </button>
+
     <button mat-icon-button class="add"
             tabindex="0" title="Add"
             (keydown.Space)="onAdd()"

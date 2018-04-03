@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, Input, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
-import { ChangeBasis, Helpers, ItemBase, Order, Session, Settings, TipBasis } from '../model';
+import { ChangeBasis, Helpers, ItemBase, Session, Settings, TipBasis } from '../model';
 import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
+import { combineLatest } from 'rxjs/observable/combineLatest';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Component({
@@ -18,9 +18,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   settings: Settings;
   tipOptions: TipBasis[];
   changeOptions: ChangeBasis[];
-  // orders: Order[] = [];
   items: BehaviorSubject<ItemBase[]>;
-  // subSettings: Subscription;
   zone: NgZone;
   ref: ChangeDetectorRef;
   subscriptions: Subscription[] = [];
@@ -37,14 +35,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.items = new BehaviorSubject<ItemBase[]>([]);
   }
 
-  subscribeAll() {
+  subscribeAll(): Promise<void> {
 
-    const promise: Promise<any> = new Promise<void>(() => {
+    return new Promise<void>(() => {
       this.subscriptions.push(this.service.showIntro.subscribe(obs => this.showIntro = obs));
-      this.subscriptions.push(this.service.changeOptions.subscribe(obs => this.changeOptions = obs));
-      this.subscriptions.push(this.service.tipOptions.subscribe(obs => this.tipOptions = obs));
       this.subscriptions.push(this.service.settings.subscribe(obs => this.settings = obs));
-      this.subscriptions.push(Observable.zip(
+      this.subscriptions.push(combineLatest(
         this.service.allOrders,
         this.service.allItems,
         this.service.settings,
@@ -53,13 +49,12 @@ export class HomeComponent implements OnInit, OnDestroy {
           return new Session(this.service, settings, orders, items, this.helpers);
         })
         .subscribe(session => this.session = session));
-      // this.subscriptions.push(this.service.allOrders.subscribe(obs => this.orders = obs));
     });
-    promise.catch(err => console.log(`home subscribeAll err: ${err}`));
   }
 
   ngOnInit() {
-    this.subscribeAll();
+    this.subscribeAll()
+      .then(() => {}, err => console.log(`home subscribeAll err: ${err}`));
   }
 
   ngOnDestroy() {

@@ -1,14 +1,7 @@
 import { Injectable, Inject, OnDestroy } from '@angular/core';
-import { AngularFireAction, AngularFireDatabase, AngularFireList, AngularFireObject, PathReference, QueryFn } from 'angularfire2/database';
-import 'rxjs/add/operator/take';
-import * as firebase from 'firebase';
-import { Query } from 'firebase/database';
-import { queryDef } from '@angular/core/src/view/query';
-import {Observable} from 'rxjs/Observable';
-import DataSnapshot = firebase.database.DataSnapshot;
+import { AngularFireDatabase, AngularFireList, AngularFireObject, QueryFn } from 'angularfire2/database';
+import * as firebase from 'firebase/database';
 import { isNullOrUndefined } from 'util';
-import ThenableReference = firebase.database.ThenableReference;
-import Reference = firebase.storage.Reference;
 
 @Injectable()
 
@@ -26,6 +19,7 @@ export class DataProviderService implements OnDestroy {
   private MSG_OBJECT = 'object';
   private MSG_QUERY = 'query';
   private MSG_REMOVE = 'remove';
+  private MSG_REMOVECHILD = 'remove_child';
   private MSG_UPDATE = 'update';
   private MSG_DISCONNECT = 'goOffline';
   private MSG_CONNECT = 'goOnline';
@@ -109,6 +103,18 @@ export class DataProviderService implements OnDestroy {
   query<T>(path: string, query: QueryFn): AngularFireList<T> {
 
     return this.db.list<T>(path, query);
+  }
+
+  removeChild(path: string, childId: string): Promise<any> {
+    return this.db.database.ref(path).child(childId).remove()
+      .then(() =>  {
+        if (this.LOG) {
+          this.logSuccess(this.MSG_REMOVECHILD, path, childId);
+        }
+      }, err => {
+        this.logFailure(this.MSG_REMOVECHILD, path, childId, err);
+        throw (err);
+      });
   }
 
   remove(path: string): Promise<any> {

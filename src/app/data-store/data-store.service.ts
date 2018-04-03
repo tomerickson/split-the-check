@@ -3,23 +3,10 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { DataProviderService } from '../data-provider/data-provider.service';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import 'rxjs/add/observable/combineLatest';
-import 'rxjs/add/observable/fromPromise';
-import 'rxjs/add/operator/defaultIfEmpty';
-import 'rxjs/add/operator/do';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/first';
-import 'rxjs/add/operator/materialize'
-import 'rxjs/add/operator/publishReplay';
-import 'rxjs/add/operator/reduce';
-import 'rxjs/add/operator/share';
-import 'rxjs/add/operator/toPromise';
-import 'rxjs/observable/ConnectableObservable'
-import { BoundObject, ChangeBasis, Helpers, Item, ItemBase, Order, OrderBase, Settings, TipBasis } from '../model';
+import { ChangeBasis, Helpers, Item, ItemBase, Order, OrderBase, Settings, TipBasis } from '../model';
 import { Subscription } from 'rxjs/Subscription';
-import 'rxjs/add/observable/from';
 import { AngularFireDatabase } from 'angularfire2/database';
-import ThenableReference = firebase.database.ThenableReference;
+import { ThenableReference } from '@firebase/database-types';
 
 const PATH_ORDERS = '/orders';
 const PATH_ITEMS = '/items';
@@ -225,7 +212,10 @@ export class DataStoreService implements OnDestroy {
   }
 
   removeOrder(key: string) {
-    this.service.remove(this.buildPath(PATH_ORDERS, key));
+    let promise: Promise<void> = null;
+    this.service.remove(this.buildPath(PATH_ORDERS, key))
+      .then(() => promise = this.removeItems(key));
+    return promise;
   }
 
   getOrder(key: string): Observable<OrderBase> {
@@ -255,12 +245,19 @@ export class DataStoreService implements OnDestroy {
 
   addItem(item: ItemBase): ThenableReference {
     delete item.key;
-    return this.service.query<ItemBase>(PATH_ITEMS, ref => ref.orderByChild('orderId')
-      .equalTo(item.orderId)).push(item);
+    // return this.service.query<ItemBase>(PATH_ITEMS, ref => ref.orderByChild('orderId').equalTo(item.orderId)).push(item);
+    return this.service.push(PATH_ITEMS, item);
   }
 
-  removeItem(itemId: string) {
-    return this.service.remove(this.buildPath(PATH_ITEMS, itemId));
+  removeItems(orderId: string) {
+    return this.service.query<ItemBase>(PATH_ITEMS, ref => ref.orderByChild('orderId')
+      .equalTo(orderId)).remove();
+  }
+
+  removeItem(itemId: string): Promise<any> {
+    return this.service.removeChild(PATH_ITEMS, itemId);
+    // return this.service.db.database.ref(PATH_ITEMS).child(itemId).remove();
+    // return this.service.remove(this.buildPath(PATH_ITEMS, itemId));
   }
 
   updateItem(item: ItemBase) {

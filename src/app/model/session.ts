@@ -7,12 +7,14 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Settings } from './settings';
 
 export class KeyValuePair {
-  name: string
-  value: string
+  name: string;
+  value: number;
+  pattern: string;
 
-  constructor(name: string, value: string) {
+  constructor(name: string, value: number, pattern?: string) {
     this.name = name;
     this.value = value;
+    this.pattern = pattern;
   }
 }
 export class Session {
@@ -88,14 +90,14 @@ export class Session {
   //
   private buildTotals(): KeyValuePair[] {
     const result = [];
-    result.push(new KeyValuePair('Orders', this.orders.length.toFixed(0)));
-    result.push(new KeyValuePair('Subtotal', this.subtotal.toFixed(2)));
-    result.push(new KeyValuePair('Sales Tax', this.tax.toFixed(2)));
-    result.push(new KeyValuePair('Tip', this.tip.toFixed(2)));
-    result.push(new KeyValuePair('Delivery', this.delivery.toFixed(2)));
-    result.push(new KeyValuePair('Total', this.total.toFixed(2)));
-    result.push(new KeyValuePair('Paid', this.paid.toFixed(2)));
-    result.push(new KeyValuePair('Over / Short', this.overShort.toFixed(2)));
+    result.push(new KeyValuePair('Orders', this.orders.length, '1.0'));
+    result.push(new KeyValuePair('Subtotal', this.subtotal, '1.2-2'));
+    result.push(new KeyValuePair('Sales Tax', this.tax, '1.2-2'));
+    result.push(new KeyValuePair('Tip', this.tip, '1.2-2'));
+    result.push(new KeyValuePair('Delivery', this.delivery, '1.2-2'));
+    result.push(new KeyValuePair('Total', this.total, '1.2-2'));
+    result.push(new KeyValuePair('Paid', this.paid, '1.2-2'));
+    result.push(new KeyValuePair('Over / Short', (0 - this.overShort), '1.2-2'));
     return result;
   }
 }

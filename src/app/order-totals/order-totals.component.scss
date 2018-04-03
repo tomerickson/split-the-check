@@ -1,3 +1,4 @@
+
 #remove-orders {
   margin-left: auto;
   margin-right: auto;
@@ -8,11 +9,6 @@
 
 #footer {
   margin: 0 auto;
-}
-.mat-grid-tile {
-  div.app-label {
-  text-align: right;
-  }
 }
 /*
 .mat-table, .cdk-table {
@@ -37,9 +33,12 @@
   }
 }
 */
-
-.mat-table, .mat-row {
-  flex-basis: 100%;
+.mat-table {
+  width: 100%;
+}
+.mat-row {
+  min-height: 28px;
+  align-content: center;
 }
 .mat-column-name {
   align-self: stretch;
@@ -48,44 +47,19 @@
   align-self: stretch;
   text-align: right;
 }
+.mat-cell {
+  vertical-align: middle;
+}
 
 .short {
   color: red;
 }
 
 div#totals {
-  width: 10em;
+  width: 13em;
   float: right;
   margin-right: 5px;
   margin-top: 1ex;
   padding: 0;
   border-style: none;
-  box-shadow: 5px 5px 3px #cccccc;
-  background-color: white;
-  z-index: 10;
-  table {
-    font-family: "Segoe UI", "Tahoma", sans-serif;
-    font-size: 10pt;
-    width: 100%;
-    thead {
-      th {
-        text-align: center;
-      }
-    }
-    tbody {
-      tr:nth-child(odd) {
-        background-color: ghostwhite;
-      }
-      tr {
-        td {
-          white-space: nowrap;
-          text-align: right;
-          width: 30%;
-        }
-      }
-    }
-    tfoot {
-      text-align: center;
-    }
   }
-}

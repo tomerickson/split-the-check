@@ -14,8 +14,6 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 export class OrderComponent implements OnInit, OnDestroy, OnChanges {
 
-  @Input() orderId: string;
- //  @Input() orderSubject: BehaviorSubject<Order>;
   @Input() index: number;
   @Input() session: Session;
   @Input() settings: Settings;
@@ -68,11 +66,6 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
               paid: this.padIt(change.currentValue.paid)
             });
             break;
-          case 'orderId':
-            if (change.currentValue) {
-              this.orderId = change.currentValue;
-            }
-            break;
           default:
             break;
         }
@@ -118,8 +111,7 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   removeOrder() {
-    this.service.removeOrder(this.orderId);
-    return this.service.getItems(this.orderId);
+    this.service.removeOrder(this.order.key);
   }
 
   padIt(value: string) {
@@ -135,7 +127,7 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
 
   addItem() {
     const item = new ItemBase();
-    item.orderId = this.orderId;
+    item.orderId = this.order.key;
     this.service.addItem(item);
   }
 

@@ -1,90 +1,32 @@
-<!-- Running totals -->
-<mat-table [dataSource]="totals">
-  <ng-container matColumnDef="name">
-   <!--
-    <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
-    -->
-    <mat-cell *matCellDef="let row">{{row.name}}</mat-cell>
-  </ng-container>
-  <ng-container matColumnDef="value">
-    <!--
-    <mat-header-cell *matHeaderCellDef>Value</mat-header-cell>
-    -->
-    <mat-cell *matCellDef="let row">{{row.value}}</mat-cell>
-  </ng-container>
-  <!--
-  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-  -->
-  <mat-row *matRowDef="let data; columns: displayedColumns;"></mat-row>
-</mat-table>
-<mat-grid-list cols="2" rowHeight="4:1">
-  <mat-grid-tile colspan="2"><mat-label>Totals</mat-label></mat-grid-tile>
-  <mat-grid-tile><div class="app-label">Orders:</div></mat-grid-tile>
-  <mat-grid-tile><div class="app-label" *ngIf="session.orders">{{session.orders.length}}</div></mat-grid-tile>
-  <mat-grid-tile><mat-label>Subtotal:</mat-label></mat-grid-tile>
-  <mat-grid-tile><mat-label *ngIf="items">{{subtotal | number:'1.2-2'}}</mat-label></mat-grid-tile>
-  <mat-grid-tile><mat-label>Sales Tax:</mat-label></mat-grid-tile>
-  <mat-grid-tile><mat-label>{{tax | number:'1.2-2'}}</mat-label></mat-grid-tile>
-</mat-grid-list>
-<div id="totals">
-  <table>
-  <thead>
-  <tr>
-    <th colspan="2">Totals</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr>
-    <td>Orders:</td>
-    <td><span *ngIf="session.orders">{{session.orders.length}}</span></td>
-  </tr>
-  <tr>
-    <td>Subtotal:</td>
-    <td><span *ngIf="items">{{subtotal | number:'1.2-2'}}</span>
-    </td>
-  </tr>
-  <tr>
-    <td>Sales Tax:</td>
-    <td>
-      <span>{{tax | number:'1.2-2'}}</span>
-    </td>
-  </tr>
-  <tr>
-    <td>Tip:</td>
-    <td><span>{{tip | number:'1.2-2'}}</span>
-    </td>
-  </tr>
-  <tr>
-    <td>Delivery:</td>
-    <td>
-      <span>{{delivery | number:'1.2-2'}}</span>
-    </td>
-  </tr>
-  <tr>
-    <td>Total:</td>
-    <td><span>{{total | number:'1.2-2'}}</span>
-    </td>
-  </tr>
-  <tr>
-    <td>Paid:</td>
-    <td><span>{{paid | number:'1.2-2'}}</span></td>
-  </tr>
-  <tr>
-    <td>Over / Short:</td>
-    <td><span [class.short]="underPaid">
-      {{overShort | number:'1.2-2'}}
-    </span></td>
-  </tr>
-  </tbody>
-  <tfoot>
-  <tr>
-    <td colspan="2">
-      <span>Remove orders</span>
-      <mat-icon id="remove-orders"
-               title="Clear all Orders."
-               (click)="clearOrder($event)">remove_circle</mat-icon>
-    </td>
-  </tr>
-  </tfoot>
-</table>
+<div id="totals" class="mat-elevation-z4">
+  <!-- Running totals -->
+  <mat-table [dataSource]="totals">
+    <ng-container matColumnDef="name">
+      <!--
+       <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+       -->
+      <mat-cell *matCellDef="let row">{{row.name}}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="value">
+      <!--
+      <mat-header-cell *matHeaderCellDef>Value</mat-header-cell>
+      -->
+      <mat-cell *matCellDef="let row"
+                class="(row.name === 'Over / Short' && row.value < 0) ? 'short' : ''">{{row.value | number: row.pattern}}</mat-cell>
+    </ng-container>
+
+    <mat-row *matRowDef="let data; columns: displayedColumns;"></mat-row>
+  </mat-table>
+  <mat-table [dataSource]="footer">
+    <ng-container matColumnDef="name">
+      <mat-cell *matCellDef="let row">
+        <span>Remove orders</span>
+        <mat-icon id="remove-orders"
+                  title="Clear all Orders."
+                  (click)="clearOrder($event)">remove_circle
+        </mat-icon>
+      </mat-cell>
+    </ng-container>
+    <mat-row *matRowDef="let data; columns: footerColumns;"></mat-row>
+  </mat-table>
 </div>
