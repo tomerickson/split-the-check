@@ -40,19 +40,6 @@ export class DataStoreService implements OnDestroy {
   private readonly helpers: Helpers;
 
   db: AngularFireDatabase;
-  // settings: Settings = null;
-
-  buildPath = function (...x): string {
-    // const args: string[] = [].concat.call(arguments);
-    let result = '';
-    for (let i = 0; i < arguments.length; i++) {
-      if (!(result === '')) {
-        result = result + '/';
-      }
-      result = result + arguments[i];
-    }
-    return result;
-  };
 
   constructor(private svc: DataProviderService) {
     this.service = svc;
@@ -294,5 +281,16 @@ export class DataStoreService implements OnDestroy {
       this.initializeSetting<TipBasis>(PATH_DEFAULT_TIP_OPTION, PATH_SETTINGS_TIP_OPTION);
       this.initializeSetting<ChangeBasis>(PATH_DEFAULT_CHANGE_OPTION, PATH_SETTINGS_CHANGE_OPTION);
     });
-  }
+  };
+
+  /**
+   *  buildPath concatenates array elements,
+   *  separating them with a slash, to create a
+   *  path argument for database operations
+   */
+  buildPath = function (...x): string {
+    const delimiter = '/';
+    const rex = RegExp('[\\' + delimiter + ']{2,}', 'g');
+    return x.join(delimiter).replace(rex, delimiter);
+  };
 }
