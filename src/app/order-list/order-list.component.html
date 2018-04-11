@@ -27,7 +27,7 @@
   </ul>
 </section>
 <section *ngIf="session && session.orders">
-  <mat-tab-group class="mat-elevation-z4" dynamicHeight>
+  <mat-tab-group class="mat-elevation-z4 mat-accent" dynamicHeight>
     <mat-tab *ngFor="let order of session.orders;let i = index" label="{{order.name}}">
       <app-order-outlet
         [session]="session"
