@@ -1,7 +1,9 @@
-import { Component, Input, NgZone } from '@angular/core';
+import { AfterViewInit, Component, Input, NgZone, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
 import { Subscription } from 'rxjs/Subscription';
 import { Session, Settings } from '../model';
+import { OrderComponent } from '../order/order.component';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Component({
   selector: 'app-order-list-outlet',
@@ -9,10 +11,12 @@ import { Session, Settings } from '../model';
   templateUrl: 'order-list.component.html'
 })
 
-export class OrderListComponent {
+export class OrderListComponent implements OnInit, AfterViewInit {
   @Input() settings: Settings;
   @Input() session: Session;
-  // @Input() orders: OrderBase;
+  @ViewChildren(OrderComponent) children: QueryList<OrderComponent>;
+
+  activeChild: BehaviorSubject<OrderComponent>;
   service: DataStoreService;
   zone: NgZone;
   subscriptions: Subscription[] = [];
@@ -20,6 +24,14 @@ export class OrderListComponent {
   constructor(svc: DataStoreService, zone: NgZone) {
     this.service = svc;
     this.zone = zone;
+  }
+
+  ngAfterViewInit() {
+    // debugger;
+  }
+
+  ngOnInit() {
+
   }
 
   onRemove(index: number) {

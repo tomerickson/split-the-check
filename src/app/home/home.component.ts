@@ -39,7 +39,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     return new Promise<void>(() => {
       this.subscriptions.push(this.service.showIntro.subscribe(obs => this.showIntro = obs));
-      this.subscriptions.push(this.service.settings.subscribe(obs => this.settings = obs));
+      this.subscriptions.push(this.service.tipOptions.subscribe(obs => this.tipOptions = obs));
+      this.subscriptions.push(this.service.changeOptions.subscribe(obs => this.changeOptions = obs));
+      this.subscriptions.push(this.service.settings.subscribe(obs => {
+        this.settings = obs;
+            }));
       this.subscriptions.push(combineLatest(
         this.service.allOrders,
         this.service.allItems,

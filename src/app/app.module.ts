@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common'
+import { NgModule, LOCALE_ID } from '@angular/core';
+import { CommonModule, registerLocaleData } from '@angular/common'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http'
@@ -26,6 +26,8 @@ import { TestComponent } from './test.component';
 import { HeaderComponent } from './header/header.component';
 import { HomeComponent } from './home/home.component';
 import { Helpers } from './model';
+import deDe from '@angular/common/locales/de';
+registerLocaleData(deDe);
 
 export const appRoutes: Routes = [
   {
@@ -74,7 +76,8 @@ export const appRoutes: Routes = [
     AngularFireAuthModule,
     AngularFireDatabaseModule],
 
-  providers: [DataStoreService, DataProviderService, Helpers, ValidationService],
+  providers: [DataStoreService, DataProviderService, Helpers, ValidationService,
+    {provide: LOCALE_ID, useValue: 'en-US'}],
 
   bootstrap: [AppComponent]
 })

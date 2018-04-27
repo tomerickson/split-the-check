@@ -1,4 +1,16 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChange,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
 import { ChangeBasis, Helpers, ItemBase, Order, OrderBase, Session, Settings } from '../model';
 import 'rxjs/add/operator/defaultIfEmpty';
@@ -12,7 +24,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
   styleUrls: ['order.component.scss']
 })
 
-export class OrderComponent implements OnInit, OnDestroy, OnChanges {
+export class OrderComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
 
   @Input() index: number;
   @Input() session: Session;
@@ -21,7 +33,7 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
   @Output() removeTrigger: EventEmitter<number> = new EventEmitter();
   @Output() changeTrigger = new EventEmitter();
   @Output() addTrigger = new EventEmitter<string>();
-
+  @ViewChild('orderedBy') nameControl;
   builder: FormBuilder;
   orderForm: FormGroup;
   numberPattern = '^\\d+(\\.\\d+)?$';
@@ -41,6 +53,10 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
     this.helpers = hlp;
     this.builder = fb;
     this.buildForm();
+  }
+
+  ngAfterViewInit() {
+    this.nameControl.nativeElement.focus();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -94,13 +110,14 @@ export class OrderComponent implements OnInit, OnDestroy, OnChanges {
 
   setChangeBasis() {
     this.subscriptions.push(this.service.changeOption
-        .subscribe(obs => this.changeBasis = obs));
+      .subscribe(obs => this.changeBasis = obs));
   }
 
   buildForm() {
     this.orderForm = new FormGroup({
       'name': new FormControl('', {validators: Validators.required, updateOn: 'blur'}),
-      'paid': new FormControl('', {validators: [Validators.required, Validators.pattern(this.numberPattern)], updateOn: 'blur'})});
+      'paid': new FormControl('', {validators: [Validators.required, Validators.pattern(this.numberPattern)], updateOn: 'blur'})
+    });
 
     this.orderForm.valueChanges.filter(() => this.orderForm.valid && this.orderForm.dirty)
       .subscribe((order: Order) => {

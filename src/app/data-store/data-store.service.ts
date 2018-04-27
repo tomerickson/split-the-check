@@ -11,7 +11,7 @@ import { ThenableReference } from '@firebase/database-types';
 const PATH_ORDERS = '/orders';
 const PATH_ITEMS = '/items';
 const PATH_SETTINGS = '/settings';
-const PATH_DEFAULTS = '/defaults';
+// const PATH_DEFAULTS = '/defaults';
 const PATH_DEFAULT_TAX_PERCENT = 'defaults/taxPercent';
 const PATH_DEFAULT_TIP_PERCENT = '/defaults/tipPercent';
 const PATH_DEFAULT_DELIVERY = '/defaults/delivery';
@@ -26,9 +26,11 @@ const PATH_SETTINGS_TIP_OPTION = '/settings/tipOption';
 const PATH_SETTINGS_CHANGE_OPTION = '/settings/changeOption';
 const PATH_ENUM_CHANGE_OPTIONS = '/enumerations/changeOptions';
 const PATH_ENUM_TIP_OPTIONS = '/enumerations/tipOptions';
+/*
 const PATH_ITEM = '/items/[key]/[value]';
 const FILTER_DEFAULT_OPTION = {orderByChild: 'isDefault', equalTo: true, limitToFirst: 1};
 const CHANGE_OPTIONS_SORT = {orderByChild: 'value'};
+*/
 
 
 @Injectable()
@@ -53,6 +55,14 @@ export class DataStoreService implements OnDestroy {
       }, err => console.error(`datastore initialize failed: ${err}`));
   }
 
+  get tipOptions(): Observable<TipBasis[]> {
+    return this.db.list<TipBasis>(PATH_ENUM_TIP_OPTIONS).valueChanges();
+  }
+
+  get changeOptions(): Observable<ChangeBasis[]> {
+    return this.db.list<ChangeBasis>(PATH_ENUM_CHANGE_OPTIONS).valueChanges();
+  }
+
   get settings(): Observable<Settings> {
     return this.db.object<Settings>(PATH_SETTINGS).valueChanges();
   }
@@ -62,13 +72,9 @@ export class DataStoreService implements OnDestroy {
       .map(snapshots => snapshots.map(action => ({key: action.key, ...action.payload.val()})));
   }
 
-  get orderCount(): Observable<number> {
-    return this.db.list<OrderBase>(PATH_ORDERS).valueChanges().map(obs => obs.length);
-  }
-
   get allOrders(): Observable<Order[]> {
 
-    const orders = this.db.list<Order>(PATH_ORDERS)
+    return this.service.getList<Order>(PATH_ORDERS)
       .snapshotChanges()
       .map(snapshots => snapshots.map(action => {
         const order: Order = new Order(action.key, this.unwrappedSettings, this, this.subtotal, this.helpers);
@@ -77,7 +83,6 @@ export class DataStoreService implements OnDestroy {
         order.paid = action.payload.val().paid;
         return order;
       }));
-    return orders;
   }
 
   get changeOption(): BehaviorSubject<ChangeBasis> {
@@ -88,14 +93,6 @@ export class DataStoreService implements OnDestroy {
   get tipOption(): BehaviorSubject<TipBasis> {
     return <BehaviorSubject<TipBasis>>this.service.getObject<TipBasis>(PATH_DEFAULT_TIP_OPTION)
       .valueChanges();
-  }
-
-  get changeOptions(): Observable<ChangeBasis[]> {
-    return this.service.getList<ChangeBasis>(PATH_ENUM_CHANGE_OPTIONS).valueChanges();
-  }
-
-  get tipOptions(): Observable<TipBasis[]> {
-    return this.service.getList<TipBasis>(PATH_ENUM_TIP_OPTIONS).valueChanges();
   }
 
   get taxPercent(): Observable<number> {
@@ -140,15 +137,6 @@ export class DataStoreService implements OnDestroy {
       .reduce((sum, vlu) => sum + vlu, 0));
   }
 
-  get overShort(): Observable<number> {
-    return Observable.combineLatest(this.total, this.paid, ((t, p) => t - p));
-  }
-
-  deliveryShare(amt: Observable<number>): Observable<number> {
-    return Observable.combineLatest(amt, this.subtotal, this.delivery,
-      ((a, t, delivery) => delivery * a / t));
-  }
-
   ngOnDestroy() {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
     this.subscriptions = [];
@@ -159,32 +147,11 @@ export class DataStoreService implements OnDestroy {
   }
 
   setShowIntro(choice: boolean) {
-    this.service.set(PATH_SETTINGS_SHOW_INTRO, choice);
-  }
-
-  setTaxPercent(value: number) {
-    return this.service.set(PATH_SETTINGS_TAX_PERCENT, value);
-  }
-
-  setTipPercent(value: number) {
-    return this.service.set(PATH_SETTINGS_TIP_PERCENT, value);
-  }
-
-  setDelivery(value: number) {
-    return this.service.set(PATH_SETTINGS_DELIVERY, value);
-  }
-
-  setChangeBasis(changeBasis) {
-    return this.service.set(PATH_SETTINGS_CHANGE_OPTION, changeBasis);
-  }
-
-  setTipBasis(tipBasis: TipBasis) {
-    this.service.set(PATH_SETTINGS_TIP_OPTION, tipBasis);
+    return this.service.set(PATH_SETTINGS_SHOW_INTRO, choice);
   }
 
   wrapUp() {
-    this.service.remove(PATH_ORDERS);
-    this.service.remove(PATH_ITEMS);
+    return this.service.remove(PATH_ORDERS).then(() => this.service.remove(PATH_ITEMS));
   }
 
   /**
@@ -194,29 +161,18 @@ export class DataStoreService implements OnDestroy {
   addOrder(): ThenableReference {
     const order = new OrderBase();
     delete order.key;
-    // return this.service.getList<OrderBase>(PATH_ORDERS).push(order);
-    return this.service.db.list(PATH_ORDERS).push(order);
+    return this.service.getList<OrderBase>(PATH_ORDERS).push(order);
   }
 
   removeOrder(key: string) {
     let promise: Promise<void> = null;
     this.service.remove(this.buildPath(PATH_ORDERS, key))
-      .then(() => promise = this.removeItems(key));
+      .then(
+        () => promise = this.removeItems(key)
+        , (err) => console.log(`removeOrder failed on key ${key} with error ${err}.`));
     return promise;
   }
 
-  getOrder(key: string): Observable<OrderBase> {
-    /*
-    const result: AngularFireObject<OrderBase> = this.service.getObject<OrderBase>(this.buildPath(PATH_ORDERS, key));
-    const result2 = this.ExtractIDomainObjectFromSnapshot(result);
-    return result2;*/
-    let result: Observable<OrderBase>;
-    return this.service.getObject<OrderBase>(this.buildPath(PATH_ORDERS, key))
-      .snapshotChanges()
-      .map(action => result = {key: action.key, ...action.payload.val()});
-  }
-
-  //
   getItems(orderId: string): Observable<ItemBase[]> {
 
     let result: Observable<ItemBase[]>;
@@ -232,19 +188,23 @@ export class DataStoreService implements OnDestroy {
 
   addItem(item: ItemBase): ThenableReference {
     delete item.key;
-    // return this.service.query<ItemBase>(PATH_ITEMS, ref => ref.orderByChild('orderId').equalTo(item.orderId)).push(item);
     return this.service.push(PATH_ITEMS, item);
   }
 
-  removeItems(orderId: string) {
-    return this.service.query<ItemBase>(PATH_ITEMS, ref => ref.orderByChild('orderId')
-      .equalTo(orderId)).remove();
+  removeItems(orderId: string): Promise<void> {
+
+    return this.service.query<ItemBase>(PATH_ITEMS, ref => ref
+      .orderByChild('orderId')
+      .equalTo(orderId)).snapshotChanges()
+      .forEach(items => items.forEach(item => {
+          return this.service.remove(this.buildPath(PATH_ITEMS, item.key));
+        }
+      ));
   }
 
   removeItem(itemId: string): Promise<any> {
     return this.service.removeChild(PATH_ITEMS, itemId);
-    // return this.service.db.database.ref(PATH_ITEMS).child(itemId).remove();
-    // return this.service.remove(this.buildPath(PATH_ITEMS, itemId));
+
   }
 
   updateItem(item: ItemBase) {
@@ -273,6 +233,13 @@ export class DataStoreService implements OnDestroy {
    */
   initialize(): Promise<any> {
 
+    return this.initializeSetting<number>(PATH_DEFAULT_TAX_PERCENT, PATH_SETTINGS_TAX_PERCENT)
+      .then(() => this.initializeSetting<number>(PATH_DEFAULT_TIP_PERCENT, PATH_SETTINGS_TIP_PERCENT)
+        .then(() => this.initializeSetting<number>(PATH_DEFAULT_DELIVERY, PATH_SETTINGS_DELIVERY)
+          .then(() => this.initializeSetting<boolean>(PATH_DEFAULT_SHOW_INTRO, PATH_SETTINGS_SHOW_INTRO)
+            .then(() => this.initializeSetting<TipBasis>(PATH_DEFAULT_TIP_OPTION, PATH_SETTINGS_TIP_OPTION)
+              .then(() => this.initializeSetting<ChangeBasis>(PATH_DEFAULT_CHANGE_OPTION, PATH_SETTINGS_CHANGE_OPTION))))));
+    /*
     return new Promise<void>(() => {
       this.initializeSetting<number>(PATH_DEFAULT_TAX_PERCENT, PATH_SETTINGS_TAX_PERCENT);
       this.initializeSetting<number>(PATH_DEFAULT_TIP_PERCENT, PATH_SETTINGS_TIP_PERCENT);
@@ -280,7 +247,7 @@ export class DataStoreService implements OnDestroy {
       this.initializeSetting<boolean>(PATH_DEFAULT_SHOW_INTRO, PATH_SETTINGS_SHOW_INTRO);
       this.initializeSetting<TipBasis>(PATH_DEFAULT_TIP_OPTION, PATH_SETTINGS_TIP_OPTION);
       this.initializeSetting<ChangeBasis>(PATH_DEFAULT_CHANGE_OPTION, PATH_SETTINGS_CHANGE_OPTION);
-    });
+    });*/
   };
 
   /**
