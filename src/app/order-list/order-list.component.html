@@ -1,0 +1,42 @@
+<!--
+<mat-card>
+  <mat-card-title>
+    <mat-card-subtitle>
+      Orders
+    </mat-card-subtitle>
+  </mat-card-title>
+  -->
+<section class="mat-body-1">
+  <mat-label>Orders</mat-label>
+</section>
+<section class="mat-body-1">
+  <ul>
+    <li>
+      Click this symbol&nbsp;
+      <mat-icon class="add" aria-hidden="true" (click)="addOrder()">add_circle
+      </mat-icon>&nbsp; or use the spacebar to add an order or an item.
+    </li>
+    <li>
+      Click on this symbol &nbsp;
+      <mat-icon class="remove" aria-hidden="true">remove_circle
+      </mat-icon>&nbsp;below to remove an order or item.
+    </li>
+    <li>
+      Use the tab key and shift-tab key to navigate forward and backward.
+    </li>
+  </ul>
+</section>
+<section *ngIf="session && session.orders">
+  <mat-tab-group class="mat-elevation-z4 mat-accent" dynamicHeight>
+    <mat-tab *ngFor="let order of session.orders;let i = index" label="{{order.name}}">
+      <app-order-outlet
+        [session]="session"
+        [settings]="settings"
+        [index]="i"
+        [order]="order"
+        (removeTrigger)="onRemove(i)"
+        (addTrigger)="addOrder($event)">
+      </app-order-outlet>
+    </mat-tab>
+  </mat-tab-group>
+</section>

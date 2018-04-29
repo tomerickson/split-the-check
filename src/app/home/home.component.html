@@ -1,0 +1,62 @@
+<app-header [showIntro]="showIntro"></app-header>
+<div id="wrapper">
+  <div id="home-card">
+    <section id="intro" [hidden]="!showIntro">
+      <div id="prairiedog">
+        <!--<img title="Prairie dog standing" src="../../assets/images/prairiedog.jpg">-->
+      </div>
+      <div>
+        <p class="mat-body-1">How often has this happened to you:</p>
+        <p class="mat-body-1">
+          It's 11:30 in the morning, and you're starting to think about lunch.&ensp;When you make the mistake of saying
+          "I'm hungry" heads start popping up above the cubicle walls like prairie dogs at a coyote convention.
+        </p>
+        <p class="mat-body-1">
+          Pretty soon your co-workers are swarming your cube, waving menus and twenty-dollar bills, shouting orders,
+          condiment choices, special dietary requirements, and food preparation instructions.&ensp;Since you opened your
+          mouth first, you're elected to take
+          the delivery order, account for the money, phone it in, get all the condiments and preparation instructions
+          straight, and make change for all the twenties.&ensp;And what thanks do you get for your efforts?&ensp;Harry
+          orders a 4.75
+          burger, drops a five, winks and says "Forget the change."
+        </p>
+        <p class="mat-body-1">
+          When it's all over you're out five bucks because nobody accounted for tax and tip.</p>
+        <p class="mat-body-1">You can't make your co-workers any less boorish, but you can make your life easier by
+          using the "Split the
+          Check" lunch order form below.</p>
+      </div>
+    </section>
+    <section class="mat-body-1" id="instructions" [hidden]="!showIntro">
+      <ul>
+        <li>
+          Enter your local sales tax percent, tip percent, and delivery charge if applicable.
+        </li>
+        <li>
+          You can calculate the tip on gross (including tax) or net (excluding tax), depending on how generous you feel.
+        </li>
+        <li>The delivery charge is allocated in proportion to the dollar value of each order.</li>
+        <li>You can give change to the nearest penny, nickel, dime, quarter or dollar.</li>
+      </ul>
+    </section>
+    <section *ngIf="showIntro && settings">
+      <app-settings [settings]="settings"
+                    [tipOptions]="tipOptions"
+                    [changeOptions]="changeOptions"
+                    (pushSettings)="reset($event)">
+      </app-settings>
+    </section>
+    <section *ngIf="settings && session">
+      <app-order-list-outlet *ngIf="session.orders"
+                             [settings]="settings"
+                             [session]="session">
+      </app-order-list-outlet>
+    </section>
+  </div>
+  <div>
+    <app-order-totals *ngIf="settings && session"
+                      [settings]="settings"
+                      [session]="session">
+    </app-order-totals>
+  </div>
+</div>

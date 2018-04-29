@@ -1,0 +1,21 @@
+<mat-card>
+  <mat-card-title>
+    <mat-card-subtitle>Items</mat-card-subtitle>
+  </mat-card-title>
+  <mat-card-content>
+    <app-item-outlet *ngFor="let item of order.items; let i = index;"
+                     [item]="item"
+                     [index]="i"
+                     (addTrigger)="addItem($event)"
+                     (removeTrigger)="removeItem($event)">
+    </app-item-outlet>
+  </mat-card-content>
+  <mat-card-actions *ngIf="order.items.length === 0">
+    <button mat-icon-button class="add"
+            tabindex="0" title="Add"
+            (keydown.Space)="addItem()"
+            (click)="addItem($event)">
+      <mat-icon>add_circle</mat-icon>
+    </button>
+  </mat-card-actions>
+</mat-card>

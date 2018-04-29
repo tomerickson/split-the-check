@@ -1,0 +1,16 @@
+.add {
+  &:hover {
+    color: rgba(0, 192, 0, 1);
+  }
+}
+
+.remove {
+  &:hover {
+    color: rgba(192, 0, 0, 1);
+  }
+}
+
+ul#orders {
+  margin-left: -2em;
+  list-style-type: none;
+}
