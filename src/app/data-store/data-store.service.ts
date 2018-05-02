@@ -56,11 +56,13 @@ export class DataStoreService implements OnDestroy {
   }
 
   get tipOptions(): Observable<TipBasis[]> {
-    return this.db.list<TipBasis>(PATH_ENUM_TIP_OPTIONS).valueChanges();
+    return this.service.query<TipBasis>(PATH_ENUM_TIP_OPTIONS,
+        ref => ref.orderByChild('value')).valueChanges();
   }
 
   get changeOptions(): Observable<ChangeBasis[]> {
-    return this.db.list<ChangeBasis>(PATH_ENUM_CHANGE_OPTIONS).valueChanges();
+    return this.service.query<ChangeBasis>(PATH_ENUM_CHANGE_OPTIONS,
+            ref => ref.orderByChild('value')).valueChanges();
   }
 
   get settings(): Observable<Settings> {

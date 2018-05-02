@@ -1,12 +1,12 @@
 import {
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChanges, ViewRef
+    AfterViewChecked,
+    Component,
+    EventEmitter,
+    Input,
+    OnChanges,
+    OnDestroy,
+    Output,
+    SimpleChanges
 } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -20,7 +20,7 @@ import { Subscription } from 'rxjs/Subscription';
   styleUrls: ['settings.component.scss']
 })
 
-export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
+export class SettingsComponent implements OnDestroy, OnChanges, AfterViewChecked {
 
   @Input() settings: Settings;
   @Input() tipOptions: TipBasis[];
@@ -51,7 +51,14 @@ export class SettingsComponent implements OnInit, OnDestroy, OnChanges {
     this.buildForm();
   }
 
-  ngOnInit() {
+  ngAfterViewChecked() {
+    /*
+    let element: HTMLSelectElement;
+    element = <HTMLSelectElement> this.changeForm['changeOptions'].nativeElement;
+    element.options.selectedIndex = this.changeOptions.indexOf(this.changeOption);
+    element = <HTMLSelectElement> this.changeForm['tipOptions'].nativeElement;
+    element.options.selectedIndex = this.tipOptions.indexOf(this.tipOption);
+    */
   }
 
   ngOnDestroy() {
