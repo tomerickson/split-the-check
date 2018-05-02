@@ -1,5 +1,5 @@
 import { DataStoreService } from '../data-store/data-store.service';
-import { OrderBase } from './orderbase';
+import { OrderType } from './orderType';
 import { Item } from './item';
 import { Helpers } from './helpers';
 import { Settings } from './settings';
@@ -8,7 +8,7 @@ import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import { OnDestroy } from '@angular/core';
 
-export class Order implements OnDestroy, OrderBase {
+export class Order implements OnDestroy, OrderType {
   private _items: Item[] = [];
   private _session: Session;
   private readonly service: DataStoreService;

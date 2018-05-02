@@ -2,7 +2,7 @@
 * Commonly used re-entrant methods.
 */
 import 'rxjs/add/operator/defaultIfEmpty';
-import { ItemBase } from './itembase';
+import { ItemType } from './itemType';
 import { Observable } from 'rxjs/Observable';
 import { Settings } from './settings';
 import { Injectable } from '@angular/core';
@@ -14,10 +14,10 @@ export class Helpers {
 
   /**
    * Subtotals
-   * @param {ItemBase[]} items
+   * @param {ItemType[]} items
    * @returns {number}
    */
-  public static subtotal(items: ItemBase[]): number {
+  public static subtotal(items: ItemType[]): number {
     if (items && items.length) {
       return items.map(item => (item.price || 0) * (item.quantity || 0))
         .reduce((sum, vlu) => sum + vlu, 0);

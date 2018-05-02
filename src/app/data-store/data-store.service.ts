@@ -3,7 +3,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { DataProviderService } from '../data-provider/data-provider.service';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { ChangeBasis, Helpers, Item, ItemBase, Order, OrderBase, Settings, TipBasis } from '../model';
+import { ChangeBasis, Helpers, Item, ItemType, Order, OrderType, Settings, TipBasis } from '../model';
 import { Subscription } from 'rxjs/Subscription';
 import { AngularFireDatabase } from 'angularfire2/database';
 import { ThenableReference } from '@firebase/database-types';
@@ -69,8 +69,8 @@ export class DataStoreService implements OnDestroy {
     return this.db.object<Settings>(PATH_SETTINGS).valueChanges();
   }
 
-  get allItems(): Observable<ItemBase[]> {
-    return this.db.list<ItemBase>(PATH_ITEMS).snapshotChanges()
+  get allItems(): Observable<ItemType[]> {
+    return this.db.list<ItemType>(PATH_ITEMS).snapshotChanges()
       .map(snapshots => snapshots.map(action => ({key: action.key, ...action.payload.val()})));
   }
 
@@ -161,9 +161,9 @@ export class DataStoreService implements OnDestroy {
    * @returns {string}
    */
   addOrder(): ThenableReference {
-    const order = new OrderBase();
+    const order = new OrderType();
     delete order.key;
-    return this.service.getList<OrderBase>(PATH_ORDERS).push(order);
+    return this.service.getList<OrderType>(PATH_ORDERS).push(order);
   }
 
   removeOrder(key: string) {
@@ -175,10 +175,10 @@ export class DataStoreService implements OnDestroy {
     return promise;
   }
 
-  getItems(orderId: string): Observable<ItemBase[]> {
+  getItems(orderId: string): Observable<ItemType[]> {
 
-    let result: Observable<ItemBase[]>;
-    return this.service.query<ItemBase>(PATH_ITEMS, ref => ref.orderByChild('orderId').equalTo(orderId)).snapshotChanges()
+    let result: Observable<ItemType[]>;
+    return this.service.query<ItemType>(PATH_ITEMS, ref => ref.orderByChild('orderId').equalTo(orderId)).snapshotChanges()
       .map(snapshots => snapshots.map(action => result = {key: action.key, ...action.payload.val()}));
   }
 
@@ -188,14 +188,14 @@ export class DataStoreService implements OnDestroy {
     return this.service.updateObject<Order>(this.buildPath(PATH_ORDERS, key), updates);
   }
 
-  addItem(item: ItemBase): ThenableReference {
+  addItem(item: ItemType): ThenableReference {
     delete item.key;
     return this.service.push(PATH_ITEMS, item);
   }
 
   removeItems(orderId: string): Promise<void> {
 
-    return this.service.query<ItemBase>(PATH_ITEMS, ref => ref
+    return this.service.query<ItemType>(PATH_ITEMS, ref => ref
       .orderByChild('orderId')
       .equalTo(orderId)).snapshotChanges()
       .forEach(items => items.forEach(item => {
@@ -209,7 +209,7 @@ export class DataStoreService implements OnDestroy {
 
   }
 
-  updateItem(item: ItemBase) {
+  updateItem(item: ItemType) {
     const itemKey = item.key;
     delete item.key;
     return this.service.updateObject<Item>(this.buildPath(PATH_ITEMS, itemKey), item);

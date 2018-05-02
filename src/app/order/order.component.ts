@@ -12,7 +12,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
-import { ChangeBasis, Helpers, ItemBase, Order, OrderBase, Session, Settings } from '../model';
+import { ChangeBasis, Helpers, ItemType, Order, OrderType, Session, Settings } from '../model';
 import 'rxjs/add/operator/defaultIfEmpty';
 import { Subscription } from 'rxjs/Subscription';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
@@ -100,10 +100,10 @@ export class OrderComponent implements OnInit, AfterViewInit, OnDestroy, OnChang
   getItems(orderId: string) {
     this.subscriptions
       .push(this.service.getItems(orderId)
-        .subscribe((obs: ItemBase[]) => this.setItems(obs)));
+        .subscribe((obs: ItemType[]) => this.setItems(obs)));
   }
 
-  setItems(items: ItemBase[]) {
+  setItems(items: ItemType[]) {
     this.order.items = items;
     this.positive = this.order.overShort >= 0;
   }
@@ -143,7 +143,7 @@ export class OrderComponent implements OnInit, AfterViewInit, OnDestroy, OnChang
   }
 
   addItem() {
-    const item = new ItemBase();
+    const item = new ItemType();
     item.orderId = this.order.key;
     this.service.addItem(item);
   }

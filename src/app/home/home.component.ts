@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, Input, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
-import { ChangeBasis, Helpers, ItemBase, Session, Settings, TipBasis } from '../model';
+import { ChangeBasis, Helpers, ItemType, Session, Settings, TipBasis } from '../model';
 import { Subscription } from 'rxjs/Subscription';
 import { combineLatest } from 'rxjs/observable/combineLatest';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -18,7 +18,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   settings: Settings;
   tipOptions: TipBasis[];
   changeOptions: ChangeBasis[];
-  items: BehaviorSubject<ItemBase[]>;
+  items: BehaviorSubject<ItemType[]>;
   zone: NgZone;
   ref: ChangeDetectorRef;
   subscriptions: Subscription[] = [];
@@ -32,7 +32,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.helpers = hlp;
     this.zone = zn;
     this.ref = rf;
-    this.items = new BehaviorSubject<ItemBase[]>([]);
+    this.items = new BehaviorSubject<ItemType[]>([]);
   }
 
   subscribeAll(): Promise<void> {

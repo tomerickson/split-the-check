@@ -1,7 +1,7 @@
 
 import { DataStoreService } from '../data-store/data-store.service';
-import { ItemBase } from './itembase';
-import { OrderBase } from '../model';
+import { ItemType } from './itemType';
+import { OrderType } from '../model';
 import { Helpers } from './helpers';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Settings } from './settings';
@@ -23,12 +23,12 @@ export class Session {
   private service: DataStoreService;
   public title = 'Split the Check';
   public ready: BehaviorSubject<boolean>;
-  public orders: OrderBase[] = [];
-  public items: ItemBase[];
+  public orders: OrderType[] = [];
+  public items: ItemType[];
   public helpers: Helpers;
   public settings: Settings;
 
-  constructor(private svc: DataStoreService, settings: Settings, orders: OrderBase[], items: ItemBase[], helpers: Helpers) {
+  constructor(private svc: DataStoreService, settings: Settings, orders: OrderType[], items: ItemType[], helpers: Helpers) {
     this.service = svc;
     this.orders = orders;
     this.items = items;

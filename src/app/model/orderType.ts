@@ -1,10 +1,10 @@
 import { BoundObject } from './boundobject';
-import { ItemBase } from './itembase';
+import { ItemType } from './itemType';
 
-export class OrderBase extends BoundObject {
+export class OrderType extends BoundObject {
   name = 'New Order'; // Name of person who placed order
   paid = 0; // Amount paid
-  items: ItemBase[];
+  items: ItemType[];
   constructor() {
     super();
   }

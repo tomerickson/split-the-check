@@ -8,6 +8,6 @@ export * from './defaults';
 export * from './helpers';
 export * from './IDefault';
 export * from './boundobject';
-export * from './itembase';
-export * from './orderbase';
+export * from './itemType';
+export * from './orderType';
 export * from './ObjectFactory';

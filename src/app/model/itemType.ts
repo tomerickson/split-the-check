@@ -1,6 +1,6 @@
 import { BoundObject } from './boundobject';
 
-export class ItemBase extends BoundObject {
+export class ItemType extends BoundObject {
   orderId: string;
   description: string;
   quantity: number;

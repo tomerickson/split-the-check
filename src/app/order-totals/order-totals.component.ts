@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { Helpers, ItemBase, KeyValuePair, Session, Settings } from '../model';
+import { Helpers, ItemType, KeyValuePair, Session, Settings } from '../model';
 import { DataStoreService } from '../data-store/data-store.service';
 import { Subscription } from 'rxjs/Subscription';
 import { DialogsService } from '../dialogs/dialogs.service';
@@ -21,7 +21,7 @@ export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
   service: DataStoreService;
   subSettings: Subscription;
   dialogs: DialogsService;
-  items: ItemBase[];
+  items: ItemType[];
   subtotal: number;
   tax: number;
   tip: number;

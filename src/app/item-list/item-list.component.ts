@@ -3,7 +3,7 @@
  */
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChange, SimpleChanges } from '@angular/core';
 import { DataSource } from '@angular/cdk/collections';
-import { Item, ItemBase, Order } from '../model';
+import { Item, ItemType, Order } from '../model';
 import { DataStoreService } from '../data-store/data-store.service';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
@@ -70,7 +70,7 @@ export class ItemListComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   addItem() {
-    const item = new ItemBase();
+    const item = new ItemType();
     item.orderId = this.order.key;
     this.service.addItem(item);
   }
