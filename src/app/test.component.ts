@@ -1,9 +1,9 @@
 import { AfterContentInit, Component, Inject, OnDestroy } from '@angular/core';
 import { DataStoreService } from './data-store/data-store.service';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { BehaviorSubject } from 'rxjs';
 import { DataProviderService } from './data-provider/data-provider.service';
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import { FirebaseObjectObservable } from 'angularfire2/database-deprecated';
 import { AngularFireObject } from 'angularfire2/database';
 

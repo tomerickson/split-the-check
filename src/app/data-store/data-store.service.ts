@@ -168,7 +168,7 @@ export class DataStoreService implements OnDestroy {
 
   removeOrder(key: string) {
     let promise: Promise<void> = null;
-    this.service.remove(this.buildPath(PATH_ORDERS, key))
+    this.service.remove(`${PATH_ORDERS}/${key}`)
       .then(
         () => promise = this.removeItems(key)
         , (err) => console.log(`removeOrder failed on key ${key} with error ${err}.`));
@@ -185,7 +185,7 @@ export class DataStoreService implements OnDestroy {
   // Order level queries
 
   updateOrder(key: string, updates) {
-    return this.service.updateObject<Order>(this.buildPath(PATH_ORDERS, key), updates);
+    return this.service.updateObject<Order>(`${PATH_ORDERS}/${key}`, updates);
   }
 
   addItem(item: ItemType): ThenableReference {
@@ -199,7 +199,7 @@ export class DataStoreService implements OnDestroy {
       .orderByChild('orderId')
       .equalTo(orderId)).snapshotChanges()
       .forEach(items => items.forEach(item => {
-          return this.service.remove(this.buildPath(PATH_ITEMS, item.key));
+        return this.service.remove(`${PATH_ITEMS}/${item.key}`);
         }
       ));
   }
@@ -212,7 +212,7 @@ export class DataStoreService implements OnDestroy {
   updateItem(item: ItemType) {
     const itemKey = item.key;
     delete item.key;
-    return this.service.updateObject<Item>(this.buildPath(PATH_ITEMS, itemKey), item);
+    return this.service.updateObject<Item>(`${PATH_ITEMS}/${itemKey}`, item);
   }
 
   /**
@@ -241,25 +241,5 @@ export class DataStoreService implements OnDestroy {
           .then(() => this.initializeSetting<boolean>(PATH_DEFAULT_SHOW_INTRO, PATH_SETTINGS_SHOW_INTRO)
             .then(() => this.initializeSetting<TipBasis>(PATH_DEFAULT_TIP_OPTION, PATH_SETTINGS_TIP_OPTION)
               .then(() => this.initializeSetting<ChangeBasis>(PATH_DEFAULT_CHANGE_OPTION, PATH_SETTINGS_CHANGE_OPTION))))));
-    /*
-    return new Promise<void>(() => {
-      this.initializeSetting<number>(PATH_DEFAULT_TAX_PERCENT, PATH_SETTINGS_TAX_PERCENT);
-      this.initializeSetting<number>(PATH_DEFAULT_TIP_PERCENT, PATH_SETTINGS_TIP_PERCENT);
-      this.initializeSetting<number>(PATH_DEFAULT_DELIVERY, PATH_SETTINGS_DELIVERY);
-      this.initializeSetting<boolean>(PATH_DEFAULT_SHOW_INTRO, PATH_SETTINGS_SHOW_INTRO);
-      this.initializeSetting<TipBasis>(PATH_DEFAULT_TIP_OPTION, PATH_SETTINGS_TIP_OPTION);
-      this.initializeSetting<ChangeBasis>(PATH_DEFAULT_CHANGE_OPTION, PATH_SETTINGS_CHANGE_OPTION);
-    });*/
-  };
-
-  /**
-   *  buildPath concatenates array elements,
-   *  separating them with a slash, to create a
-   *  path argument for database operations
-   */
-  buildPath = function (...x): string {
-    const delimiter = '/';
-    const rex = RegExp('[\\' + delimiter + ']{2,}', 'g');
-    return x.join(delimiter).replace(rex, delimiter);
   };
 }

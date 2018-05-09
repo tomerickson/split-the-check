@@ -31,7 +31,7 @@ export class DataProviderService implements OnDestroy {
     this.db = fb;
     try {
       this.db.database.goOnline();
-      this.logSuccess(this.MSG_CONNECT, '', '', this.db.app.name);
+      this.logSuccess(this.MSG_CONNECT, '', '', this.db.database.app.name);
     } catch (e) {
         this.logFailure(this.MSG_CONNECT, '', '', JSON.stringify(e));
         throw(e);

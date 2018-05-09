@@ -4,9 +4,10 @@ import { Item } from './item';
 import { Helpers } from './helpers';
 import { Settings } from './settings';
 import { Session } from './session';
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 
 export class Order implements OnDestroy, OrderType {
   private _items: Item[] = [];
@@ -66,7 +67,7 @@ export class Order implements OnDestroy, OrderType {
     this.service = svc;
     this.helpers = hlp;
     this.settings = set;
-    tot.map(obs => this.grandTotal = obs);
+    tot.pipe(map(obs => this.grandTotal = obs));
     this.subscribeAll();
   }
 
