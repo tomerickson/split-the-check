@@ -1,9 +1,8 @@
 import { ChangeDetectorRef, Component, Input, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
-import { ChangeBasis, Helpers, ItemType, Session, Settings, TipBasis } from '../model';
+import { ChangeBasis, Helpers, ItemType, Order, Session, Settings, TipBasis } from '../model';
 import { Subscription } from 'rxjs/Subscription';
-import { combineLatest } from 'rxjs/observable/combineLatest';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'app-home',
@@ -16,9 +15,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   service: DataStoreService;
   session: Session;
   settings: Settings;
+  subtotal = 0;
+  items: ItemType[];
+  orders: Order[] = [];
   tipOptions: TipBasis[];
   changeOptions: ChangeBasis[];
-  items: BehaviorSubject<ItemType[]>;
   zone: NgZone;
   ref: ChangeDetectorRef;
   subscriptions: Subscription[] = [];
@@ -32,16 +33,26 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.helpers = hlp;
     this.zone = zn;
     this.ref = rf;
-    this.items = new BehaviorSubject<ItemType[]>([]);
   }
 
   subscribeAll(): Promise<void> {
 
     return new Promise<void>(() => {
-      this.subscriptions.push(this.service.showIntro.subscribe(obs => this.showIntro = obs));
-      this.subscriptions.push(this.service.tipOptions.subscribe(obs => this.tipOptions = obs));
-      this.subscriptions.push(this.service.changeOptions.subscribe(obs => this.changeOptions = obs));
+        this.subscriptions.push(this.service.showIntro.subscribe(obs => this.showIntro = obs));
+        this.subscriptions.push(this.service.tipOptions.subscribe(obs => this.tipOptions = obs));
+        this.subscriptions.push(this.service.changeOptions.subscribe(obs => this.changeOptions = obs));
+        this.subscriptions.push(this.service.settings.subscribe(obs => this.settings = obs));
+        this.subscriptions.push(this.service.allItems.subscribe(obs => {
+            this.items = obs;
+            this.subtotal = 0;
+            this.items.map(item =>
+                this.subtotal += item.price * item.quantity);
+        }));
+        this.subscriptions.push(this.service.allOrders.subscribe(obs => this.orders = obs));
+    });
+      /*
       this.subscriptions.push(this.service.settings.subscribe(obs => {
+
         this.settings = obs;
             }));
       this.subscriptions.push(combineLatest(
@@ -53,12 +64,12 @@ export class HomeComponent implements OnInit, OnDestroy {
           return new Session(this.service, settings, orders, items, this.helpers);
         })
         .subscribe(session => this.session = session));
-    });
+    });*/
   }
 
   ngOnInit() {
     this.subscribeAll()
-      .then(() => {}, err => console.log(`home subscribeAll err: ${err}`));
+      .then(() => console.log('home subscribeAll succeeded.'), err => console.log(`home subscribeAll err: ${err}`));
   }
 
   ngOnDestroy() {

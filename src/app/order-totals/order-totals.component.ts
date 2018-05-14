@@ -1,10 +1,11 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { Helpers, ItemType, KeyValuePair, Session, Settings } from '../model';
+import { Helpers, ItemType, KeyValuePair, OrderType, Session, Settings } from '../model';
 import { DataStoreService } from '../data-store/data-store.service';
 import { Subscription } from 'rxjs/Subscription';
 import { DialogsService } from '../dialogs/dialogs.service';
 import { DataSource } from '@angular/cdk/collections';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
+import 'rxjs/add/observable/of';
 
 @Component({
   selector: 'app-order-totals',
@@ -15,13 +16,15 @@ import { Observable } from 'rxjs/Observable';
 export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
 
   @Input() settings: Settings;
-  @Input() session: Session;
+  // @Input() session: Session;
+  @Input() orders: OrderType[];
+  @Input() items: ItemType[];
+  session: Session;
   helpers: Helpers;
   subscriptions: Subscription[] = [];
   service: DataStoreService;
-  subSettings: Subscription;
   dialogs: DialogsService;
-  items: ItemType[];
+  // items: ItemType[];
   subtotal: number;
   tax: number;
   tip: number;
@@ -39,15 +42,27 @@ export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
     this.service = svc;
     this.helpers = hlp;
     this.dialogs = dlg;
+    this.totals = null;
   }
 
   ngOnChanges(changes: SimpleChanges) {
 
+    /*
     for (const propName in changes) {
       if (changes.hasOwnProperty(propName)) {
         const change = changes[propName];
 
         switch (propName) {
+            case 'orders':
+                if (change.currentValue) {
+                    this.buildSession();
+                }
+                break;
+            case 'items':
+              if (change.currentValue) {
+                this.buildSession();
+              }
+              break;
           case 'session':
             if (change.currentValue) {
               this.session = change.currentValue;
@@ -59,10 +74,12 @@ export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
             break;
           case 'settings':
             this.settings = change.currentValue;
+            this.buildSession();
             break;
         }
       }
-    }
+    }*/
+    this.buildSession();
   }
 
   ngOnInit() {
@@ -70,15 +87,15 @@ export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.unsubscribeAll();
+   // this.unsubscribeAll();
   }
 
   initialize() {
-    this.subscribeAll();
+    // this.subscribeAll();
     // this.totals = new TotalsDataSource(this.session.totals);
     this.footer = new FooterDataSource([new KeyValuePair('', 0)]);
   }
-
+/*
   subscribeAll() {
 
     this.subscriptions.push(this.service.allItems
@@ -97,7 +114,7 @@ export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
   unsubscribeAll() {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
     this.subscriptions = [];
-  }
+  }*/
 
   clearOrder(e: Event) {
     const message = 'This action cannot be undone.<br>Are you sure you want to do this?';
@@ -108,6 +125,21 @@ export class OrderTotalsComponent implements OnChanges, OnInit, OnDestroy {
           e.preventDefault();
         }
       });
+  }
+
+  buildSession() {
+      this.session = new Session(this.service, this.settings, this.orders, this.items, this.helpers);
+      this.subtotal = Helpers.subtotal(this.items);
+      this.tax = Helpers.tax(this.subtotal, this.settings);
+      this.tip = Helpers.tip(this.subtotal, this.tax, this.settings);
+      this.delivery = Helpers.delivery(this.subtotal, this.subtotal, this.settings);
+      this.total = Helpers.total(this.subtotal, this.tax, this.tip, this.delivery);
+      this.overShort = Helpers.overShort(this.paid, this.total, this.settings, false);
+      this.underPaid = this.overShort < 0;
+      this.totals = new TotalsDataSource(this.session.totals);
+      let amt = 0;
+      this.orders.forEach(ord => amt += ord.paid);
+      this.paid = amt;
   }
 }
 

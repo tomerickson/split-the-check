@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
 import { ChangeBasis, Helpers, ItemType, Order, OrderType, Session, Settings } from '../model';
+import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/defaultIfEmpty';
 import { Subscription } from 'rxjs/Subscription';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
@@ -27,7 +28,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 export class OrderComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
 
   @Input() index: number;
-  @Input() session: Session;
+  @Input() totals: number;
   @Input() settings: Settings;
   @Input() order: Order;
   @Output() removeTrigger: EventEmitter<number> = new EventEmitter();
@@ -39,9 +40,6 @@ export class OrderComponent implements OnInit, AfterViewInit, OnDestroy, OnChang
   numberPattern = '^\\d+(\\.\\d+)?$';
   name: string;
   paid: number;
-  count: number;
-  total: number;
-  overShort: number;
   positive: boolean;
   helpers: Helpers;
   service: DataStoreService;

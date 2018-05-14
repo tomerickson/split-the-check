@@ -1,7 +1,7 @@
 import { Injectable, Inject, OnDestroy } from '@angular/core';
 import { AngularFireDatabase, AngularFireList, AngularFireObject, QueryFn } from 'angularfire2/database';
-import * as firebase from 'firebase/database';
 import { isNullOrUndefined } from 'util';
+import { ThenableReference } from '@firebase/database-types';
 
 @Injectable()
 
@@ -65,8 +65,8 @@ export class DataProviderService implements OnDestroy {
     // return result;
   }
 
-  push<T>(path: string, value: T): firebase.database.ThenableReference {
-    let result: firebase.database.ThenableReference = null;
+  push<T>(path: string, value: T): ThenableReference {
+    let result: ThenableReference = null;
     try {
       result = this.db.database.ref(path).push(value);
       this.logSuccess(this.MSG_PUSH, path, value, 'key: ' + result.key);

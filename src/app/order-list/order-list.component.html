@@ -26,12 +26,12 @@
     </li>
   </ul>
 </section>
-<section *ngIf="session && session.orders">
+<section *ngIf="orders">
   <mat-tab-group class="mat-elevation-z4 mat-accent" dynamicHeight>
-    <mat-tab *ngFor="let order of session.orders;let i = index" label="{{order.name}}">
+    <mat-tab *ngFor="let order of orders;let i = index" label="{{order.name}}">
       <app-order-outlet
-        [session]="session"
         [settings]="settings"
+        [totals]="totals"
         [index]="i"
         [order]="order"
         (removeTrigger)="onRemove(i)"

@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, Input, NgZone, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { DataStoreService } from '../data-store/data-store.service';
 import { Subscription } from 'rxjs/Subscription';
-import { Session, Settings } from '../model';
+import { OrderType, Settings } from '../model';
 import { OrderComponent } from '../order/order.component';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
@@ -13,7 +13,8 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 export class OrderListComponent implements OnInit, AfterViewInit {
   @Input() settings: Settings;
-  @Input() session: Session;
+  @Input() orders: OrderType[];
+  @Input() totals: number;
   @ViewChildren(OrderComponent) children: QueryList<OrderComponent>;
 
   activeChild: BehaviorSubject<OrderComponent>;
