@@ -40,12 +40,8 @@
   min-height: 28px;
   align-content: center;
 }
-.mat-column-name {
-  align-self: stretch;
-}
 .mat-column-value {
-  align-self: stretch;
-  text-align: right;
+  justify-content: flex-end;
 }
 .mat-cell {
   vertical-align: middle;

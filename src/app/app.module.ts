@@ -1,10 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule, LOCALE_ID } from '@angular/core';
-import { CommonModule, registerLocaleData } from '@angular/common'
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http'
+import { HttpClientModule } from '@angular/common/http';
+
 import { MaterialDesignModule } from './material-design.module';
 import { AppComponent } from './app.component';
 import { OrderListComponent } from './order-list/order-list.component';
@@ -13,7 +14,7 @@ import { ItemListComponent } from './item-list/item-list.component';
 import { ItemComponent } from './item/item.component';
 import { OrderTotalsComponent } from './order-totals/order-totals.component';
 import { environment } from '../environments/environment';
-import { AngularFireModule } from 'angularfire2';
+import { AngularFireModule, FirebaseOptionsToken, FirebaseAppNameToken, FirebaseAppConfigToken } from 'angularfire2';
 import { AngularFireAuthModule } from 'angularfire2/auth';
 import { AngularFireDatabaseModule } from 'angularfire2/database'
 import { DataStoreService } from './data-store/data-store.service';
@@ -26,8 +27,8 @@ import { TestComponent } from './test.component';
 import { HeaderComponent } from './header/header.component';
 import { HomeComponent } from './home/home.component';
 import { Helpers } from './model';
-import deDe from '@angular/common/locales/de';
-registerLocaleData(deDe);
+// import deDe from '@angular/common/locales/de';
+// registerLocaleData(deDe);
 
 export const appRoutes: Routes = [
   {
@@ -72,12 +73,16 @@ export const appRoutes: Routes = [
     HttpClientModule,
     RouterModule.forRoot(appRoutes, {enableTracing: true}),
     MaterialDesignModule,
-    AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFireModule/* .initializeApp(environment.firebaseConfig),*/,
     AngularFireAuthModule,
     AngularFireDatabaseModule],
 
-  providers: [DataStoreService, DataProviderService, Helpers, ValidationService,
-    {provide: LOCALE_ID, useValue: 'en-US'}],
+  providers: [
+    { provide: FirebaseOptionsToken, useValue: environment.firebaseConfig },
+    { provide: FirebaseAppNameToken, useValue: 'split-the-check' },
+    { provide: FirebaseAppConfigToken, useValue: undefined },
+    DataStoreService, DataProviderService, Helpers, ValidationService
+  ],
 
   bootstrap: [AppComponent]
 })
