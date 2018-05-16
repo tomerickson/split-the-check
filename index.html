@@ -1,15 +1,26 @@
 <!DOCTYPE html><html><head>
-  <meta charset="utf-8">
-  <title>Split The Check</title>
-  <base href="https://tomerickson.github.io/split-the-check/">
+    <meta charset="utf-8">
+    <title>Split The Check</title>
+    <base href="https://tomerickson.github.io/split-the-check/">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
+    <script>
+        // See http://www.backalleycoder.com/2016/05/13/sghpa-the-single-page-app-hack-for-github-pages/
+        (function() {
+            var redirect = sessionStorage.redirect;
+            delete sessionStorage.redirect;
+            if (redirect && redirect != location.href) {
+                history.replaceState(null, null, redirect);
+            }
+        })();
+    </script>
 <link rel="stylesheet" href="styles.23b5d920eb8bea403b71.css"></head>
+
 <body class="mat-app-background">
-  <app-root></app-root>
+    <app-root></app-root>
 
 
-<script type="text/javascript" src="runtime.6afe30102d8fe7337431.js"></script><script type="text/javascript" src="polyfills.7ba304721abae30c1bec.js"></script><script type="text/javascript" src="scripts.03e042f1f102bf0e2ed8.js"></script><script type="text/javascript" src="main.18df2e307b771793091f.js"></script></body></html>
+<script type="text/javascript" src="runtime.6afe30102d8fe7337431.js"></script><script type="text/javascript" src="polyfills.7ba304721abae30c1bec.js"></script><script type="text/javascript" src="scripts.03e042f1f102bf0e2ed8.js"></script><script type="text/javascript" src="main.74562596d8eaaee988ea.js"></script></body></html>
