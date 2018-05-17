@@ -179,7 +179,7 @@ export class DataStoreService implements OnDestroy {
 
     let result: Observable<ItemType[]>;
     return this.service.query<ItemType>(PATH_ITEMS, ref => ref.orderByChild('orderId').equalTo(orderId)).snapshotChanges()
-      .map(snapshots => snapshots.map(action => result = {key: action.key, ...action.payload.val()}));
+      .map(snapshots => snapshots.map(action =>( {key: action.key, ...action.payload.val()})));
   }
 
   // Order level queries
