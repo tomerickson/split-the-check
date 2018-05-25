@@ -18,8 +18,6 @@ export class HeaderComponent implements OnInit, OnDestroy, OnChanges {
 
   constructor(public service: DataStoreService) {
     this.toggle = new EventEmitter<boolean>(false);
-    // this.subShowIntro = this.service.showIntro.subscribe(obs => this.showIntro);
-    // this.subscriptions.push(this.service.showIntro.subscribe(obs => this.showIntro));
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -28,7 +26,6 @@ export class HeaderComponent implements OnInit, OnDestroy, OnChanges {
         const chng = changes[propName];
         const cur = JSON.stringify(chng.currentValue);
         const prev = JSON.stringify(chng.previousValue);
-        // console.log(`header ${propName}: currentValue = ${cur}, previousValue = ${prev}`);
       }
     }
   }
@@ -39,7 +36,6 @@ export class HeaderComponent implements OnInit, OnDestroy, OnChanges {
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.subscriptions = [];
-    // this.subShowIntro.unsubscribe();
   }
 
   toggleIntro(value) {

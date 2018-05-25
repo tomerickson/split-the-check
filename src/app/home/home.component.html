@@ -32,8 +32,8 @@
                 <li>You can give change to the nearest penny, nickel, dime, quarter or dollar.</li>
             </ul>
         </section>
-        <section *ngIf="showIntro && settings">
-            <app-settings [settings]="settings" [tipOptions]="tipOptions" [changeOptions]="changeOptions" (pushSettings)="reset($event)">
+        <section *ngIf="settings">
+            <app-settings [hidden]="!showIntro" [settings]="settings" [tipOptions]="tipOptions" [changeOptions]="changeOptions" (pushSettings)="reset($event)">
             </app-settings>
         </section>
         <section *ngIf="settings && orders">

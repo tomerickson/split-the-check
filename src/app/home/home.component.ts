@@ -50,21 +50,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         }));
         this.subscriptions.push(this.service.allOrders.subscribe(obs => this.orders = obs));
     });
-      /*
-      this.subscriptions.push(this.service.settings.subscribe(obs => {
-
-        this.settings = obs;
-            }));
-      this.subscriptions.push(combineLatest(
-        this.service.allOrders,
-        this.service.allItems,
-        this.service.settings,
-        // this.service.settings,
-        (orders, items, settings) => {
-          return new Session(this.service, settings, orders, items, this.helpers);
-        })
-        .subscribe(session => this.session = session));
-    });*/
   }
 
   ngOnInit() {
